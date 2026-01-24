@@ -431,7 +431,7 @@
         },
         heal: {
             name: "Heal", 
-            cost: 1, 
+            cost: 3, 
             parent: 'strike', 
             unlocked: false, 
             mp: 20000, 
@@ -441,7 +441,7 @@
         },
         mindshield: {
             name: "Mind Shield", 
-            cost: 10, 
+            cost: 3, 
             parent: 'heal', 
             unlocked: false, 
             mp: 5000, 
@@ -451,7 +451,7 @@
         },
         dualheal: {
             name: "Dual Heal", 
-            cost: 10, 
+            cost: 6, 
             parent: 'mindshield', 
             unlocked: false, 
             mp: 5000, 
@@ -983,7 +983,7 @@ function formatNumber(num) {
 
             updateUI(); 
         } else {
-            log("You lack the coin, this world is not for the poor...", "#ff4757");
+            log("You lack the coin. This world is not for the poor...", "#ff4757");
         }
     }
     function positionTooltip(e, tip) {
@@ -1097,11 +1097,11 @@ function renderCombatButtons() {
 }
 
 
-    function openTree() {
-        document.getElementById('main-controls').classList.add('hidden');
-        document.getElementById('tree-view').classList.remove('hidden');
-        renderTree();
-    }
+function openTree() {
+    document.getElementById('main-controls').classList.add('hidden');
+    document.getElementById('tree-view').classList.remove('hidden');
+    renderTree();
+}
 function renderTree() {
     const container = document.getElementById('tree-nodes'); 
     container.innerHTML = "";
@@ -1159,7 +1159,7 @@ function buySkill(id) {
     if (nextEnemyOverride) {
         selectedEnemy = enemies.find(e => e.name.toLowerCase() === nextEnemyOverride.toLowerCase());
         nextEnemyOverride = null; // Reset so only one fight is forced
-        if (selectedEnemy) log("An admin force has manifested a specific entity...", "var(--gold)");
+        if (selectedEnemy) log("You have encountered an unnatural enemy...", "var(--gold)");
     }
 
     // 2. STANDARD SELECTION (If no override exists)
@@ -1237,10 +1237,8 @@ function buySkill(id) {
         }
 
         if (s.burn) enemy.burn = s.burn;
-
-        // FIX: Using p.hp and p.sn (the correct property names)
         if (s.heal) p.hp = Math.min(p.mhp, (p.hp || 0) + s.heal);
-        if (s.san) p.sn = Math.min(p.msn, (p.sn || 0) + s.san); // Uses s.san from skillTree
+        if (s.san) p.sn = Math.min(p.msn, (p.sn || 0) + s.san);
 
         if (p.sn > 0) p.mp = Math.min(p.mmp, p.mp + 5);
 
@@ -1276,7 +1274,7 @@ function addExperience(amt) {
     if (amt >= 0) {
         log(`Gained ${formatNumber(amt)} EXP.`, "lime");
     } else {
-        log(`The void consumes your knowledge... (${formatNumber(amt)} EXP)`, "var(--sanity)");
+        log(`Lux consumes your knowledge... (${formatNumber(amt)} EXP)`, "var(--sanity)");
     }
 
     // 3. Level-Up Logic (Only runs if we have enough EXP to level up)
@@ -1384,7 +1382,7 @@ function importSave(event) {
 
             // CRITICAL: Block any file that doesn't have version 8
             if (!loadedData.v || loadedData.v < 8) {
-                log("Error: Legacy save files (Pre-V8) are no longer compatible.", "#ff4757");
+                log("Error: Legacy save files are not compatible.", "#ff4757");
                 // Reset the file input so the user can try again
                 event.target.value = ""; 
                 return;
@@ -1402,9 +1400,9 @@ function importSave(event) {
             });
 
             updateUI();
-            log(`Save loaded! Welcome back to LV ${p.lv}.`, "var(--unlocked)");
+            log(`Save loaded! Welcome back to day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
         } catch (err) {
-            log("Error: This file is corrupted or not a valid .urpg file.", "#ff4757");
+            log("Error: This file is either corrupted or not a valid .urpg file.", "#ff4757");
         }
     };
     reader.readAsText(file);

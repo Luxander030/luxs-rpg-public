@@ -28,3 +28,10 @@ Basic information:
 - LV: Gain a skill point when you level up
 - SP: Skill points
 - Spells: Deal damage or heal or increase your sanity. Better spells require more skill points.
+
+
+Detailed information:
+- Save Exporting/Importing
+    - You can export your current save as a **.urpg** file.
+    - You can import your **.urpg** save file.
+        - Word of warning: Legacy save files do not work with newer versions.
