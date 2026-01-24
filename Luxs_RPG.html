@@ -350,78 +350,122 @@
 
     const skillTree = {
         strike: { name: "Strike", cost: 0, parent: null, unlocked: true, dmg: 12 },
-        fire1: { name: "Fireball I", cost: 1, parent: 'strike', unlocked: false, mp: 15, dmg: 22, burn: 3 },
-        fire2: { name: "Fireball II", cost: 2, parent: 'fire1', unlocked: false, mp: 20, dmg: 45, burn: 4 },
-        fire3: { name: "Fireball III", cost: 3, parent: 'fire2', unlocked: false, mp: 30, dmg: 68, burn: 5},
-        fire4: { name: "Fireball IV", cost: 4, parent: 'fire3', unlocked: false, mp: 40, dmg: 91, burn: 6},
-        fire5: { name: "Fireball V", cost: 5, parent: 'fire4', unlocked: false, mp: 60, dmg: 119, burn: 7},
-        bolt1: { name: "Thunderbolt I", cost: 2, parent: 'fire5', unlocked: false, mp: 45, dmg: 70 },
-        bolt2: { name: "Thunderbolt II", cost: 3, parent: 'bolt1', unlocked: false, mp: 60, dmg: 140 },
-        bolt3: { name: "Thunderbolt III", cost: 4, parent: 'bolt2', unlocked: false, mp: 120, dmg: 280 },
-        bolt4: { name: "Thunderbolt IV", cost: 5, parent: 'bolt3', unlocked: false, mp: 240, dmg: 560 },
-        bolt5: { name: "Thunderbolt V", cost: 6, parent: 'bolt4', unlocked: false, mp: 480, dmg: 600, burn: 1 },
-        fingerofdeath: { name: "Finger of Death I", cost: 3, parent: 'bolt5', unlocked: false, mp: 100, dmg: 250 },
-        fingerofdeath2: {name: "Finger of Death II", cost: 4, parent: 'fingerofdeath', unlocked: false, mp: 200, dmg: 500 },
-        fingerofdeath3: {name: "Finger of Death III", cost: 5, parent: 'fingerofdeath2', unlocked: false, mp: 400, dmg: 1000 },
-        fingerofdeath4: {name: "Finger of Death IV", cost: 6, parent: 'fingerofdeath3', unlocked: false, mp: 800, dmg: 2000 },
-        fingerofdeath5: {name: "Finger of Death V", cost: 7, parent: 'fingerofdeath4', unlocked: false, mp: 1600, dmg: 4000 },
-        siphonray: {name: "Siphon Ray I", cost: 4, parent: 'fingerofdeath5', unlocked: false, mp: 100, dmg: 100, heal: 100 },
-        siphonray2: {name: "Siphon Ray II", cost: 5, parent: 'siphonray', unlocked: false, mp: 200, dmg: 200, heal: 200 },
-        siphonray3: {name: "Siphon Ray III", cost: 6, parent: 'siphonray2', unlocked: false, mp: 400, dmg: 400, heal: 400 },
-        siphonray4: {name: "Siphon Ray IV", cost: 7, parent: 'siphonray3', unlocked: false, mp: 800, dmg: 800, heal: 800 },
-        siphonray5: {name: "Siphon Ray V", cost: 8, parent: 'siphonray4', unlocked: false, mp: 1600, dmg: 1600, heal: 1600 },
-        eldritchblast: {name: "Eldritch Blast I", cost: 5, parent: 'siphonray5', unlocked: false, mp: 100, dmg: 400 },
-        eldritchblast2: {name: "Eldritch Blast II", cost: 6, parent: 'eldritchblast', unlocked: false, mp: 200, dmg: 800 },
-        eldritchblast3: {name: "Eldritch Blast III", cost: 7, parent: 'eldritchblast2', unlocked: false, mp: 400, dmg: 1600 },
-        eldritchblast4: {name: "Eldritch Blast IV", cost: 8, parent: 'eldritchblast3', unlocked: false, mp: 800, dmg: 3200 },
-        eldritchblast5: {name: "Eldritch Blast V", cost: 9, parent: 'eldritchblast4', unlocked: false, mp: 1600, dmg: 6400 },
-        eldritchblast6: {name: "Eldritch Blast VI", cost: 10, parent: 'eldritchblast5', unlocked: false, mp: 3200, dmg: 12800 },
-        eldritchblast7: {name: "Eldritch Blast VII", cost: 11, parent: 'eldritchblast6', unlocked: false, mp: 6400, dmg: 25600 },
-        eldritchblast8: {name: "Eldritch Blast VIII", cost: 12, parent: 'eldritchblast7', unlocked: false, mp: 12800, dmg: 51200 },
-        eldritchblast9: {name: "Eldritch Blast IX", cost: 13, parent: 'eldritchblast8', unlocked: false, mp: 25600, dmg: 102400 },
-        eldritchblast10: {name: "Eldritch Blast X", cost: 14, parent: 'eldritchblast9', unlocked: false, mp: 51200, dmg: 102400, burn: 100 },
+        fireball: {
+            name: "Fireball", 
+            cost: 1, 
+            parent: 'strike', 
+            unlocked: false, 
+            mp: 15, 
+            get dmg() { 
+                return (((p.lv*0.5)*22)+22); 
+            },
+            get burn() {
+                return (p.lv*2);
+            }
+        },
+        thunderbolt: {
+            name: "Thunderbolt", 
+            cost: 2, 
+            parent: 'fireball', 
+            unlocked: false, 
+            mp: 45, 
+            get dmg() { 
+                return (((p.lv*0.5)*70)+70); 
+            }
+        },
+        fingerofdeath: {
+            name: "Finger of Death", 
+            cost: 3, 
+            parent: 'thunderbolt', 
+            unlocked: false, 
+            mp: 100, 
+            get dmg() { 
+                return ((p.lv*250)+250); 
+            }
+        },
+        siphonray: {
+            name: "Siphon Ray", 
+            cost: 4, 
+            parent: 'fingerofdeath', 
+            unlocked: false, 
+            mp: 100, 
+            get dmg() {
+                return ((p.lv*100)+100); 
+            },
+            get heal() { 
+                return ((p.lv*100)+100); 
+            }
+        },
+        eldritchblast: {
+            name: "Eldritch Blast", 
+            cost: 4, 
+            parent: 'siphonray', 
+            unlocked: false, 
+            mp: 100, 
+            get dmg() {
+                return ((p.lv*400)+400); 
+            }
+        },
         iceshock: {
             name: "Iceshock", 
-            cost: 10, 
-            parent: 'eldritchblast10', 
+            cost: 5, 
+            parent: 'eldritchblast', 
             unlocked: false, 
             mp: 10000, 
             get dmg() { 
-                return (((p.mmp - 10) * 30) + 90); 
+                return (((p.lv - 10) * 30) + 90); 
             },
         },
         snowgrave: {
             name: "Snowgrave", 
-            cost: 11, 
+            cost: 6, 
             parent: 'iceshock', 
             unlocked: false, 
             mp: 20000, 
             get dmg() { 
-                return ((p.mmp*40)+600); 
+                return ((p.lv*40)+600); 
             },
             get san() {
                 return ((p.sn-(p.sn/2))*(-1))
             }
         },
-        heal1: { name: "Heal I", cost: 1, parent: 'strike', unlocked: false, mp: 12, heal: 35 },
-        heal2: { name: "Heal II", cost: 2, parent: 'heal1', unlocked: false, mp: 24, heal: 70 },
-        heal3: { name: "Heal III", cost: 3, parent: 'heal2', unlocked: false, mp: 36, heal: 100 },
-        heal4: { name: "Heal IV", cost: 4, parent: 'heal3', unlocked: false, mp: 48, heal: 200 },
-        heal5: { name: "Heal V", cost: 5, parent: 'heal4', unlocked: false, mp: 96, heal: 400 },
-        shld: { name: "Mind Shield I", cost: 2, parent: 'heal5', unlocked: false, mp: 15, san: 45 },
-        shld2: { name: "Mind Shield II", cost: 3, parent: 'shld', unlocked: false, mp: 30, san: 90 },
-        shld3: { name: "Mind Shield III", cost: 4, parent: 'shld2', unlocked: false, mp: 60, san: 180 },
-        shld4: { name: "Mind Shield IV", cost: 5, parent: 'shld3', unlocked: false, mp: 120, san: 360 },
-        shld5: { name: "Mind Shield V", cost: 6, parent: 'shld4', unlocked: false, mp: 240, san: 400 },
-        dual1: { name: "Dual Heal I", cost: 3, parent: 'shld5', unlocked: false, mp: 4800, san: 1850, heal: 12000 },
-        dual2: { name: "Dual Heal II", cost: 5, parent: 'dual1', unlocked: false, mp: 4800, san: 2850, heal: 22000 },
-        dual3: { name: "Dual Heal III", cost: 7, parent: 'dual2', unlocked: false, mp: 4800, san: 3850, heal: 32000 },
-        dual4: { name: "Dual Heal IV", cost: 9, parent: 'dual3', unlocked: false, mp: 4800, san: 4850, heal: 42000 },
-        dual5: { name: "Dual Heal V", cost: 11, parent: 'dual4', unlocked: false, mp: 4800, san: 5850, heal: 52000 },
+        heal: {
+            name: "Heal", 
+            cost: 1, 
+            parent: 'strike', 
+            unlocked: false, 
+            mp: 20000, 
+            get heal() { 
+                return ((35*p.lv)+10); 
+            }
+        },
+        mindshield: {
+            name: "Mind Shield", 
+            cost: 10, 
+            parent: 'heal', 
+            unlocked: false, 
+            mp: 5000, 
+            get san() { 
+                return ((p.mmp*5)+5); 
+            },
+        },
+        dualheal: {
+            name: "Dual Heal", 
+            cost: 10, 
+            parent: 'mindshield', 
+            unlocked: false, 
+            mp: 5000, 
+            get heal() { 
+                return ((p.lv*1000)+2000); 
+            },
+            get san() {
+                return ((p.lv*100)+850)
+            }
+        },
         healprayer: {
             name: "Heal Prayer", 
             cost: 10, 
-            parent: 'dual5', 
+            parent: 'dualheal', 
             unlocked: false, 
             mp: 5000, 
             get heal() { 
@@ -863,6 +907,17 @@ function formatNumber(num) {
 }
 
 
+function applyBurn(enemy) {
+    if (enemy.burn > 0) {
+        let dmg = enemy.burn;
+        enemy.hp -= dmg;
+        enemy.burn--;
+        log(`${enemy.name} is burning! (-${dmg} HP)`, "#ff6b6b");
+    }
+}
+
+
+
     function nextDay() {
         p.day++;
         let manaLossScalingFactor = Math.max(p.day, p.lv * 2);
@@ -1205,11 +1260,13 @@ function buySkill(id) {
         updateUI();
     }
     function enemyTurn() {
-        if (enemy.burn > 0) { 
-            enemy.hp -= 8; 
-            enemy.burn--; 
-            log(`${enemy.name} scorched! (-8 HP)`, "var(--gold)"); 
+        if (enemy.burn > 0) {
+            let burnDMG = Math.floor(p.lv * 2);
+            enemy.hp -= burnDMG;
+            enemy.burn--;
+            log(`${enemy.name} is burning! (-${burnDMG} HP)`, "var(--gold)");
         }
+
         if (enemy.hp <= 0) return win();
         if (enemy.lifesteal > 0) {
             enemy.hp = Math.min(enemy.mhp, enemy.hp + enemy.lifesteal);
