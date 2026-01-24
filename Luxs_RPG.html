@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lux's RPG Game</title>
+    <style>
+        :root { --bg: #0a0a0c; --panel: #16161a; --text: #e1e1e6; --hp: #ff4757; --mana: #3742fa; --sanity: #a55eea; --gold: #eccc68; --unlocked: #2ed573; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
+        .stats-row { display: flex; gap: 15px; margin-bottom: 25px; }
+        .stat-box { flex: 1; background: #000; padding: 15px; border-radius: 12px; border-bottom: 4px solid #2f3542; }
+        .progress-bg { background: #1e1e24; height: 14px; border-radius: 7px; margin-top: 10px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; transition: width 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        .hp-label { position: absolute; width: 100%; text-align: center; font-size: 11px; font-weight: 800; top: 0; color: white; text-shadow: 1px 1px 2px black; }
+        #log { height: 200px; background: #050505; overflow-y: auto; padding: 15px; font-family: 'Fira Code', monospace; border-radius: 8px; border: 1px solid #2f3542; margin-bottom: 25px; font-size: 14px; }
+        .tree-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+        .node { padding: 15px; background: #2f3542; border-radius: 10px; text-align: center; border: 2px solid transparent; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+        .node.available { border-color: var(--mana); opacity: 1; }
+        .node.purchased { background: #1b2e1b; border-color: var(--unlocked); color: var(--unlocked); opacity: 1; cursor: default; }
+        .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .shop-item { background: #1e1e24; padding: 20px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        button { padding: 15px; cursor: pointer; border: none; border-radius: 8px; background: #2f3542; color: white; font-weight: 700; transition: 0.3s; }
+        button:hover:not(:disabled) { background: #57606f; transform: translateY(-2px); }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .hidden { display: none !important; }
+        .san-warn { color: var(--sanity); font-weight: bold; }
+        .save-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+        }
+        .export-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #444;
+            border: 1px solid #666;
+        }
+        .import-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #444;
+            border: 1px solid #666;
+        }
+        #tooltip b { color: var(--gold); }
+        #tooltip span { display: block; margin-top: 4px; border-top: 1px solid #444; padding-top: 4px; font-size: 11px; color: #aaa; }
+
+        /* Hidden file input for the Import functionality */
+        #import-input { display: none; }
+
+        
+        /* Admin Styling */
+        /* Warden's Console positioned top-left */
+#admin-panel { 
+    position: fixed; 
+    top: 15px;      /* Slight offset from the very edge */
+    left: 15px; 
+    background: var(--panel); 
+    border: 2px solid var(--mana); 
+    padding: 20px; 
+    border-radius: 15px; 
+    z-index: 9999; 
+    box-shadow: 0 0 100px rgba(0,0,0,0.9); 
+    width: 350px; 
+}
+
+/* Hidden Trigger positioned top-left */
+.ghost-trigger { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 20px;    /* Slightly larger target for top-left */
+    height: 20px; 
+    background: transparent; 
+    z-index: 10000; 
+    cursor: default; 
+}
+#game-wrapper {
+    display: flex;          /* CRITICAL: Enables horizontal layout */
+    justify-content: center; /* Centers both boxes on the screen */
+    align-items: flex-start; /* Aligns them to the top */
+    gap: 30px;              /* Space between game and sidebar */
+    width: 100%;
+    margin-top: 20px;
+}
+
+#game-container {
+    width: 850px;
+    background: var(--panel);
+    padding: 30px;
+    border-radius: 20px;
+    border: 2px solid var(--border); /* Thicker, lighter border */
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(55, 66, 250, 0.1); /* Subtle blue glow */
+    position: relative;
+    flex-shrink: 0;
+}
+
+#stat-sidebar {
+    width: 280px;
+    background: var(--panel); /* Same lighter gray as game-container */
+    padding: 25px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    flex-shrink: 0;
+}
+
+.stat-entry {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed #2f3542;
+    padding-bottom: 5px;
+}
+
+
+.stat-entry b { color: var(--gold); }
+.stat-label { color: #a4b0be; }
+
+
+    </style>
+</head>
+<body>
+<div class="save-controls">
+    <button class="export-btn" onclick="exportSave()">Export .urpg</button>
+
+    <label for="import-input" class="import-btn" style="cursor:pointer; display:inline-block;">Import .urpg</label>
+    <input type="file" id="import-input" accept=".urpg" onchange="importSave(event)">
+</div>
+<div id="tooltip" style="position: fixed; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border: 1px solid var(--mana); border-radius: 8px; font-size: 13px; z-index: 10000; pointer-events: none; line-height: 1.4;"></div>
+
+<div id="game-wrapper">
+
+    <div id="game-container">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0">Day <span id="day-txt">1</span></h2>
+            <div style="font-size: 1.1em;">
+                Gold: <span id="gold-txt" style="color:var(--gold)">0</span> | 
+                SP: <span id="sp-txt" style="color:var(--unlocked)">0</span>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box" style="border-color:var(--hp)">Life: <span id="hp-val" style="display: none;">100/100</span><div class="progress-bg"><div id="hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div></div></div>
+            <div class="stat-box" style="border-color:var(--mana)">Mana: <span id="mp-val" style="display: none;">50/50</span><div class="progress-bg"><div id="mp-bar" class="progress-fill" style="background:var(--mana); width:100%"></div></div></div>
+            <div class="stat-box" style="border-color:var(--sanity)">Sanity: <span id="sn-val" style="display: none;">100/100</span><div class="progress-bg"><div id="sn-bar" class="progress-fill" style="background:var(--sanity); width:100%"></div></div></div>
+            <div class="stat-box" style="border-color:lime">
+                LV <span id="lv-txt">1</span> | EXP: <span id="exp-val">0/100</span>
+                <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:lime; width:0%"></div></div>
+            </div>
+        </div>
+
+        <div id="log">Welcome to Lux's RPG V8! (Originally named Unfair RPG Game)</div>
+
+        <div id="shop-view" class="hidden">
+            <h3>Wandering Merchant</h3>
+            <div id="shop-shelf" class="shop-grid"></div>
+            <button style="width:100%" onclick="exitEvent()">Continue</button>
+        </div>
+
+        <div id="tree-view" class="hidden">
+            <h3>Spell Tree</h3>
+            <div class="tree-grid" id="tree-nodes"></div>
+            <button style="width:100%; margin-top:20px;" onclick="exitEvent()">Close Spell Tree</button>
+        </div>
+        <div id="combat-view" class="hidden">
+            <div style="background:#1e1e24; padding:25px; border-radius:15px; margin-bottom:20px; border: 1px solid #2f3542; text-align:center;">
+                <h3 id="e-name" style="margin:0; text-transform:uppercase; letter-spacing:2px;">Target</h3>
+                <div class="progress-bg" style="width:100%; max-width:400px; height:24px; margin:15px auto;">
+                    <div id="e-hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div>
+                    <div id="e-hp-txt" class="hp-label">HP: -- / --</div>
+                </div>
+                <div id="e-traits" style="font-size:0.8em; color:#a4b0be"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="action-search" placeholder="Search spells..." oninput="renderCombatButtons()" style="width: 100%; padding: 10px; background: #000; border: 1px solid var(--mana); color: white; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            <div class="controls" id="combat-btns"></div>
+        </div>
+
+        <div id="main-controls" class="controls">
+            <button onclick="nextDay()">Explore Onward</button>
+            <button onclick="openTree()">Study Spells</button>
+        </div>
+
+    </div> 
+    <div id="stat-sidebar">
+        <h3 style="margin-top:0; color:var(--mana); border-bottom: 2px solid var(--mana); padding-bottom: 10px;">Character Stats</h3>
+        <div class="stat-entry"><span class="stat-label">Current Max Life:</span> <b id="side-mhp">100</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Life:</span> <b id="side-hp">100</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Current Max Mana:</span> <b id="side-mmp">50</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Mana:</span> <b id="side-mp">50</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Current Max Sanity:</span> <b id="side-msn">100</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Sanity:</span> <b id="side-sn">100</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Current Level:</span> <b id="side-lv">1</b></div>
+        <div class="stat-entry"><span class="stat-label">Current EXP:</span> <b id="side-exp">0</b></div>
+        <div class="stat-entry"><span class="stat-label">EXP to Next LV:</span><b id="side-next-exp">100</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Mana Reduction:</span> <b id="side-red">0%</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Gold:</span> <b id="side-gold">0</b></div>
+    </div>
+
+</div>
+
+<!-- Ghost Admin Trigger & Panel -->
+<div id="admin-panel" class="hidden">
+    <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Game Master Console >_</h3>
+    <div id="console-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
+        System ready...
+    </div>
+    <input type="text" id="console-input" placeholder="Enter command..." 
+           style="width:100%; background:#000; border:1px solid var(--mana); color:white; padding:10px; box-sizing:border-box; font-family:'Fira Code', monospace;">
+    <p style="font-size:10px; color:#666; margin-top:5px;">Type /help for commands. Press ESC to close.</p>
+</div>
+<div class="ghost-trigger" onclick="toggleAdmin()"></div>
+
+<script>
+    let nextEnemyOverride = null; // Stores the name of the forced enemy
+    let p = { 
+        v: 8, // Version Number
+        hp: 100, // HP
+        mhp: 100, // Max HP
+        mp: 50, // Mana
+        mmp: 50, // Max Mana
+        sn: 100, // Sanity
+        msn: 100, // Max Sanity
+        gold: 50, // Current Gold at start
+        exp: 0, // Current EXP at start
+        lv: 1, // LV
+        sp: 0, // Skill points
+        day: 1, // Current Day at start
+        skills: ['strike'], // Skills at start
+        manaReduction: 0  // Mana Reduction (0 is 0% reduction and base)
+        
+    };
+    let enemy = null;
+
+    const masterShop = [
+        { 
+        id: 'healthrefill', 
+        name: 'Health Vial', 
+        get cost() { return Math.floor(20 * Math.pow(1.1, p.lv - 1)); }, 
+        run: () => { p.hp = p.mhp; return "Vitality restored!"; } 
+        },
+
+        { 
+        id: 'manarefill', 
+        name: 'Mana Well', 
+        get cost() { return Math.floor(20 * Math.pow(1.1, p.lv - 1)); }, 
+        run: () => { p.mp = p.mmp; return "Mana restored!"; } 
+        },
+
+        { 
+        id: 'sanityrefill', 
+        name: 'Clarity Tonic', 
+        get cost() { return Math.floor(20 * Math.pow(1.1, p.lv - 1)); }, 
+        run: () => { p.sn = p.msn; return "Sanity restored!"; } 
+        },
+
+        { 
+        id: 'healthincrease1', 
+        name: 'Dragon Heart', 
+            get cost() { return Math.floor(60 * Math.pow(1.2, p.lv - 1)); }, 
+            run: () => {
+                let gain = Math.floor(30 + (p.mhp * 0.1));
+                p.mhp += gain; 
+                p.hp += gain; 
+                return `Max HP increased by ${formatNumber(gain)}`; 
+            } 
+        },
+
+        { 
+        id: 'manaincrease1', 
+        name: 'Eldritch Orb', 
+            get cost() { return Math.floor(60 * Math.pow(1.2, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(30 + (p.mmp * 0.1));
+                p.mmp += gain; 
+                p.mp += gain; 
+                return `Max Mana increased by ${formatNumber(gain)}`; 
+            } 
+        },
+
+        { 
+        id: 'sanityincrease1', 
+        name: 'Pure Insight', 
+            get cost() { return Math.floor(60 * Math.pow(1.2, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(30 + (p.msn * 0.1));
+                p.msn += gain; 
+                p.sn += gain; 
+                return `Max Sanity increased by ${formatNumber(gain)}`; 
+            } 
+        },
+        
+        { 
+        id: 'fullrefill', 
+        name: 'Holy Grail', 
+        get cost() { return Math.floor(70 * Math.pow(1.1, p.lv - 1)); }, 
+        run: () => { 
+        p.hp = p.mhp; 
+        p.mp = p.mmp; 
+        p.sn = p.msn; 
+        return "HP, Mana, and Sanity restored"; 
+            }
+        },
+
+        { 
+        id: 'treasuremap', 
+        name: 'Treasure Map', 
+        get cost() { return Math.floor(40 * Math.pow(1.15, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(100 * Math.pow(1.25, p.lv - 1));
+                p.gold += gain; 
+                return `Found a hidden cache of ${formatNumber(gain)} gold!`; 
+            } 
+        },
+
+        { 
+        id: 'expscroll', 
+        name: 'Knowledge Scroll', 
+        get cost() { return Math.floor(40 * Math.pow(1.15, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(100 * Math.pow(1.25, p.lv - 1));
+                addExperience(gain)
+                return `Learned new knowledge. (+${formatNumber(gain)} EXP)`; 
+            } 
+        },
+
+        { 
+            id: 'manastabilizer', 
+            name: 'Mana Stabilizer', 
+            get cost() { return Math.floor(150 * Math.pow(1.3, p.lv - 1)); }, 
+            run: () => { 
+                // Cap the value at 1.0 (100%)
+                p.manaReduction = Math.min(1, p.manaReduction + 0.01); 
+
+                if (p.manaReduction >= 1) {
+                    return "Magic Efficiency perfected! Mana costs are now at their base minimum.";
+                }
+                return `Magic Efficiency increased! Mana Costs reduced by an additional 1%.`; 
+            } 
+        }
+    ];
+
+    const skillTree = {
+        strike: { name: "Strike", cost: 0, parent: null, unlocked: true, dmg: 12 },
+        fire1: { name: "Fireball I", cost: 1, parent: 'strike', unlocked: false, mp: 15, dmg: 22, burn: 3 },
+        fire2: { name: "Fireball II", cost: 2, parent: 'fire1', unlocked: false, mp: 20, dmg: 45, burn: 4 },
+        fire3: { name: "Fireball III", cost: 3, parent: 'fire2', unlocked: false, mp: 30, dmg: 68, burn: 5},
+        fire4: { name: "Fireball IV", cost: 4, parent: 'fire3', unlocked: false, mp: 40, dmg: 91, burn: 6},
+        fire5: { name: "Fireball V", cost: 5, parent: 'fire4', unlocked: false, mp: 60, dmg: 119, burn: 7},
+        bolt1: { name: "Thunderbolt I", cost: 2, parent: 'fire5', unlocked: false, mp: 45, dmg: 70 },
+        bolt2: { name: "Thunderbolt II", cost: 3, parent: 'bolt1', unlocked: false, mp: 60, dmg: 140 },
+        bolt3: { name: "Thunderbolt III", cost: 4, parent: 'bolt2', unlocked: false, mp: 120, dmg: 280 },
+        bolt4: { name: "Thunderbolt IV", cost: 5, parent: 'bolt3', unlocked: false, mp: 240, dmg: 560 },
+        bolt5: { name: "Thunderbolt V", cost: 6, parent: 'bolt4', unlocked: false, mp: 480, dmg: 600, burn: 1 },
+        fingerofdeath: { name: "Finger of Death I", cost: 3, parent: 'bolt5', unlocked: false, mp: 100, dmg: 250 },
+        fingerofdeath2: {name: "Finger of Death II", cost: 4, parent: 'fingerofdeath', unlocked: false, mp: 200, dmg: 500 },
+        fingerofdeath3: {name: "Finger of Death III", cost: 5, parent: 'fingerofdeath2', unlocked: false, mp: 400, dmg: 1000 },
+        fingerofdeath4: {name: "Finger of Death IV", cost: 6, parent: 'fingerofdeath3', unlocked: false, mp: 800, dmg: 2000 },
+        fingerofdeath5: {name: "Finger of Death V", cost: 7, parent: 'fingerofdeath4', unlocked: false, mp: 1600, dmg: 4000 },
+        siphonray: {name: "Siphon Ray I", cost: 4, parent: 'fingerofdeath5', unlocked: false, mp: 100, dmg: 100, heal: 100 },
+        siphonray2: {name: "Siphon Ray II", cost: 5, parent: 'siphonray', unlocked: false, mp: 200, dmg: 200, heal: 200 },
+        siphonray3: {name: "Siphon Ray III", cost: 6, parent: 'siphonray2', unlocked: false, mp: 400, dmg: 400, heal: 400 },
+        siphonray4: {name: "Siphon Ray IV", cost: 7, parent: 'siphonray3', unlocked: false, mp: 800, dmg: 800, heal: 800 },
+        siphonray5: {name: "Siphon Ray V", cost: 8, parent: 'siphonray4', unlocked: false, mp: 1600, dmg: 1600, heal: 1600 },
+        eldritchblast: {name: "Eldritch Blast I", cost: 5, parent: 'siphonray5', unlocked: false, mp: 100, dmg: 400 },
+        eldritchblast2: {name: "Eldritch Blast II", cost: 6, parent: 'eldritchblast', unlocked: false, mp: 200, dmg: 800 },
+        eldritchblast3: {name: "Eldritch Blast III", cost: 7, parent: 'eldritchblast2', unlocked: false, mp: 400, dmg: 1600 },
+        eldritchblast4: {name: "Eldritch Blast IV", cost: 8, parent: 'eldritchblast3', unlocked: false, mp: 800, dmg: 3200 },
+        eldritchblast5: {name: "Eldritch Blast V", cost: 9, parent: 'eldritchblast4', unlocked: false, mp: 1600, dmg: 6400 },
+        eldritchblast6: {name: "Eldritch Blast VI", cost: 10, parent: 'eldritchblast5', unlocked: false, mp: 3200, dmg: 12800 },
+        eldritchblast7: {name: "Eldritch Blast VII", cost: 11, parent: 'eldritchblast6', unlocked: false, mp: 6400, dmg: 25600 },
+        eldritchblast8: {name: "Eldritch Blast VIII", cost: 12, parent: 'eldritchblast7', unlocked: false, mp: 12800, dmg: 51200 },
+        eldritchblast9: {name: "Eldritch Blast IX", cost: 13, parent: 'eldritchblast8', unlocked: false, mp: 25600, dmg: 102400 },
+        eldritchblast10: {name: "Eldritch Blast X", cost: 14, parent: 'eldritchblast9', unlocked: false, mp: 51200, dmg: 102400, burn: 100 },
+        iceshock: {
+            name: "Iceshock", 
+            cost: 10, 
+            parent: 'eldritchblast10', 
+            unlocked: false, 
+            mp: 10000, 
+            get dmg() { 
+                return (((p.mmp - 10) * 30) + 90); 
+            },
+        },
+        snowgrave: {
+            name: "Snowgrave", 
+            cost: 11, 
+            parent: 'iceshock', 
+            unlocked: false, 
+            mp: 20000, 
+            get dmg() { 
+                return ((p.mmp*40)+600); 
+            },
+            get san() {
+                return ((p.sn-(p.sn/2))*(-1))
+            }
+        },
+        heal1: { name: "Heal I", cost: 1, parent: 'strike', unlocked: false, mp: 12, heal: 35 },
+        heal2: { name: "Heal II", cost: 2, parent: 'heal1', unlocked: false, mp: 24, heal: 70 },
+        heal3: { name: "Heal III", cost: 3, parent: 'heal2', unlocked: false, mp: 36, heal: 100 },
+        heal4: { name: "Heal IV", cost: 4, parent: 'heal3', unlocked: false, mp: 48, heal: 200 },
+        heal5: { name: "Heal V", cost: 5, parent: 'heal4', unlocked: false, mp: 96, heal: 400 },
+        shld: { name: "Mind Shield I", cost: 2, parent: 'heal5', unlocked: false, mp: 15, san: 45 },
+        shld2: { name: "Mind Shield II", cost: 3, parent: 'shld', unlocked: false, mp: 30, san: 90 },
+        shld3: { name: "Mind Shield III", cost: 4, parent: 'shld2', unlocked: false, mp: 60, san: 180 },
+        shld4: { name: "Mind Shield IV", cost: 5, parent: 'shld3', unlocked: false, mp: 120, san: 360 },
+        shld5: { name: "Mind Shield V", cost: 6, parent: 'shld4', unlocked: false, mp: 240, san: 400 },
+        dual1: { name: "Dual Heal I", cost: 3, parent: 'shld5', unlocked: false, mp: 4800, san: 1850, heal: 12000 },
+        dual2: { name: "Dual Heal II", cost: 5, parent: 'dual1', unlocked: false, mp: 4800, san: 2850, heal: 22000 },
+        dual3: { name: "Dual Heal III", cost: 7, parent: 'dual2', unlocked: false, mp: 4800, san: 3850, heal: 32000 },
+        dual4: { name: "Dual Heal IV", cost: 9, parent: 'dual3', unlocked: false, mp: 4800, san: 4850, heal: 42000 },
+        dual5: { name: "Dual Heal V", cost: 11, parent: 'dual4', unlocked: false, mp: 4800, san: 5850, heal: 52000 },
+        healprayer: {
+            name: "Heal Prayer", 
+            cost: 10, 
+            parent: 'dual5', 
+            unlocked: false, 
+            mp: 5000, 
+            get heal() { 
+                return ((p.mmp*5)+5); 
+            },
+        },
+        ralseidualheal: {
+            name: "Ralsei's Signature Dual Heal", 
+            cost: 20, 
+            parent: 'healprayer', 
+            unlocked: false, 
+            mp: 10000, 
+            get heal() { 
+                return ((p.mmp*5.5)+p.msn); 
+            },
+            get san() {
+                return ((p.msn*5.5)+p.mmp);
+            }
+        }
+    };
+    const enemies = [
+        /*
+        Run Enders
+        */
+        {
+            name: "Lux",
+            weight: 1,
+            hp: 1000000000, mhp: 1000000000,
+            atk: 50000, san: 50000,
+            exp: -100000, gold: -100000,
+            lifesteal: 10000,
+            canSpawn: () => p.lv >= 100 || p.skills.includes('eldritchblast10'),
+            trait: "Run Ender",
+            specialMsg: "Lux: Hello there =)"
+        },
+        {
+            name: "Kitsune",
+            weight: 2,
+            hp: 1000000, mhp: 1000000,
+            atk: 5000, san: 5000,
+            exp: -10000, gold: -10000,
+            lifesteal: 1000,
+            canSpawn: () => p.lv >= 30 || p.skills.includes('eldritchblast7'),
+            trait: "Lux's Run Ender Minion",
+            specialMsg: "Kitsune: If you kill me, my boss will kill you."
+        },
+        /*
+        World Bosses
+        */
+        {
+            name: "Azmodan",
+            weight: 5,
+            hp: 10000, mhp: 10000,
+            atk: 240, san: 50,
+            exp: 1200, gold: 32000,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 30 || p.skills.includes('eldritchblast5'),
+            trait: "World boss",
+            specialMsg: "Azmodan: This world will burn."
+        },
+        /*
+        Bosses
+        */
+        {
+            name: "Obsidian Golem",
+            weight: 10,
+            hp: 1200, mhp: 1200,
+            atk: 160, san: 20,
+            exp: 800, gold: 640,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 20,
+            trait: "Boss"
+        },
+        /*
+        Mini-Bosses
+        */
+        {
+            name: "Diamond Golem",
+            weight: 20,
+            hp: 600, mhp: 600,
+            atk: 80, san: 10,
+            exp: 400, gold: 320,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 15,
+            trait: "Mini-Boss"
+        },
+        /*
+        Lifesteal Enemies
+        */
+        {
+            name: "Blood Bat",
+            weight: 40,
+            hp: 50, mhp: 50,
+            atk: 11, san: 5,
+            exp: 30, gold: 25,
+            lifesteal: 10,
+            canSpawn: () => p.skills.includes('fire1'),
+            trait: "Regenerates 10 HP per turn"
+        },
+        {
+            name: "Vampire",
+            weight: 30,
+            hp: 150, mhp: 150,
+            atk: 33, san: 15,
+            exp: 90, gold: 75,
+            lifesteal: 30,
+            canSpawn: () => p.skills.includes('fire3'),
+            trait: "Regenerates 30 HP per turn"
+        },
+        {
+            name: "Vampire Lord",
+            weight: 12,
+            hp: 450, mhp: 450,
+            atk: 99, san: 45,
+            exp: 270, gold: 225,
+            lifesteal: 90,
+            canSpawn: () => p.skills.includes('fire5'),
+            trait: "Regenerates 90 HP per turn"
+        },
+        /*
+        Sanity Drain Enemies
+        */
+        {
+            name: "Gloom Weaver",
+            weight: 35,
+            hp: 55, mhp: 55,
+            atk: 10, san: 18,
+            exp: 45, gold: 35,
+            lifesteal: 0,
+            canSpawn: () => true,
+            trait: "Sanity Drainer"
+        },
+        {
+            name: "Void Stalker",
+            weight: 25,
+            hp: 90, mhp: 90,
+            atk: 15, san: 25,
+            exp: 60, gold: 50,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 5 || p.msn >= 150,
+            trait: "Elite Sanity Predator"
+        },
+        /*
+        Glass Cannons
+        */
+        {
+            name: "Glass Cannon the I",
+            weight: 3,
+            hp: 12, mhp: 12,
+            atk: 1000000000, san: 1000000000,
+            exp: 10, gold: 5,
+            lifesteal: 0,
+            trait: "Glass Cannon",
+            canSpawn: () => true
+        },
+        {
+            name: "Glass Cannon the II",
+            weight: 2,
+            hp: 24, mhp: 24,
+            atk: 10000000000, san: 10000000000,
+            exp: 20, gold: 10,
+            lifesteal: 0,
+            trait: "Glass Cannon",
+            canSpawn: () => p.skills.includes('fire1'),
+        },
+        {
+            name: "Glass Cannon the III",
+            weight: 1,
+            hp: 36, mhp: 36,
+            atk: 100000000000, san: 100000000000,
+            exp: 30, gold: 15,
+            lifesteal: 0,
+            trait: "Glass Cannon",
+            canSpawn: () => p.skills.includes('fire2'),
+        },
+        {
+            name: "Glass Cannon the IV",
+            weight: 1,
+            hp: 48, mhp: 48,
+            atk: 1000000000000, san: 1000000000000,
+            exp: 40, gold: 20,
+            lifesteal: 0,
+            trait: "Glass Cannon",
+            canSpawn: () => p.skills.includes('fire3'),
+        },
+        {
+            name: "Glass Cannon the V",
+            weight: 1,
+            hp: 60, mhp: 60,
+            atk: 10000000000000, san: 10000000000000,
+            exp: 50, gold: 25,
+            lifesteal: 0,
+            trait: "Glass Cannon",
+            canSpawn: () => p.skills.includes('fire4'),
+        },
+        /*
+        Normal Enemies
+        */
+        {
+            name: "Shadow Imp",
+            weight: 60,
+            hp: 45, mhp: 45,
+            atk: 9, san: 0,
+            exp: 20, gold: 15,
+            lifesteal: 0,
+            canSpawn: () => true,
+            trait: "Normal enemy"
+        },
+        {
+            name: "Armored Beetle",
+            weight: 55,
+            hp: 80, mhp: 80,
+            atk: 6, san: 0,
+            exp: 35, gold: 20,
+            lifesteal: 0,
+            canSpawn: () => true,
+            trait: "High HP, however Low ATK"
+        },
+        {
+            name: "Stone Golem",
+            weight: 50,
+            hp: 150, mhp: 150,
+            atk: 20, san: 0,
+            exp: 100, gold: 80,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 5,
+            trait: "Slow Titan"
+        },
+        {
+            name: "Iron Golem",
+            weight: 40,
+            hp: 300, mhp: 300,
+            atk: 40, san: 5,
+            exp: 200, gold: 160,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 7,
+            trait: "Slow Titan"
+        },
+    ];
+
+    function updateUI() {
+    // 1. Player Vital Stats (HP, Mana, Sanity)
+    document.getElementById('hp-val').innerText = `${formatNumber(p.hp)}/${formatNumber(p.mhp)}`;
+    document.getElementById('hp-bar').style.width = Math.min(100, (p.hp / p.mhp) * 100) + "%";
+    document.getElementById('mp-val').innerText = `${formatNumber(p.mp)}/${formatNumber(p.mmp)}`;
+    document.getElementById('mp-bar').style.width = Math.min(100, (p.mp / p.mmp) * 100) + "%";
+    document.getElementById('sn-val').innerText = `${formatNumber(p.sn)}/${formatNumber(p.msn)}`;
+    document.getElementById('sn-bar').style.width = Math.min(100, (p.sn / p.msn) * 100) + "%";
+    // 2. LV and EXP Progress Bar
+    let nextLevelExp = Math.floor(100 * Math.pow(1.2, p.lv - 1));
+    let expPercent = (p.exp / nextLevelExp) * 100;
+    document.getElementById('lv-txt').innerText = p.lv;
+    document.getElementById('exp-val').innerText = `${formatNumber(p.exp)}/${formatNumber(nextLevelExp)}`;
+    document.getElementById('exp-bar').style.width = Math.min(100, expPercent) + "%";
+    // 3. Currency and Resources
+    document.getElementById('gold-txt').innerText = formatNumber(p.gold);
+    document.getElementById('sp-txt').innerText = formatNumber(p.sp);
+    document.getElementById('day-txt').innerText = p.day;
+    // 3.5. Sidebar
+    document.getElementById('side-mhp').innerText = formatNumber(p.mhp);
+    document.getElementById('side-hp').innerText  = formatNumber(p.hp);
+    document.getElementById('side-mmp').innerText = formatNumber(p.mmp);
+    document.getElementById('side-mp').innerText  = formatNumber(p.mp);
+    document.getElementById('side-msn').innerText = formatNumber(p.msn);
+    document.getElementById('side-sn').innerText  = formatNumber(p.sn);
+    document.getElementById('side-lv').innerText = p.lv;
+    document.getElementById('side-exp').innerText = formatNumber(p.exp);
+    document.getElementById('side-gold').innerText = formatNumber(p.gold);
+    let expRemaining = nextLevelExp - p.exp;
+    document.getElementById('side-next-exp').innerText = formatNumber(expRemaining);
+    // Convert manaReduction decimal (0.05) to percentage (5%)
+    let redPercent = Math.round((p.manaReduction || 0) * 100);
+    document.getElementById('side-red').innerText = redPercent + "%";
+    // 4. Enemy Stats (Conditional check if in combat)
+    if (enemy) {
+        // Update Enemy HP Text with shorthand (e.g., 1.2M / 1.5M)
+        const eHpTxt = document.getElementById('e-hp-txt');
+        if (eHpTxt) eHpTxt.innerText = `HP: ${formatNumber(enemy.hp)} / ${formatNumber(enemy.mhp)}`;
+
+        const eHpBar = document.getElementById('e-hp-bar');
+        if (eHpBar) eHpBar.style.width = Math.max(0, Math.min(100, (enemy.hp / enemy.mhp) * 100)) + "%";
+
+        const eTraits = document.getElementById('e-traits');
+        if (eTraits) eTraits.innerText = "Specialty: " + enemy.trait;
+        
+        // Sync name and status
+        document.getElementById('e-name').innerText = enemy.name + (enemy.burn > 0 ? " (Burning)" : "");
+    }
+}
+
+// Listen for the "Enter" key on the console input
+document.getElementById('console-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const inputField = e.target;
+        const commandText = inputField.value.trim();
+        if (commandText) {
+            handleCommand(commandText);
+            inputField.value = ""; // Clear input
+        }
+    }
+});
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('admin-panel').classList.contains('hidden')) {
+        toggleAdmin();
+    }
+});
+
+function handleCommand(cmd) {
+    const args = cmd.split(" ");
+    const command = args[0].toLowerCase();
+    const val = parseInt(args[1]);
+    const output = document.getElementById('console-output');
+    let response = "";
+    let successColor = "#2ed573";
+    switch (command) {
+        case '/spawn':
+            // args[0] is "/spawn", args.slice(1).join(" ") gets the full enemy name
+            let targetName = args.slice(1).join(" ").toLowerCase();
+            
+            // Search the enemies list for a name match
+            let found = enemies.find(e => e.name.toLowerCase() === targetName);
+            
+            if (found) {
+                nextEnemyOverride = found.name; // Store the exact name
+                response = `The next entity you encounter will be: ${found.name}`;
+            } else {
+                response = "Error: Entity not found in master database.";
+                successColor = "#ff4757";
+            }
+            break;
+        case '/manared':
+            // val is the second word of the command (e.g., 50 in "/manared 50")
+            if (!isNaN(val)) { 
+                // Clamp the value between 0 and 100, then convert to decimal
+                let percentage = Math.max(0, Math.min(100, val));
+                p.manaReduction = percentage / 100; 
+                response = `Mana efficiency increased. Costs reduced by ${percentage}%`; 
+            } else { 
+                response = "Error: Use /manared 0-100"; 
+                successColor = "#ff4757"; 
+            }
+            break;
+        case '/refillhp':
+            p.hp = p.mhp;
+            response = "Vitality restored to maximum.";
+            break;
+        case '/mhp':
+            if (!isNaN(val)) { p.mhp = val; p.hp = val; response = `Max HP set to ${val}.`; }
+            else { response = "Error: Invalid value."; successColor = "#ff4757"; }
+            break;
+        case '/refillmp':
+            p.mp = p.mmp;
+            response = "Mana pool replenished.";
+            break;
+        case '/mmp':
+            if (!isNaN(val)) { p.mmp = val; p.mp = val; response = `Max Mana set to ${val}.`; }
+            else { response = "Error: Invalid value."; successColor = "#ff4757"; }
+            break;
+        case '/refillsanity':
+            p.sn = p.msn;
+            response = "Mind stabilized to maximum.";
+            break;
+        case '/msan':
+            if (!isNaN(val)) { p.msn = val; p.sn = val; response = `Max Sanity set to ${val}.`; }
+            else { response = "Error: Invalid value."; successColor = "#ff4757"; }
+            break;
+        case '/gold':
+            if (!isNaN(val)) { p.gold = val; response = `Treasury adjusted to ${val}g.`; }
+            break;
+        case '/exp':
+            if (!isNaN(val)) { 
+                // We call the function and pass 'val' so the loop knows how much to add
+                addExperience(val); 
+                response = `Granted ${val} EXP. Current LV: ${p.lv}`; 
+            } else {
+                response = "Error: Use /exp [number]";
+                successColor = "#ff4757";
+            }
+            break;
+        case '/help':
+            response = "Available: /refillhp, /mhp x, /refillmp, /mmp x, /refillsanity, /msan x, /gold x, /exp x";
+            successColor = "var(--mana)";
+            break;
+        default:
+            response = "Unknown command. Type /help for a list of commands.";
+            successColor = "#ff4757";
+    }
+
+    // Log to console output and main game log
+    output.innerHTML += `<div style="color:${successColor}">> ${cmd}<br><span style="color:#aaa">${response}</span></div>`;
+    output.scrollTop = output.scrollHeight;
+    log(`Console: ${response}`, successColor);
+    updateUI();
+}
+
+// Optional: Autofocus input when opening console
+function toggleAdmin() {
+    const panel = document.getElementById('admin-panel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) {
+        document.getElementById('console-input').focus();
+    }
+}
+
+function formatNumber(num) {
+    if (num === Infinity) return "∞";
+    if (num === undefined || num === null || isNaN(num)) return "0";
+    if (num < 1000 && num > -1000) return Math.ceil(num).toString();
+    const units = ["", "k", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", "Vg", "Uvg", "Dvg", "Tvg", "Qavg", "Qidvg"];
+    const tier = Math.floor(Math.log10(Math.abs(num)) / 3);
+    /* CRITICAL SAFETY CHECK: 
+     If the tier is higher than your list, return the last unit or Infinity
+    */
+    if (tier >= units.length) return "∞";
+    const suffix = units[tier];
+    const scale = Math.pow(10, tier * 3);
+    const scaled = num / scale;
+    return scaled.toFixed(1).replace(/\.0$/, "") + suffix;
+}
+
+    function log(msg, color = "#e1e1e6") {
+    const l = document.getElementById('log');
+    
+    // 1. Create and add the new log message
+    const newEntry = document.createElement('div');
+    newEntry.style.color = color;
+    newEntry.innerHTML = `[Day ${p.day}] ${msg}`;
+    l.appendChild(newEntry);
+
+    // 2. CRITICAL: Limit the log to 1,000 messages
+    // If we have more than 1000 messages, remove the oldest one (the first child)
+    while (l.children.length > 1000) {
+        l.removeChild(l.firstChild);
+    }
+
+    // 3. Auto-scroll to the bottom
+    l.scrollTop = l.scrollHeight;
+}
+
+
+    function nextDay() {
+        p.day++;
+        let manaLossScalingFactor = Math.max(p.day, p.lv * 2);
+        let manaRegainedScalingFactor = p.lv;
+        if (p.sn > 0) {
+            let manaRegained = 100 * manaRegainedScalingFactor;
+            p.mp = Math.min(p.mmp, p.mp + manaRegained);
+            log(`Resting between days restores mana (${formatNumber(manaRegained)} Mana Regained)...`, "var(--mana)");
+        } else {
+            // Use scalingFactor instead of just p.day
+            let manaLost = 50 * manaLossScalingFactor;
+            p.mp = Math.max(0, p.mp - manaLost);
+            log(`Madness consumes your essence (${formatNumber(manaLost)} Mana Lost)...`, "var(--sanity)");
+        }
+        
+        let roll = Math.random();
+        // 15% Spring, 25% Shop, 60% Combat
+        if (roll < 0.15) {
+            let springScalingRestore = 50*p.lv
+            log(`You discovered a Tranquil Spring (All Stats recovered by ${formatNumber(springScalingRestore)})...`, "#00ffff");
+            p.hp = Math.min(p.mhp, p.hp + springScalingRestore); 
+            p.mp = Math.min(p.mmp, p.mp + springScalingRestore); 
+            p.sn = Math.min(p.msn, p.sn + springScalingRestore);
+            updateUI();
+        } else if (roll < 0.40) startShop();
+        else startCombat();
+    }
+
+    function startShop() {
+    log("The Wandering Merchant beckons you...", "var(--gold)");
+    document.getElementById('main-controls').classList.add('hidden');
+    document.getElementById('shop-view').classList.remove('hidden');
+    const shelf = document.getElementById('shop-shelf'); 
+    shelf.innerHTML = "";
+    
+    // FILTER: Remove the stabilizer if manaReduction is 100% (1)
+    let availableItems = masterShop.filter(item => {
+        if (item.id === 'manastabilizer' && p.manaReduction >= 1) return false;
+        return true;
+    });
+
+    // Pick 3 random items from the filtered list
+    let items = [...availableItems].sort(() => 0.5 - Math.random()).slice(0, 3);
+    
+    items.forEach((item, index) => {
+        let div = document.createElement('div');
+        div.className = "shop-item";
+        div.innerHTML = `
+            <strong>${item.name}</strong><br>
+            ${formatNumber(item.cost)}g<br>
+            <button id="shop-btn-${index}" style="margin-top:10px" 
+                onclick="buyItem('${item.id}', 'shop-btn-${index}')">Acquire</button>`;
+        shelf.appendChild(div);
+    });
+}
+
+
+    function buyItem(id, btnId) {
+        let item = masterShop.find(i => i.id === id);
+        if (p.gold >= item.cost) { 
+            p.gold -= item.cost; 
+            log(item.run(), "var(--unlocked)"); 
+            
+            let btn = document.getElementById(btnId);
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "Sold Out";
+            }
+
+            // FIX: Force combat buttons to re-render if the combat view is visible
+            const combatView = document.getElementById('combat-view');
+            if (combatView && !combatView.classList.contains('hidden')) {
+                renderCombatButtons();
+            }
+
+            updateUI(); 
+        } else {
+            log("You lack the coin, this world is not for the poor...", "#ff4757");
+        }
+    }
+    function positionTooltip(e, tip) {
+    let x = e.clientX + 15;
+    let y = e.clientY + 15;
+
+    // Wait for the next frame to get the tooltip's actual width/height
+    const tipWidth = tip.offsetWidth;
+    const tipHeight = tip.offsetHeight;
+    const winWidth = window.innerWidth;
+    const winHeight = window.innerHeight;
+
+    // Check right edge
+    if (x + tipWidth > winWidth) {
+        x = e.clientX - tipWidth - 15;
+    }
+
+    // Check bottom edge
+    if (y + tipHeight > winHeight) {
+        y = e.clientY - tipHeight - 15;
+    }
+
+    // Ensure it doesn't go off the left or top (safety)
+    x = Math.max(5, x);
+    y = Math.max(5, y);
+
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+}
+
+function renderCombatButtons() {
+    const zone = document.getElementById('combat-btns');
+    const searchInput = document.getElementById('action-search');
+    const query = searchInput ? searchInput.value.toLowerCase() : ""; 
+    
+    if (!zone) return; 
+    zone.innerHTML = ""; 
+
+    const categories = [
+        { label: "Basic Actions", filter: (s) => !s.mp || s.name === "Strike" },
+        { label: "Eldritch Blast", filter: (s) => s.name.startsWith("Eldritch Blast") },
+        { label: "Fire Spells", filter: (s) => s.name.startsWith("Fireball") },
+        { label: "Thunder Spells", filter: (s) => s.name.startsWith("Thunderbolt") },
+        { label: "Ice Spells", filter: (s) => s.name.startsWith("Iceshock") || s.name.startsWith("Snowgrave") },
+        { label: "Healing & Mind", filter: (s) => (s.heal || s.san) && s.mp },
+        { label: "Pacify", filter: (s) => s.name.startsWith("Pacify") }
+    ];
+
+    categories.forEach(cat => {
+        const matchingSkills = p.skills.filter(sid => {
+            let s = skillTree[sid];
+            return s && cat.filter(s) && s.name.toLowerCase().includes(query);
+        });
+
+        if (matchingSkills.length > 0) {
+            const header = document.createElement('div');
+            header.style = "grid-column: span 2; color: #a4b0be; font-size: 0.75em; margin-top: 10px; border-bottom: 1px solid #2f3542; text-transform: uppercase;";
+            header.innerText = cat.label;
+            zone.appendChild(header);
+
+            matchingSkills.forEach(sid => {
+                let s = skillTree[sid];
+                let b = document.createElement('button');
+                let currentCost = getScaledMana(s.mp || 0);
+                
+                b.innerText = `${s.name}${s.mp ? ' (' + formatNumber(currentCost) + ' MP)' : ''}`;
+                b.onclick = () => cast(sid);
+
+                b.onmouseenter = (e) => {
+                    const tip = document.getElementById('tooltip');
+                    let html = `<strong>${s.name}</strong><br>`;
+                    if (s.dmg) html += `DMG: <span style="color:var(--hp)">${formatNumber(s.dmg)}</span><br>`;
+                    if (s.heal) html += `Healing: <span style="color:var(--unlocked)">${formatNumber(s.heal)}</span><br>`;
+                    if (s.san) html += `Sanity: <span style="color:var(--sanity)">+${formatNumber(s.san)}</span><br>`;
+                    if (s.burn) html += `Burn: <span style="color:var(--gold)">${s.burn} turns</span><br>`;
+                    
+                    tip.innerHTML = html + `<hr style="border:0;border-top:1px solid #444;margin:5px 0"><small>${s.mp ? 'Cost: ' + formatNumber(currentCost) + ' MP' : 'No Cost'}</small>`;
+                    tip.style.display = 'block';
+                    
+                    let x = e.clientX + 15;
+                    let y = e.clientY + 15;
+                    if (x + 200 > window.innerWidth) x = e.clientX - 215;
+                    if (y + tip.offsetHeight > window.innerHeight) y = window.innerHeight - tip.offsetHeight - 10;
+                    
+                    tip.style.left = x + 'px';
+                    tip.style.top = y + 'px';
+                };
+
+                b.onmousemove = (e) => {
+                    const tip = document.getElementById('tooltip');
+                    let x = e.clientX + 15;
+                    let y = e.clientY + 15;
+                    if (x + 200 > window.innerWidth) x = e.clientX - 215;
+                    if (y + tip.offsetHeight > window.innerHeight) y = window.innerHeight - tip.offsetHeight - 10;
+                    tip.style.left = x + 'px';
+                    tip.style.top = y + 'px';
+                };
+
+                b.onmouseleave = () => {
+                    document.getElementById('tooltip').style.display = 'none';
+                };
+
+                zone.appendChild(b);
+            });
+        }
+    });
+
+    if (zone.innerHTML === "" && query !== "") {
+        zone.innerHTML = `<div style="grid-column: span 2; text-align: center; color: #666; margin-top: 10px;">No actions matching "${query}"</div>`;
+    }
+}
+
+
+    function openTree() {
+        document.getElementById('main-controls').classList.add('hidden');
+        document.getElementById('tree-view').classList.remove('hidden');
+        renderTree();
+    }
+function renderTree() {
+    const container = document.getElementById('tree-nodes'); 
+    container.innerHTML = "";
+    for (let id in skillTree) {
+        let s = skillTree[id];
+        let isParentUnlocked = !s.parent || skillTree[s.parent].unlocked;
+        let div = document.createElement('div');
+        div.className = `node ${s.unlocked ? 'purchased' : (isParentUnlocked ? 'available' : '')}`;
+        
+        // UPDATED: Now shows the actual SP cost from the skillTree object
+        div.innerHTML = `<strong>${s.name}</strong><br>${s.unlocked ? 'Known' : s.cost + ' SP'}`;
+        
+        if (isParentUnlocked && !s.unlocked) div.onclick = () => buySkill(id);
+        container.appendChild(div);
+    }
+}
+
+function buySkill(id) {
+    let s = skillTree[id];
+    if (s.unlocked) return;
+
+    // UPDATED: Check against the spell's specific cost instead of a fixed 1
+    if (p.sp >= s.cost) { 
+        p.sp -= s.cost; // Deduct the correct amount
+        s.unlocked = true;
+        p.skills.push(id);
+        log(`Learned ${s.name}!`, "var(--unlocked)");
+        renderTree();
+        updateUI();
+    } else {
+        // Updated log message to show required points
+        log(`You need ${s.cost} Skill Points to learn this.`, "#ff4757");
+    }
+}
+
+
+    function getScaledMana(baseCost) {
+        // If baseCost is undefined (like Strike), return 0 immediately, otherwise code will break
+        if (baseCost === undefined || baseCost === null || baseCost === 0) return 0;
+        
+        let multiplier = p.mmp / 100;
+        let scaledCost = baseCost * multiplier;
+        
+        // Use '|| 0' to handle cases where manaReduction might be missing, so code doesn't break
+        let reductionAmount = scaledCost * (p.manaReduction || 0);
+        
+        let finalCost = Math.max(baseCost, scaledCost - reductionAmount);
+        return Math.floor(finalCost);
+    }
+    function startCombat() {
+    let selectedEnemy = null;
+
+    // 1. ADMIN OVERRIDE CHECK
+    // If a command like /spawn was used, we bypass all filters and weights
+    if (nextEnemyOverride) {
+        selectedEnemy = enemies.find(e => e.name.toLowerCase() === nextEnemyOverride.toLowerCase());
+        nextEnemyOverride = null; // Reset so only one fight is forced
+        if (selectedEnemy) log("An admin force has manifested a specific entity...", "var(--gold)");
+    }
+
+    // 2. STANDARD SELECTION (If no override exists)
+    if (!selectedEnemy) {
+        // Filter the pool based on LV and Skills
+        let eligiblePool = enemies.filter(e => {
+            try {
+                return e.canSpawn ? e.canSpawn() : true;
+            } catch(err) {
+                return true; 
+            }
+        });
+
+        // Fallback if the pool is empty
+        if (eligiblePool.length === 0) {
+            eligiblePool = [enemies.find(e => e.name === "Shadow Imp") || enemies[0]];
+        }
+
+        // Calculate Weights
+        let totalWeight = 0;
+        eligiblePool.forEach(e => {
+            totalWeight += (e.weight || 10);
+        });
+
+        // Weighted Roll
+        let roll = Math.random() * totalWeight;
+        for (let i = 0; i < eligiblePool.length; i++) {
+            roll -= (eligiblePool[i].weight || 10);
+            if (roll <= 0) {
+                selectedEnemy = eligiblePool[i];
+                break;
+            }
+        }
+        
+        // Final safety fallback
+        if (!selectedEnemy) selectedEnemy = eligiblePool[0];
+    }
+
+    // 3. INITIALIZE THE ENCOUNTER
+    // Clone the template so we don't modify the master 'enemies' array
+    enemy = { ...selectedEnemy, burn: 0 };
+
+    // 4. UI TRANSITIONS
+    document.getElementById('main-controls').classList.add('hidden');
+    document.getElementById('combat-view').classList.remove('hidden');
+    
+    renderCombatButtons(); 
+    updateUI(); 
+    
+    log(`Engaged in combat with: ${enemy.name}`, "#ff4757");
+
+    // 5. SPECIAL DIALOGUE CHECK
+    if (selectedEnemy.specialMsg) {
+        setTimeout(() => {
+            log(selectedEnemy.specialMsg, "var(--sanity)");
+        }, 150);
+    }
+}
+
+
+    function cast(sid) {
+        let s = skillTree[sid];
+        let scaledCost = getScaledMana(s.mp);
+
+        if (s.mp && p.mp < scaledCost) {
+            log(`Insufficient Mana! Need ${scaledCost} MP.`, "#ff4757");
+            return; 
+        }
+
+        if (s.mp) p.mp -= scaledCost;
+
+        if (s.dmg) { 
+            enemy.hp -= s.dmg; 
+            log(`You strike with ${s.name} for ${s.dmg} damage.`); 
+        }
+
+        if (s.burn) enemy.burn = s.burn;
+
+        // FIX: Using p.hp and p.sn (the correct property names)
+        if (s.heal) p.hp = Math.min(p.mhp, (p.hp || 0) + s.heal);
+        if (s.san) p.sn = Math.min(p.msn, (p.sn || 0) + s.san); // Uses s.san from skillTree
+
+        if (p.sn > 0) p.mp = Math.min(p.mmp, p.mp + 5);
+
+        if (enemy.hp <= 0) win(); else enemyTurn();
+        updateUI();
+    }
+    function enemyTurn() {
+        if (enemy.burn > 0) { 
+            enemy.hp -= 8; 
+            enemy.burn--; 
+            log(`${enemy.name} scorched! (-8 HP)`, "var(--gold)"); 
+        }
+        if (enemy.hp <= 0) return win();
+        if (enemy.lifesteal > 0) {
+            enemy.hp = Math.min(enemy.mhp, enemy.hp + enemy.lifesteal);
+            log(`${enemy.name} drains your life and heals ${enemy.lifesteal} HP`, "var(--hp)");
+        }
+        p.hp -= enemy.atk;
+        if (enemy.san > 0) {
+            p.sn = Math.max(0, p.sn - enemy.san);
+            log(`${enemy.name} strikes for ${enemy.atk} HP and <span class="san-warn">${enemy.san} Sanity Drain</span>!`);
+        } else log(`${enemy.name} strikes for ${enemy.atk} HP.`);
+        if (p.hp <= 0) { log("You have perished.", "#ff4757"); document.body.style.pointerEvents = "none"; }
+    }
+function addExperience(amt) {
+    // 1. Handle the addition/subtraction
+    // Math.max(0, ...) ensures your EXP never becomes a negative number
+    p.exp = Math.max(0, p.exp + amt);
+
+    // 2. Log the result
+    if (amt >= 0) {
+        log(`Gained ${formatNumber(amt)} EXP.`, "lime");
+    } else {
+        log(`The void consumes your knowledge... (${formatNumber(amt)} EXP)`, "var(--sanity)");
+    }
+
+    // 3. Level-Up Logic (Only runs if we have enough EXP to level up)
+    let nextLevelExp = Math.floor(100 * Math.pow(1.2, p.lv - 1));
+    let loopCount = 0; // Safety to prevent browser freeze
+
+    while (p.exp >= nextLevelExp) {
+        p.exp -= nextLevelExp;
+        p.lv++;
+        p.sp++; 
+
+        // 1.1x Stat Growth Formula: floor(CurrentMax * 1.1)
+        // We calculate the gain (10%) and ensure it's at least 1
+        let hpGain = Math.max(1, Math.floor(p.mhp * 0.1));
+        let mpGain = Math.max(1, Math.floor(p.mmp * 0.1));
+        let snGain = Math.max(1, Math.floor(p.msn * 0.1));
+
+        p.mhp += hpGain;
+        p.mmp += mpGain;
+        p.msn += snGain;
+
+        // Full Refill on Level Up
+        p.hp = p.mhp;
+        p.mp = p.mmp;
+        p.sn = p.msn;
+        
+        log(`LEVEL UP! Reached LV ${p.lv}. Stats increased! (+${formatNumber(hpGain)} Max HP, +${formatNumber(mpGain)} Max Mana, +${formatNumber(snGain)} Max Sanity)`, "var(--unlocked)");
+
+        // Recalculate requirement for the next level in the loop
+        nextLevelExp = Math.floor(100 * Math.pow(1.2, p.lv - 1));
+
+        // 4. Safety Break
+        // If a player gains enough EXP to level up >1000 times at once, 
+        // we stop the loop to prevent the game from freezing.
+        loopCount++;
+        if (loopCount > 1000) {
+            log("Experience surge stabilized at current level.", "var(--gold)");
+            break;
+        }
+    }
+
+    // 5. Final UI Sync
+    updateUI();
+}
+
+
+// Update win function to use the new experience helper
+    function win() {
+    log(`Victory! Looted ${formatNumber(enemy.gold)}g and ${formatNumber(enemy.exp)} EXP.`, "var(--unlocked)");
+    
+    // Safety check: Don't let gold drop below 0
+    p.gold = Math.max(0, p.gold + enemy.gold);
+    
+    addExperience(enemy.exp); 
+    enemy = null;
+    exitEvent();
+}
+
+
+    function exitEvent() {
+        document.getElementById('shop-view').classList.add('hidden');
+        document.getElementById('tree-view').classList.add('hidden');
+        document.getElementById('combat-view').classList.add('hidden');
+        document.getElementById('main-controls').classList.remove('hidden');
+        updateUI();
+    }
+    /* ADMIN FUNCTIONS */
+    function toggleAdmin() {
+        document.getElementById('admin-panel').classList.toggle('hidden');
+    }
+    function adminRefill(t) {
+        if(t==='hp') p.hp=p.mhp; if(t==='mp') p.mp=p.mmp; if(t==='sn') p.sn=p.msn;
+        log(`Admin: Refilled ${t.toUpperCase()}`, "var(--mana)"); updateUI();
+    }
+    function adminSet(s) {
+        let v = parseInt(prompt(`New ${s.toUpperCase()}:`, p[s]));
+        if(!isNaN(v)) { p[s]=v; if(s.startsWith('m')) p[s.substring(1)]=Math.min(p[s.substring(1)],v); updateUI(); }
+    }
+    // Function to export your current game state as a .urpg file
+    function exportSave() {
+        const saveData = JSON.stringify(p, (key, value) => 
+            value === Infinity ? "Infinity" : value
+        );
+        const blob = new Blob([saveData], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `luxs_rpg_save.urpg`;
+        link.click();
+        URL.revokeObjectURL(url);
+        log("Save file exported", "var(--gold)");
+    }
+    
+    // Function to read a .urpg file and overwrite the game state
+function importSave(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const loadedData = JSON.parse(e.target.result, (key, value) => 
+                value === "Infinity" ? Infinity : value
+            );
+
+            // CRITICAL: Block any file that doesn't have version 8
+            if (!loadedData.v || loadedData.v < 8) {
+                log("Error: Legacy save files (Pre-V8) are no longer compatible.", "#ff4757");
+                // Reset the file input so the user can try again
+                event.target.value = ""; 
+                return;
+            }
+
+            // If it passes the check, proceed with the import
+            p = loadedData;
+
+            // Sync skill tree "unlocked" states
+            for (let id in skillTree) {
+                skillTree[id].unlocked = (id === 'strike'); 
+            }
+            p.skills.forEach(skillId => {
+                if (skillTree[skillId]) skillTree[skillId].unlocked = true;
+            });
+
+            updateUI();
+            log(`Save loaded! Welcome back to LV ${p.lv}.`, "var(--unlocked)");
+        } catch (err) {
+            log("Error: This file is corrupted or not a valid .urpg file.", "#ff4757");
+        }
+    };
+    reader.readAsText(file);
+}
+
+
+</script>
+</body>
+</html>
