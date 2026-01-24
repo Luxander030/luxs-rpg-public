@@ -906,18 +906,6 @@ function formatNumber(num) {
     l.scrollTop = l.scrollHeight;
 }
 
-
-function applyBurn(enemy) {
-    if (enemy.burn > 0) {
-        let dmg = enemy.burn;
-        enemy.hp -= dmg;
-        enemy.burn--;
-        log(`${enemy.name} is burning! (-${dmg} HP)`, "#ff6b6b");
-    }
-}
-
-
-
     function nextDay() {
         p.day++;
         let manaLossScalingFactor = Math.max(p.day, p.lv * 2);
