@@ -497,7 +497,7 @@
             atk: 50000, san: 50000,
             exp: -100000, gold: -100000,
             lifesteal: 10000,
-            canSpawn: () => p.lv >= 100 || p.skills.includes('eldritchblast10'),
+            canSpawn: () => p.lv >= 100 || p.skills.includes('snowgrave'),
             trait: "Run Ender",
             specialMsg: "Lux: Hello there =)"
         },
@@ -629,7 +629,7 @@
             exp: 20, gold: 10,
             lifesteal: 0,
             trait: "Glass Cannon",
-            canSpawn: () => p.skills.includes('fire1'),
+            canSpawn: () => p.skills.includes('fire'),
         },
         {
             name: "Glass Cannon the III",
@@ -639,7 +639,7 @@
             exp: 30, gold: 15,
             lifesteal: 0,
             trait: "Glass Cannon",
-            canSpawn: () => p.skills.includes('fire2'),
+            canSpawn: () => p.skills.includes('fire') || p.lv >= 2,
         },
         {
             name: "Glass Cannon the IV",
@@ -649,7 +649,7 @@
             exp: 40, gold: 20,
             lifesteal: 0,
             trait: "Glass Cannon",
-            canSpawn: () => p.skills.includes('fire3'),
+            canSpawn: () => p.skills.includes('fire') || p.lv >= 6,
         },
         {
             name: "Glass Cannon the V",
@@ -659,7 +659,7 @@
             exp: 50, gold: 25,
             lifesteal: 0,
             trait: "Glass Cannon",
-            canSpawn: () => p.skills.includes('fire4'),
+            canSpawn: () => p.skills.includes('fire') || p.lv >= 10,
         },
         /*
         Normal Enemies
