@@ -29,9 +29,37 @@ Basic information:
 - SP: Skill points
 - Spells: Deal damage or heal or increase your sanity. Better spells require more skill points.
 
+Shop Information:
+- Shop prices scale with player LV
+- Shop item's potency *also* scales with player LV
+- Items:
+    - Health Vial
+        - Fills your HP back to max
+    - Mana Well
+        - Fills your Mana back to max
+    - Clarity Tonic
+        - Fills your Sanity back to max
+    - Dragon Heart
+        - Increases your max health (scales with player LV)
+    - Eldritch orb
+        - Increases your max mana (scales with player LV)
+    - Pure Insight
+        - Increases your max sanity (scales with player LV)
+    - Holy Grail
+        - Fills your HP, Mana, and Sanity back to max
+    - Treasure Map
+        - Gives you gold (scales with player LV)
+    - Knowledge Scroll
+        - Gives you EXP (scales with player LV)
+    - Mana Stabilizer
+        - Decreases the mana multiplier by 1%
+    - Damage Multiplier
+        - Increases total dmg output by 5%
+
+
 
 Detailed information:
 - Save Exporting/Importing
     - You can export your current save as a **.urpg** file.
     - You can import your **.urpg** save file.
-        - Word of warning: Legacy save files do not work with newer versions.
+        - **Word of warning: Legacy save files do not work with newer versions.**
