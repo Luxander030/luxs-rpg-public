@@ -697,7 +697,60 @@
         /*
         Elementals
         */
-        
+        {
+            name: "Fire Elemental",
+            weight: 20,
+            hp: 600, mhp: 600,
+            atk: 80, san: 10,
+            exp: 400, gold: 320,
+            lifesteal: 0,
+            burnImmune: true,
+            canSpawn: () => p.lv >= 15,
+            trait: "Elemental"
+        },
+        {
+            name: "Air Elemental",
+            weight: 20,
+            hp: 600, mhp: 600,
+            atk: 80, san: 10,
+            exp: 400, gold: 320,
+            lifesteal: 0,
+            burnResist: 0.5,
+            canSpawn: () => p.lv >= 15,
+            trait: "Elemental"
+        },
+        {
+            name: "Water Elemental",
+            weight: 20,
+            hp: 600, mhp: 600,
+            atk: 80, san: 10,
+            exp: 400, gold: 320,
+            lifesteal: 0,
+            burnResist: 0.2,
+            canSpawn: () => p.lv >= 15,
+            trait: "Elemental"
+        },
+        {
+            name: "Earth Elemental",
+            weight: 20,
+            hp: 600, mhp: 600,
+            atk: 80, san: 10,
+            exp: 400, gold: 320,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 15,
+            trait: "Elemental"
+        },
+        {
+            name: "Ice Elemental",
+            weight: 20,
+            hp: 600, mhp: 600,
+            atk: 80, san: 10,
+            exp: 400, gold: 320,
+            lifesteal: 0,
+            burnVuln: 1.5,
+            canSpawn: () => p.lv >= 15,
+            trait: "Elemental"
+        },
         /*
         Lifesteal Enemies
         */
@@ -1198,14 +1251,14 @@ function formatNumber(num) {
         if (p.sn > 0) {
             let manaRegained = 100 * manaRegainedScalingFactor;
             p.mp = Math.min(p.mmp, p.mp + manaRegained);
-            log(`Resting between days restores mana. Lux laughs at your laziness. (${formatNumber(manaRegained)} Mana Regained)...`, "var(--mana)");
+            log(`Resting between days restores mana... (${formatNumber(manaRegained)} Mana Regained)`, "var(--mana)");
             if (Math.random() < 0.05) {
             log(`Lux: Maybe don't be lazy, and maybe, just maybe, you'll get what you want.`, "#3c23a8")
             }
         } else {
             let manaLost = 50 * manaLossScalingFactor;
             p.mp = Math.max(0, p.mp - manaLost);
-            log(`Lux consumes your essence (${formatNumber(manaLost)} Mana Lost)...`, "var(--sanity)");
+            log(`Lux consumes your essence... (${formatNumber(manaLost)} Mana Lost)`, "var(--sanity)");
             if (Math.random() < 0.05) {
                 log(`Lux: Maybe don't be insane, and maybe we wouldn't be in this situation.`,"#3c23a8")
             }
