@@ -191,6 +191,7 @@
         <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
         <div class="stat-entry"><span class="stat-label">Current Max Mana:</span> <b id="side-mmp">50</b></div>
         <div class="stat-entry"><span class="stat-label">Current Mana:</span> <b id="side-mp">50</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Mana Reduction:</span> <b id="side-red">0%</b></div>
         <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
         <div class="stat-entry"><span class="stat-label">Current Max Sanity:</span> <b id="side-msn">100</b></div>
         <div class="stat-entry"><span class="stat-label">Current Sanity:</span> <b id="side-sn">100</b></div>
@@ -198,8 +199,9 @@
         <div class="stat-entry"><span class="stat-label">Current Level:</span> <b id="side-lv">1</b></div>
         <div class="stat-entry"><span class="stat-label">Current EXP:</span> <b id="side-exp">0</b></div>
         <div class="stat-entry"><span class="stat-label">EXP to Next LV:</span><b id="side-next-exp">100</b></div>
-        <div class="stat-entry"><span class="stat-label">Current Mana Reduction:</span> <b id="side-red">0%</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
         <div class="stat-entry"><span class="stat-label">Current Gold:</span> <b id="side-gold">0</b></div>
+        <div class="stat-entry"><span class="stat-label">Skill Points Available:</span> <b id="side-sp">0</b></div>
         <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
         <div class="stat-entry"><span class="stat-label">Total Kills:</span> <b id="side-kills">0</b></div>
         <div class="stat-entry"><span class="stat-label">Damage multiplier:</span> <b id="side-dmgmult">100%</b></div>
@@ -1057,6 +1059,7 @@
     document.getElementById('side-sn').innerText  = formatNumber(p.sn);
     document.getElementById('side-lv').innerText = p.lv;
     document.getElementById('side-exp').innerText = formatNumber(p.exp);
+    document.getElementById('side-sp').innerText = formatNumber(p.sp);
     document.getElementById('side-gold').innerText = formatNumber(p.gold);
     let expRemaining = nextLevelExp - p.exp;
     document.getElementById('side-next-exp').innerText = formatNumber(expRemaining);
