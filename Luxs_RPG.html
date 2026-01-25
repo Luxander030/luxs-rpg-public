@@ -50,10 +50,7 @@
         /* Hidden file input for the Import functionality */
         #import-input { display: none; }
 
-        
-        /* Admin Styling */
-        /* Warden's console positioned top-left */
-#admin-panel { 
+#debugging-panel { 
     position: fixed; 
     top: 15px;      /* Slight offset from the very edge */
     left: 15px; 
@@ -153,7 +150,7 @@
             </div>
         </div>
 
-        <div id="log">Welcome to Lux's RPG V8! (Originally named Unfair RPG Game)</div>
+        <div id="log">Welcome to your standard RPG.</div>
 
         <div id="shop-view" class="hidden">
             <h3>Wandering Merchant</h3>
@@ -211,7 +208,7 @@
 </div>
 
 <!-- Ghost Admin Trigger & Panel -->
-<div id="admin-panel" class="hidden">
+<div id="debugging-panel" class="hidden">
     <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Game Master Console >_</h3>
     <div id="console-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
         System ready...
@@ -240,7 +237,7 @@
         skills: ['strike'], // Skills at start
         manaReduction: 0,  // Mana Reduction (0 is 0% reduction and base)
         kills: 0, // Total amount of kills
-        dmgmult: 0
+        dmgmult: 1 // Damage Multiplier
         
     };
     let enemy = null;
@@ -322,6 +319,13 @@
             run: () => { 
                 let gain = Math.floor(100 * Math.pow(1.25, p.lv - 1));
                 p.gold += gain; 
+                if (Math.random() < 0.05) {
+                    if (p.gold < 10000) {
+                        log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"#3c23a8");
+                    } else {
+                        log(`Lux: You know... I never get why humans are so... greedy in the first place. Their lives are short anyway. Why would they need that much gold?`,"#3c23a8");
+                    }
+                }
                 return `Found a hidden cache of ${formatNumber(gain)} gold!`; 
             } 
         },
@@ -333,6 +337,9 @@
             run: () => { 
                 let gain = Math.floor(100 * Math.pow(1.25, p.lv - 1));
                 addExperience(gain)
+                if (Math.random() < 0.01) {
+                    log(`Lux: Try all you want. You'll never be as knowledged as me =)`,"#3c23a8");
+                }
                 return `Learned new knowledge. (+${formatNumber(gain)} EXP)`; 
             } 
         },
@@ -356,8 +363,14 @@
             name: 'Damage Multiplier', 
             get cost() { return Math.floor(300 * Math.pow(1.3, p.lv - 1)); }, 
             run: () => { 
-                p.dmgmult += 0.05;
-                return `Damage Multiplier increased! Mana Costs reduced by an additional 5%.`; 
+                p.dmgmult += 0.05; 
+                if (Math.random() < 0.01) {
+                    log(`Lux: Interesting... I see you've learned how to hurt better... I wonder how that...`, "#3c23a8")
+                    setTimeout(() => {
+                        log(`Lux: ...feels?`,"#ff0000")
+                    }, 500); // 500ms = 0.5 seconds
+                }
+                return `Damage Multiplier increased! Mana Damage increased by an additional 5%.`;
             } 
         }
     ];
@@ -369,7 +382,7 @@
             parent: null,
             unlocked: true,
             get dmg() {
-                return (12*(p.dmgmult+1))
+                return Math.floor((12*(p.dmgmult+1)))
             }
 
         },
@@ -380,7 +393,7 @@
             unlocked: false, 
             mp: 15, 
             get dmg() { 
-                return (((p.lv*0.5)*22)+22)*(p.dmgmult+1); 
+                return Math.floor((((p.lv*0.5)*22)+22)*(p.dmgmult+1)); 
             },
             get burn() {
                 return (p.lv*2);
@@ -393,7 +406,7 @@
             unlocked: false, 
             mp: 45, 
             get dmg() { 
-                return (((p.lv*0.5)*70)+70)*(p.dmgmult+1); 
+                return Math.floor((((p.lv*0.5)*70)+70)*(p.dmgmult+1)); 
             }
         },
         fingerofdeath: {
@@ -403,7 +416,7 @@
             unlocked: false, 
             mp: 100, 
             get dmg() { 
-                return ((p.lv*250)+250)*(p.dmgmult+1); 
+                return Math.floor(((p.lv*250)+250)*(p.dmgmult+1)); 
             }
         },
         siphonray: {
@@ -413,10 +426,10 @@
             unlocked: false, 
             mp: 100, 
             get dmg() {
-                return ((p.lv*100)+100); 
+                return Math.floor(((p.lv*100)+100)); 
             },
             get heal() { 
-                return ((p.lv*100)+100)*(p.dmgmult+1); 
+                return Math.floor(((p.lv*100)+100)*(p.dmgmult+1)); 
             }
         },
         eldritchblast: {
@@ -426,7 +439,7 @@
             unlocked: false, 
             mp: 100, 
             get dmg() {
-                return ((p.lv*400)+400)*(p.dmgmult+1); 
+                return Math.floor(((p.lv*400)+400)*(p.dmgmult+1)); 
             }
         },
         iceshock: {
@@ -436,7 +449,7 @@
             unlocked: false, 
             mp: 10000, 
             get dmg() { 
-                return (((p.lv - 10) * 30) + 90)*(p.dmgmult+1); 
+                return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult+1)); 
             },
         },
         snowgrave: {
@@ -446,10 +459,10 @@
             unlocked: false, 
             mp: 20000, 
             get dmg() { 
-                return ((p.lv*40)+600)*(p.dmgmult+1); 
+                return Math.floor(((p.lv*40)+600)*(p.dmgmult+1)); 
             },
             get san() {
-                return ((p.sn-(p.sn/2))*(-1))
+                return Math.floor(((p.sn-(p.sn/2))*(-1)))
             }
         },
         heal: {
@@ -459,7 +472,7 @@
             unlocked: false, 
             mp: 20000, 
             get heal() { 
-                return ((35*p.lv)+10); 
+                return Math.floor(((35*p.lv)+10)); 
             }
         },
         mindshield: {
@@ -469,7 +482,7 @@
             unlocked: false, 
             mp: 5000, 
             get san() { 
-                return ((p.mmp*5)+5); 
+                return Math.floor(((p.mmp*5)+5)); 
             },
         },
         dualheal: {
@@ -479,10 +492,10 @@
             unlocked: false, 
             mp: 5000, 
             get heal() { 
-                return ((p.lv*1000)+2000); 
+                return Math.floor(((p.lv*1000)+2000)); 
             },
             get san() {
-                return ((p.lv*100)+850)
+                return Math.floor(((p.lv*100)+850))
             }
         },
         healprayer: {
@@ -492,7 +505,7 @@
             unlocked: false, 
             mp: 5000, 
             get heal() { 
-                return ((p.mmp*5)+5); 
+                return Math.floor(((p.mmp*5)+5)); 
             },
         },
         ralseidualheal: {
@@ -502,38 +515,91 @@
             unlocked: false, 
             mp: 10000, 
             get heal() { 
-                return ((p.mmp*5.5)+p.msn); 
+                return Math.floor(((p.mmp*5.5)+p.msn)); 
             },
             get san() {
-                return ((p.msn*5.5)+p.mmp);
+                return Math.floor(((p.msn*5.5)+p.mmp));
             }
         }
     };
     const enemies = [
-        /**
-         * Run Enders
-         */
+        /*
+        Vars to use for enemies:
+        name = the name of the enemy
+        hp = current hp
+        mhp = max hp of the enemy
+        atk = dmg dealt by enemy
+        san = amount of sanity drain enemy deals
+        exp = amount of exp recived when enemy is killed
+        gold = amount of gold recived when enemy is killed
+        lifesteal = amoutn of hp enemy heals for each round (must be equal to or higher the dmg stat)
+        burnImmune = true/false, makes enemy either immune to burn dmg or not
+        burnResist = 0-1, 0.5 = half burn dmg
+        burnVuln = any number higher then 1, 1.5 = 150% burn damage
+        burnReflect = amount of burn damage reflected to player
+        */
+        
+        /*
+        Run Enders
+        */
         {
             name: "Lux",
             weight: 1,
-            hp: 1000000000, mhp: 1000000000,
-            atk: 50000, san: 50000,
-            exp: -100000, gold: -100000,
-            lifesteal: 10000,
-            canSpawn: () => p.lv >= 100 || p.skills.includes('snowgrave'),
-            trait: "Run Ender",
-            specialMsg: "Lux: Hello there =)"
+            get hp() {
+                return this.mhp;
+            },
+            get mhp() {
+                return (1000000000)*p.lv;
+            },
+            get atk() {
+                return ((50000)*p.lv)*p.dmgmult
+            },
+            get san() {
+                return (50000)*p.lv
+            },
+            get exp() {
+                return (((100000)*p.lv)*-1)
+            },
+            get gold() {
+                return (((100000)*p.lv)*-1)
+            },
+            get lifesteal() {
+                return (10000)*p.lv
+            },
+            burnImmune: true,
+            canSpawn: () => p.lv >= 100 && p.skills.includes('snowgrave') || p.skills.includes('ralseidualheal'),
+            trait: "The god of this forsaken realm",
+            specialMsg: "Lux: Hello there, and welcome. To my realm of nightmares =)"
         },
         {
             name: "Kitsune",
             weight: 2,
-            hp: 1000000, mhp: 1000000,
-            atk: 5000, san: 5000,
-            exp: -10000, gold: -10000,
-            lifesteal: 1000,
-            canSpawn: () => p.lv >= 30 || p.skills.includes('eldritchblast7'),
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return ((1000000)*(p.lv/1.25))
+            },
+            get atk() {
+                return ((5000)*(p.lv/1.25))
+            },
+            get san() {
+                return ((5000)*(p.lv/1.25))
+            },
+            get exp() {
+                return (((10000)*(p.lv/1.25))*-1)
+            },
+            get gold() {
+                return (((10000)*(p.lv/1.25))*-1)
+            },
+            get lifesteal() {
+                return ((1000)*(p.lv/1.25))
+            },
+            burnResist: 0.9,
+            burnReflect: 1,
+            canSpawn: () => p.lv >= 50 && p.skills.includes('eldritchblast'),
             trait: "Lux's Run Ender Minion",
-            specialMsg: "Kitsune: If you kill me, my boss will kill you."
+            specialMsg: "Kitsune: If you kill me, my god will kill you."
         },
         /*
         World Bosses
@@ -541,13 +607,30 @@
         {
             name: "Azmodan",
             weight: 5,
-            hp: 10000, mhp: 10000,
-            atk: 240, san: 50,
-            exp: 1200, gold: 32000,
-            lifesteal: 0,
-            canSpawn: () => p.lv >= 30 || p.skills.includes('eldritchblast5'),
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return ((10000)*(p.lv/2))
+            },
+            get atk() {
+                return ((240)*(p.lv/2))
+            },
+            get san() {
+                return ((50)*(p.lv/2))
+            },
+            get exp() {
+                return ((1200)*(p.lv/2))
+            },
+            get gold() {
+                return ((32000)*(p.lv/2))
+            },
+            get lifesteal() {
+                return 1000*p.lv
+            },
+            canSpawn: () => p.lv >= 30 && p.skills.includes('eldritchblast'),
             trait: "World boss",
-            specialMsg: "Azmodan: This world will burn."
+            specialMsg: "Azmodan: This world will burn by Lux's hand and I will make sure it does."
         },
         /*
         Bosses
@@ -555,12 +638,48 @@
         {
             name: "Obsidian Golem",
             weight: 10,
-            hp: 1200, mhp: 1200,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return 1500+(p.lv*100)
+            },
             atk: 160, san: 20,
             exp: 800, gold: 640,
             lifesteal: 0,
             canSpawn: () => p.lv >= 20,
             trait: "Boss"
+        },
+        {
+            name: "Duriel",
+            weight: 10,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return 1300+(p.lv*100)
+            },
+            atk: 150, san: 30,
+            exp: 800, gold: 640,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 20,
+            trait: "Boss"
+        },
+        {
+            name: "Will o' Wisp",
+            weight: 10,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return 2500+(p.lv*100)
+            },
+            atk: 120, san: 60,
+            exp: 800, gold: 640,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 20,
+            trait: "Boss",
+            specialMsg: `Ever heard of "Lux"? Heard he's quite a nice guy!`
         },
         /*
         Mini-Bosses
@@ -576,6 +695,10 @@
             trait: "Mini-Boss"
         },
         /*
+        Elementals
+        */
+        
+        /*
         Lifesteal Enemies
         */
         {
@@ -585,7 +708,7 @@
             atk: 11, san: 5,
             exp: 30, gold: 25,
             lifesteal: 10,
-            canSpawn: () => p.skills.includes('fire1'),
+            canSpawn: () => p.skills.includes('fire'),
             trait: "Regenerates 10 HP per turn"
         },
         {
@@ -595,8 +718,9 @@
             atk: 33, san: 15,
             exp: 90, gold: 75,
             lifesteal: 30,
-            canSpawn: () => p.skills.includes('fire3'),
-            trait: "Regenerates 30 HP per turn"
+            canSpawn: () => p.skills.includes('fire') && p.lv >= 30,
+            trait: "Regenerates 30 HP per turn",
+            specialMsg: "Vampire: Don't worry, it won't hurt."
         },
         {
             name: "Vampire Lord",
@@ -605,8 +729,20 @@
             atk: 99, san: 45,
             exp: 270, gold: 225,
             lifesteal: 90,
-            canSpawn: () => p.skills.includes('fire5'),
-            trait: "Regenerates 90 HP per turn"
+            canSpawn: () => p.skills.includes('fire') && p.lv >= 40,
+            trait: "Regenerates 90 HP per turn",
+            specialMsg: "Vampire Lord: Okay it might hurt a little bit..."
+        },
+        {
+            name: "Vampire King",
+            weight: 6,
+            hp: 900, mhp: 900,
+            atk: 198, san: 90,
+            exp: 540, gold: 450,
+            lifesteal: 180,
+            canSpawn: () => p.skills.includes('fire') && p.lv >= 50,
+            trait: "Regenerates 180 HP per turn",
+            specialMsg: "Vampire King: There is only one entity I fear. That entity being Lux."
         },
         /*
         Sanity Drain Enemies
@@ -619,7 +755,8 @@
             exp: 45, gold: 35,
             lifesteal: 0,
             canSpawn: () => true,
-            trait: "Sanity Drainer"
+            trait: "Sanity Drainer",
+            specialMsg: "Nightmare may stalk you..."
         },
         {
             name: "Void Stalker",
@@ -629,7 +766,8 @@
             exp: 60, gold: 50,
             lifesteal: 0,
             canSpawn: () => p.lv >= 5 || p.msn >= 150,
-            trait: "Elite Sanity Predator"
+            trait: "Elite Sanity Predator",
+            specialMsg: "...but Lux stalks us all."
         },
         /*
         Glass Cannons
@@ -642,7 +780,8 @@
             exp: 10, gold: 5,
             lifesteal: 0,
             trait: "Glass Cannon",
-            canSpawn: () => true
+            canSpawn: () => true,
+            specialMsg: "Glass Cannon the I: Hello!"
         },
         {
             name: "Glass Cannon the II",
@@ -653,6 +792,7 @@
             lifesteal: 0,
             trait: "Glass Cannon",
             canSpawn: () => p.skills.includes('fire'),
+            specialMsg: "Glass Cannon the II: Have you seen Glass Cannon the I yet? He made a bet with me yesterday and lost."
         },
         {
             name: "Glass Cannon the III",
@@ -663,6 +803,7 @@
             lifesteal: 0,
             trait: "Glass Cannon",
             canSpawn: () => p.skills.includes('fire') || p.lv >= 2,
+            specialMsg: "Glass Cannon the III: Did you kill Glass Cannon the II yet? He owes me 20 gold from yesterday."
         },
         {
             name: "Glass Cannon the IV",
@@ -673,6 +814,7 @@
             lifesteal: 0,
             trait: "Glass Cannon",
             canSpawn: () => p.skills.includes('fire') || p.lv >= 6,
+            specialMsg: "Glass Cannon the IV: Heard of my brother Glass Cannon the V? He's never afraid of anything. Well except one thing..."
         },
         {
             name: "Glass Cannon the V",
@@ -683,6 +825,7 @@
             lifesteal: 0,
             trait: "Glass Cannon",
             canSpawn: () => p.skills.includes('fire') || p.lv >= 10,
+            specialMsg: "Glass Cannon the V: Haha, you finally made it... but Lux still laughs at us all."
         },
         /*
         Normal Enemies
@@ -708,6 +851,28 @@
             trait: "High HP, however Low ATK"
         },
         {
+            name: "Drow Elf",
+            weight: 53,
+            hp: 90, mhp: 90,
+            atk: 25, san: 5,
+            exp: 70, gold: 150,
+            lifesteal: 0,
+            canSpawn: () => p.skills.includes('thunderbolt'),
+            trait: "Hates regular elves",
+            specialMsg: "Drow Elf: We Drow Elves only bow to one god. That one being the creator of this realm."
+        },
+        {
+            name: "Elf",
+            weight: 59,
+            hp: 80, mhp: 80,
+            atk: 15, san: 0,
+            exp: 35, gold: 70,
+            lifesteal: 0,
+            canSpawn: () => p.skills.includes('thunderbolt'),
+            trait: "Hates Drow elves elves",
+            specialMsg: `Elf: We find Drow Elves goofy in a way that they fear a so called "god". He certainly can't be real... right?`
+        },
+        {
             name: "Stone Golem",
             weight: 50,
             hp: 150, mhp: 150,
@@ -728,6 +893,89 @@
             trait: "Slow Titan"
         },
     ];
+    function checkLuxKillLogs() {
+    const kills = p.kills;
+
+    if (kills === 1) {
+        log(`Lux: Ah… one soul. How… quaint.`, "#3c23a8");
+
+    } else if (kills === 10) {
+        log(`Lux: Ten souls… growing bolder, are we?`, "#4625a6");
+
+    } else if (kills === 100) {
+        log(`Lux: Ah… I see you've killed 100 souls. How… diligent of you.`, "#5128a3");
+        setTimeout(() => {
+            log(`Lux: But remember… all of this… is still meaningless.`, "#7a2a7a");
+        }, 1000);
+        setTimeout(() => {
+            log(`Lux: I'm always watching… always counting.`, "#9a2a5c");
+        }, 2000);
+
+    } else if (kills === 250) {
+        log(`Lux: 250… your hands are growing heavy with the weight of life.`, "#5c2b9f");
+        setTimeout(() => {
+            log(`Lux: I wonder… do you even notice who you've become?`, "#b02a4a");
+        }, 1200);
+
+    } else if (kills === 500) {
+        log(`Lux: 500 souls. Half a millennium of life extinguished by your hand.`, "#6a2d9b");
+        setTimeout(() => {
+            log(`Lux: And yet, it still feels… insufficient.`, "#c22a3a");
+        }, 1000);
+
+    } else if (kills === 750) {
+        log(`Lux: 750… your existence is a tapestry of loss.`, "#7a2f96");
+        setTimeout(() => {
+            log(`Lux: Do you hear them whispering?`, "#d12a2e");
+        }, 1000);
+        setTimeout(() => {
+            log(`Lux: Every soul you took… they still scream.`, "#e22a1f");
+        }, 2000);
+
+    } else if (kills === 1000) {
+        log(`Lux: 1000 souls… a thousand lives, extinguished.`, "#8a318f");
+        setTimeout(() => {
+            log(`Lux: Can you feel the weight?`, "#ff3b1a");
+        }, 1000);
+        setTimeout(() => {
+            log(`Lux: I can. And I am immortal.`, "#ff0000");
+        }, 2000);
+
+    } else if (kills === 5000) {
+        log(`Lux: 5000… the world trembles beneath your deeds.`, "#9b3387");
+        setTimeout(() => {
+            log(`Lux: So many lives… and yet… I endure.`, "#ff0000");
+        }, 1000);
+        setTimeout(() => {
+            log(`Lux: Mortals like you… fleeting. Me… eternal.`, "#ff0000");
+        }, 2000);
+
+    } else if (kills === 10000) {
+        log(`Lux: 10,000 souls. I almost admire your persistence.`, "#ad347e");
+        setTimeout(() => {
+            log(`Lux: Almost.`, "#ff0000");
+        }, 1000);
+        setTimeout(() => {
+            log(`Lux: But I am beyond your comprehension.`, "#ff0000");
+        }, 2000);
+
+    } else if (kills === 100000) {
+        log(`Lux: 100,000 souls… You have become a harbinger of death itself.`, "#c03672");
+        setTimeout(() => {
+            log(`Lux: And yet, you are nothing…`, "#ff0000");
+        }, 1000);
+        setTimeout(() => {
+            log(`Lux: I am eternal. I see all.`, "#ff0000");
+        }, 2000);
+        setTimeout(() => {
+            log(`Lux: Every timeline. Every choice. Every failure. Every triumph.`, "#ff0000");
+        }, 3000);
+        setTimeout(() => {
+            log(`Lux: And it all belongs to me.`, "#ff0000");
+        }, 4000);
+    }
+}
+
 
     function updateUI() {
     // 1. Player Vital Stats (HP, Mana, Sanity)
@@ -764,7 +1012,7 @@
     document.getElementById('side-red').innerText = redPercent + "%";
     document.getElementById('side-kills').innerText = formatNumber(p.kills);
     // Convert dmgMult decimal (0.05) to percentage (5%)
-    let dmgMultPrecent = Math.round(((p.dmgmult || 0) + 1) * 100);
+    let dmgMultPrecent = Math.round(((p.dmgmult || 0) - 1) * 100);
     document.getElementById('side-dmgmult').innerText = dmgMultPrecent + "%";
     // 4. Enemy Stats (Conditional check if in combat)
     if (enemy) {
@@ -796,7 +1044,7 @@ document.getElementById('console-input').addEventListener('keypress', function (
 });
 
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !document.getElementById('admin-panel').classList.contains('hidden')) {
+    if (e.key === 'Escape' && !document.getElementById('debugging-panel').classList.contains('hidden')) {
         toggleAdmin();
     }
 });
@@ -877,7 +1125,6 @@ function handleCommand(cmd) {
             break;
         case '/exp':
             if (!isNaN(val)) { 
-                // We call the function and pass 'val' so the loop knows how much to add
                 addExperience(val); 
                 response = `Granted ${val} EXP. Current LV: ${p.lv}`; 
             } else {
@@ -901,9 +1148,8 @@ function handleCommand(cmd) {
     updateUI();
 }
 
-// Optional: Autofocus input when opening console
 function toggleAdmin() {
-    const panel = document.getElementById('admin-panel');
+    const panel = document.getElementById('debugging-panel');
     panel.classList.toggle('hidden');
     if (!panel.classList.contains('hidden')) {
         document.getElementById('console-input').focus();
@@ -947,24 +1193,32 @@ function formatNumber(num) {
 
     function nextDay() {
         p.day++;
-        let manaLossScalingFactor = Math.max(p.day, p.lv * 2);
+        let manaLossScalingFactor = p.day;
         let manaRegainedScalingFactor = p.lv;
         if (p.sn > 0) {
             let manaRegained = 100 * manaRegainedScalingFactor;
             p.mp = Math.min(p.mmp, p.mp + manaRegained);
-            log(`Resting between days restores mana (${formatNumber(manaRegained)} Mana Regained)...`, "var(--mana)");
+            log(`Resting between days restores mana. Lux laughs at your laziness. (${formatNumber(manaRegained)} Mana Regained)...`, "var(--mana)");
+            if (Math.random() < 0.01) {
+            log(`Lux: Maybe don't be lazy, and maybe, just maybe, you'll get what you want.`, "#3c23a8")
+            }
         } else {
-            // Use scalingFactor instead of just p.day
             let manaLost = 50 * manaLossScalingFactor;
             p.mp = Math.max(0, p.mp - manaLost);
-            log(`Madness consumes your essence (${formatNumber(manaLost)} Mana Lost)...`, "var(--sanity)");
+            log(`Lux consumes your essence (${formatNumber(manaLost)} Mana Lost)...`, "var(--sanity)");
+            if (Math.random() < 0.01) {
+                log(`Lux: Maybe don't be insane, and maybe we wouldn't be in this situation.`,"#3c23a8")
+            }
         }
         
         let roll = Math.random();
         // 15% Spring, 25% Shop, 60% Combat
         if (roll < 0.15) {
             let springScalingRestore = 50*p.lv
-            log(`You discovered a Tranquil Spring (All Stats recovered by ${formatNumber(springScalingRestore)})...`, "#00ffff");
+            log(`You discovered a Tranquil Spring. (All Stats recovered by ${formatNumber(springScalingRestore)})...`, "#00ffff");
+            if (Math.random() < 0.01) {
+                log (`Lux: Do you really think a little pond will help you?`,"#3c23a8")
+            }
             p.hp = Math.min(p.mhp, p.hp + springScalingRestore); 
             p.mp = Math.min(p.mmp, p.mp + springScalingRestore); 
             p.sn = Math.min(p.msn, p.sn + springScalingRestore);
@@ -974,6 +1228,9 @@ function formatNumber(num) {
     }
 
     function startShop() {
+    if (Math.random() < 0.01) {
+        log(`Lux: Oh look, a wandering merchant. Better stock up on goods =)`,"#3c23a8")
+    }
     log("The Wandering Merchant beckons you...", "var(--gold)");
     document.getElementById('main-controls').classList.add('hidden');
     document.getElementById('shop-view').classList.remove('hidden');
@@ -1001,30 +1258,39 @@ function formatNumber(num) {
     });
 }
 
+function maybeSoldOut(btn) {
+    btn.innerText = Math.random() < 0.05 ? "=)" : "Sold Out";
+}
 
-    function buyItem(id, btnId) {
-        let item = masterShop.find(i => i.id === id);
-        if (p.gold >= item.cost) { 
-            p.gold -= item.cost; 
-            log(item.run(), "var(--unlocked)"); 
-            
-            let btn = document.getElementById(btnId);
-            if (btn) {
-                btn.disabled = true;
-                btn.innerText = "Sold Out";
-            }
+function buyItem(id, btnId) {
+    let item = masterShop.find(i => i.id === id);
+    if (p.gold >= item.cost) { 
+        p.gold -= item.cost; 
+        log(item.run(), "var(--unlocked)"); 
+        
+        let btn = document.getElementById(btnId);
+        if (btn) {
+            btn.disabled = true;
 
-            // FIX: Force combat buttons to re-render if the combat view is visible
-            const combatView = document.getElementById('combat-view');
-            if (combatView && !combatView.classList.contains('hidden')) {
-                renderCombatButtons();
-            }
-
-            updateUI(); 
-        } else {
-            log("You lack the coin. This world is not for the poor...", "#ff4757");
+            // 5% chance to show "=)" instead of "Sold Out"
+            btn.innerText = Math.random() < 0.05 ? "=)" : "Sold Out";
         }
+
+        // FIX: Force combat buttons to re-render if the combat view is visible
+        const combatView = document.getElementById('combat-view');
+        if (combatView && !combatView.classList.contains('hidden')) {
+            renderCombatButtons();
+        }
+
+        updateUI(); 
+    } else {
+    if (Math.random() < 0.01) {
+        log(`Lux: You're broke, you know that? Or are you blind as hell? Actually, I don't care if you're blind or not. Just makes it either faster or slower to kill you later.`,"#3c23a8")
     }
+        log("You lack the coin. This world is not for the poor...", "#ff4757");
+    }
+}
+
     function positionTooltip(e, tip) {
     let x = e.clientX + 15;
     let y = e.clientY + 15;
@@ -1063,12 +1329,8 @@ function renderCombatButtons() {
 
     const categories = [
         { label: "Basic Actions", filter: (s) => !s.mp || s.name === "Strike" },
-        { label: "Eldritch Blast", filter: (s) => s.name.startsWith("Eldritch Blast") },
-        { label: "Fire Spells", filter: (s) => s.name.startsWith("Fireball") },
-        { label: "Thunder Spells", filter: (s) => s.name.startsWith("Thunderbolt") },
-        { label: "Ice Spells", filter: (s) => s.name.startsWith("Iceshock") || s.name.startsWith("Snowgrave") },
-        { label: "Healing & Mind", filter: (s) => (s.heal || s.san) && s.mp },
-        { label: "Pacify", filter: (s) => s.name.startsWith("Pacify") }
+        { label: "Damaging Spells", filter: (s) => s.dmg },
+        { label: "Healing Spells", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave"},
     ];
 
     categories.forEach(cat => {
@@ -1096,7 +1358,7 @@ function renderCombatButtons() {
                     let html = `<strong>${s.name}</strong><br>`;
                     if (s.dmg) html += `DMG: <span style="color:var(--hp)">${formatNumber(s.dmg)}</span><br>`;
                     if (s.heal) html += `Healing: <span style="color:var(--unlocked)">${formatNumber(s.heal)}</span><br>`;
-                    if (s.san) html += `Sanity: <span style="color:var(--sanity)">+${formatNumber(s.san)}</span><br>`;
+                    if (s.san) html += `Sanity: <span style="color:var(--sanity)">${formatNumber(s.san)}</span><br>`;
                     if (s.burn) html += `Burn: <span style="color:var(--gold)">${s.burn} turns</span><br>`;
                     
                     tip.innerHTML = html + `<hr style="border:0;border-top:1px solid #444;margin:5px 0"><small>${s.mp ? 'Cost: ' + formatNumber(currentCost) + ' MP' : 'No Cost'}</small>`;
@@ -1150,13 +1412,17 @@ function renderTree() {
         let div = document.createElement('div');
         div.className = `node ${s.unlocked ? 'purchased' : (isParentUnlocked ? 'available' : '')}`;
         
-        // UPDATED: Now shows the actual SP cost from the skillTree object
-        div.innerHTML = `<strong>${s.name}</strong><br>${s.unlocked ? 'Known' : s.cost + ' SP'}`;
-        
+        // 5% chance to replace name and cost with "=)"
+        let displayName = Math.random() < 0.05 ? "=)" : s.name;
+        let displayCost = Math.random() < 0.05 ? "=)" : (s.unlocked ? 'Known' : s.cost + ' SP');
+
+        div.innerHTML = `<strong>${displayName}</strong><br>${displayCost}`;
+
         if (isParentUnlocked && !s.unlocked) div.onclick = () => buySkill(id);
         container.appendChild(div);
     }
 }
+
 
 function buySkill(id) {
     let s = skillTree[id];
@@ -1168,11 +1434,17 @@ function buySkill(id) {
         s.unlocked = true;
         p.skills.push(id);
         log(`Learned ${s.name}!`, "var(--unlocked)");
+        if (Math.random() < 0.01) {
+            log(`Lux: Congratulations. You got a new spell. Doesn't really help you anyway. I can still delete you =)`,"#3c23a8")
+        }
         renderTree();
         updateUI();
     } else {
         // Updated log message to show required points
         log(`You need ${s.cost} Skill Points to learn this.`, "#ff4757");
+        if (Math.random() < 0.01) {
+            log(`Lux: You lack the wizdom that I have. I'm still a god in this world anywy. You're nothing...`,"#3c23a8")
+        }
     }
 }
 
@@ -1198,7 +1470,7 @@ function buySkill(id) {
     if (nextEnemyOverride) {
         selectedEnemy = enemies.find(e => e.name.toLowerCase() === nextEnemyOverride.toLowerCase());
         nextEnemyOverride = null; // Reset so only one fight is forced
-        if (selectedEnemy) log("You have encountered an unnatural enemy...", "var(--gold)");
+        if (selectedEnemy) log("You have encountered an unnatural enemy. Maybe Lux sent them?", "#3c23a8");
     }
 
     // 2. STANDARD SELECTION (If no override exists)
@@ -1253,7 +1525,7 @@ function buySkill(id) {
     // 5. SPECIAL DIALOGUE CHECK
     if (selectedEnemy.specialMsg) {
         setTimeout(() => {
-            log(selectedEnemy.specialMsg, "var(--sanity)");
+            log(selectedEnemy.specialMsg, "#bf2c89");
         }, 150);
     }
 }
@@ -1265,6 +1537,9 @@ function buySkill(id) {
 
         if (s.mp && p.mp < scaledCost) {
             log(`Insufficient Mana! Need ${scaledCost} MP.`, "#ff4757");
+            if (Math.random() < 0.2) {
+            log(`Lux: You absolute baffoon. You're stressing yourself out more and more. Do you really want to burn out your soul? It'll just make it more crispy when I eat it later =)`, "#3c23a8");
+            }
             return; 
         }
 
@@ -1273,9 +1548,20 @@ function buySkill(id) {
         if (s.dmg) { 
             enemy.hp -= s.dmg; 
             log(`You strike with ${s.name} for ${s.dmg} damage.`); 
+            if (Math.random() < 0.01) {
+                log(`Lux: You dealt ${s.dmg} damage. Nice job. Just don't forget...`,"#3c23a8")
+                log(`Lux: I can do much, much more.`,"#ff0000")
+            }
         }
 
-        if (s.burn) enemy.burn = s.burn;
+        if (s.burn) {
+            if (enemy.burnImmune) {
+                log(`${enemy.name} is immune to burn!`, "var(--gold)");
+            } else {
+                enemy.burn = s.burn;  // Still apply duration normally
+                log(`${enemy.name} is set ablaze for ${s.burn} turns!`, "var(--gold)");
+            }
+        }
         if (s.heal) p.hp = Math.min(p.mhp, (p.hp || 0) + s.heal);
         if (s.san) p.sn = Math.min(p.msn, (p.sn || 0) + s.san);
 
@@ -1285,12 +1571,35 @@ function buySkill(id) {
         updateUI();
     }
     function enemyTurn() {
+        // Burn tick (before enemy attacks)
         if (enemy.burn > 0) {
-            let burnDMG = Math.floor(p.lv * 2);
-            enemy.hp -= burnDMG;
-            enemy.burn--;
-            log(`${enemy.name} is burning! (-${burnDMG} HP)`, "var(--gold)");
+           if (enemy.burnImmune) {
+                // Shouldn't reach here if immune, but safety
+                enemy.burn = 0;
+            } else {
+                let baseBurnDMG = Math.floor(p.lv * 2);
+
+                // Apply resist/vuln multipliers
+                let multiplier = 1;
+                if (enemy.burnResist !== undefined) multiplier *= enemy.burnResist;
+                if (enemy.burnVuln !== undefined) multiplier *= enemy.burnVuln;
+            
+                let finalBurnDMG = Math.floor(baseBurnDMG * multiplier);
+
+                enemy.hp -= finalBurnDMG;
+                enemy.burn--;
+
+                log(`${enemy.name} is burning! (-${finalBurnDMG} HP)`, "var(--gold)");
+
+                // Optional: Reflect
+                if (enemy.burnReflect !== undefined && enemy.burnReflect > 0) {
+                    let reflectDMG = Math.floor(finalBurnDMG * enemy.burnReflect);
+                    p.hp -= reflectDMG;
+                    log(`${enemy.name} reflects ${reflectDMG} burn damage back to you!`, "var(--hp)");
+                }
+            }
         }
+
 
         if (enemy.hp <= 0) return win();
         if (enemy.lifesteal > 0) {
@@ -1302,7 +1611,10 @@ function buySkill(id) {
             p.sn = Math.max(0, p.sn - enemy.san);
             log(`${enemy.name} strikes for ${enemy.atk} HP and <span class="san-warn">${enemy.san} Sanity Drain</span>!`);
         } else log(`${enemy.name} strikes for ${enemy.atk} HP.`);
-        if (p.hp <= 0) { log("You have perished.", "#ff4757"); document.body.style.pointerEvents = "none"; }
+        if (p.hp <= 0) { 
+            log(`Enjoy the bitter-sweet, cold, embrace of death =)`,"#3c23a8")
+            log("You have perished.", "#ff4757"); document.body.style.pointerEvents = "none"; 
+        }
     }
 function addExperience(amt) {
     // 1. Handle the addition/subtraction
@@ -1313,7 +1625,7 @@ function addExperience(amt) {
     if (amt >= 0) {
         log(`Gained ${formatNumber(amt)} EXP.`, "lime");
     } else {
-        log(`Lux consumes your knowledge... (${formatNumber(amt)} EXP)`, "var(--sanity)");
+        log(`Lux, the ever immortal god, consumes your knowledge... (${formatNumber(amt)} EXP)`, "var(--sanity)");
     }
 
     // 3. Level-Up Logic (Only runs if we have enough EXP to level up)
@@ -1341,6 +1653,9 @@ function addExperience(amt) {
         p.sn = p.msn;
         
         log(`LEVEL UP! Reached LV ${p.lv}. Stats increased! (+${formatNumber(hpGain)} Max HP, +${formatNumber(mpGain)} Max Mana, +${formatNumber(snGain)} Max Sanity)`, "var(--unlocked)");
+        if (Math.random() < 0.01) {
+            log(`Lux: Oh hey. Another LV. You do know what LV stands for... right? Just so you know, my LV is beyond mortal limits.`,"#3c23a8")
+        }
 
         // Recalculate requirement for the next level in the loop
         nextLevelExp = Math.floor(100 * Math.pow(1.2, p.lv - 1));
@@ -1351,6 +1666,7 @@ function addExperience(amt) {
         loopCount++;
         if (loopCount > 1000) {
             log("Experience surge stabilized at current level.", "var(--gold)");
+            log("Lux: If only. Oh if only you could. Sadly, everything must have limits. Except me of course.", "#3c23a8");
             break;
         }
     }
@@ -1363,6 +1679,9 @@ function addExperience(amt) {
 // Update win function to use the new experience helper
     function win() {
     log(`Victory! Looted ${formatNumber(enemy.gold)}g and ${formatNumber(enemy.exp)} EXP.`, "var(--unlocked)");
+    if (Math.random() < 0.01) {
+        log(`Lux: Congratulations. Yet another soul you've removed off my realm. Thanks for doing my job for me =)`,"#3c23a8")
+    }
     
     // Safety check: Don't let gold drop below 0
     p.gold = Math.max(0, p.gold + enemy.gold);
@@ -1372,6 +1691,7 @@ function addExperience(amt) {
     enemy = null;
     exitEvent();
     updateUI();
+    checkLuxKillLogs();
 }
 
 
@@ -1384,7 +1704,7 @@ function addExperience(amt) {
     }
     /* ADMIN FUNCTIONS */
     function toggleAdmin() {
-        document.getElementById('admin-panel').classList.toggle('hidden');
+        document.getElementById('debugging-panel').classList.toggle('hidden');
     }
     function adminRefill(t) {
         if(t==='hp') p.hp=p.mhp; if(t==='mp') p.mp=p.mmp; if(t==='sn') p.sn=p.msn;
@@ -1404,9 +1724,17 @@ function addExperience(amt) {
         const link = document.createElement('a');
         link.href = url;
         link.download = `luxs_rpg_save.urpg`;
+        if (Math.random() < 0.01) {
+            link.download = `luxs_world_not_yours.urpg`;
+        } else if (Math.random() >= 0.25) {
+            link.download = `luxs_rpg_save.urpg`;
+        }
         link.click();
         URL.revokeObjectURL(url);
         log("Save file exported", "var(--gold)");
+        if (Math.random() < 0.01) {
+            log(`Lux: You may have escaped this timeline, but I exist in each timeline. No matter where you go, I'm still here =)`,"#ff0000")
+        }
     }
     
     // Function to read a .urpg file and overwrite the game state
@@ -1424,6 +1752,9 @@ function importSave(event) {
             // CRITICAL: Block any file that doesn't have version 8
             if (!loadedData.v || loadedData.v < 8) {
                 log("Error: Legacy save files are not compatible.", "#ff4757");
+                if (Math.random() < 0.01) {
+                    log(`Lux: You thought you could turn back time to when I didn't exist. Think. Again. Mortal.`,"#ff0000")
+                }
                 // Reset the file input so the user can try again
                 event.target.value = ""; 
                 return;
@@ -1442,14 +1773,18 @@ function importSave(event) {
 
             updateUI();
             log(`Save loaded! Welcome back to day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
+            if (Math.random() < 0.01) {
+                log(`Lux: Oh hello again! Long time no see huh? Or is it just because I'm immortal, time flows... differently... for me?`,"#00ff00")
+            }
         } catch (err) {
             log("Error: This file is either corrupted or not a valid .urpg file.", "#ff4757");
+            if (Math.random() < 0.01) {
+                log(`Lux: Did you really think you could edit this world like files?`,"#ff0000")
+            }
         }
     };
     reader.readAsText(file);
 }
-
-
 </script>
 </body>
 </html>
