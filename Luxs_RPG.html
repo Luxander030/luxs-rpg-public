@@ -1384,8 +1384,7 @@ function renderCombatButtons() {
     zone.innerHTML = ""; 
 
     const categories = [
-        { label: "Basic Actions", filter: (s) => !s.mp || s.name === "Strike" },
-        { label: "Damaging Spells", filter: (s) => s.dmg && s.name !== "Strike" },
+        { label: "Damaging Spells", filter: (s) => s.dmg},
         { label: "Healing Spells", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave"},
     ];
 
