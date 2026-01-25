@@ -203,6 +203,9 @@
         <div class="stat-entry"><span class="stat-label">EXP to Next LV:</span><b id="side-next-exp">100</b></div>
         <div class="stat-entry"><span class="stat-label">Current Mana Reduction:</span> <b id="side-red">0%</b></div>
         <div class="stat-entry"><span class="stat-label">Current Gold:</span> <b id="side-gold">0</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Total Kills:</span> <b id="side-kills">0</b></div>
+        <div class="stat-entry"><span class="stat-label">Damage multiplier:</span> <b id="side-dmgmult">100%</b></div>
     </div>
 
 </div>
@@ -235,7 +238,9 @@
         sp: 0, // Skill points
         day: 1, // Current Day at start
         skills: ['strike'], // Skills at start
-        manaReduction: 0  // Mana Reduction (0 is 0% reduction and base)
+        manaReduction: 0,  // Mana Reduction (0 is 0% reduction and base)
+        kills: 0, // Total amount of kills
+        dmgmult: 0
         
     };
     let enemy = null;
@@ -345,11 +350,29 @@
                 }
                 return `Magic Efficiency increased! Mana Costs reduced by an additional 1%.`; 
             } 
+        },
+        { 
+            id: 'dmgmult', 
+            name: 'Damage Multiplier', 
+            get cost() { return Math.floor(300 * Math.pow(1.3, p.lv - 1)); }, 
+            run: () => { 
+                p.dmgmult += 0.05;
+                return `Damage Multiplier increased! Mana Costs reduced by an additional 5%.`; 
+            } 
         }
     ];
 
     const skillTree = {
-        strike: { name: "Strike", cost: 0, parent: null, unlocked: true, dmg: 12 },
+        strike: {
+            name: "Strike",
+            cost: 0,
+            parent: null,
+            unlocked: true,
+            get dmg() {
+                return (12*(p.dmgmult+1))
+            }
+
+        },
         fireball: {
             name: "Fireball", 
             cost: 1, 
@@ -357,7 +380,7 @@
             unlocked: false, 
             mp: 15, 
             get dmg() { 
-                return (((p.lv*0.5)*22)+22); 
+                return (((p.lv*0.5)*22)+22)*(p.dmgmult+1); 
             },
             get burn() {
                 return (p.lv*2);
@@ -370,7 +393,7 @@
             unlocked: false, 
             mp: 45, 
             get dmg() { 
-                return (((p.lv*0.5)*70)+70); 
+                return (((p.lv*0.5)*70)+70)*(p.dmgmult+1); 
             }
         },
         fingerofdeath: {
@@ -380,7 +403,7 @@
             unlocked: false, 
             mp: 100, 
             get dmg() { 
-                return ((p.lv*250)+250); 
+                return ((p.lv*250)+250)*(p.dmgmult+1); 
             }
         },
         siphonray: {
@@ -393,7 +416,7 @@
                 return ((p.lv*100)+100); 
             },
             get heal() { 
-                return ((p.lv*100)+100); 
+                return ((p.lv*100)+100)*(p.dmgmult+1); 
             }
         },
         eldritchblast: {
@@ -403,7 +426,7 @@
             unlocked: false, 
             mp: 100, 
             get dmg() {
-                return ((p.lv*400)+400); 
+                return ((p.lv*400)+400)*(p.dmgmult+1); 
             }
         },
         iceshock: {
@@ -413,7 +436,7 @@
             unlocked: false, 
             mp: 10000, 
             get dmg() { 
-                return (((p.lv - 10) * 30) + 90); 
+                return (((p.lv - 10) * 30) + 90)*(p.dmgmult+1); 
             },
         },
         snowgrave: {
@@ -423,7 +446,7 @@
             unlocked: false, 
             mp: 20000, 
             get dmg() { 
-                return ((p.lv*40)+600); 
+                return ((p.lv*40)+600)*(p.dmgmult+1); 
             },
             get san() {
                 return ((p.sn-(p.sn/2))*(-1))
@@ -739,6 +762,10 @@
     // Convert manaReduction decimal (0.05) to percentage (5%)
     let redPercent = Math.round((p.manaReduction || 0) * 100);
     document.getElementById('side-red').innerText = redPercent + "%";
+    document.getElementById('side-kills').innerText = formatNumber(p.kills);
+    // Convert dmgMult decimal (0.05) to percentage (5%)
+    let dmgMultPrecent = Math.round(((p.dmgmult || 0) + 1) * 100);
+    document.getElementById('side-dmgmult').innerText = dmgMultPrecent + "%";
     // 4. Enemy Stats (Conditional check if in combat)
     if (enemy) {
         // Update Enemy HP Text with shorthand (e.g., 1.2M / 1.5M)
@@ -809,6 +836,18 @@ function handleCommand(cmd) {
                 successColor = "#ff4757"; 
             }
             break;
+        case '/dmgmult':
+            // val is the second word of the command (e.g., 50 in "/dmgmult 50")
+            if (!isNaN(val)) { 
+                // Clamp the value between 0 and 100, then convert to decimal
+                let percentage = Math.max(0, val);
+                p.dmgmult = percentage / 100; 
+                response = `Mana efficiency increased. Costs reduced by ${percentage}%`; 
+            } else {                 
+                response = "Error: Use /manared 0-100"; 
+                successColor = "#ff4757"; 
+            }
+        break;
         case '/refillhp':
             p.hp = p.mhp;
             response = "Vitality restored to maximum.";
@@ -1329,8 +1368,10 @@ function addExperience(amt) {
     p.gold = Math.max(0, p.gold + enemy.gold);
     
     addExperience(enemy.exp); 
+    p.kills += 1;
     enemy = null;
     exitEvent();
+    updateUI();
 }
 
 
