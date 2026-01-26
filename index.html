@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
     <title>Lux's RPG Game</title>
     <style>
         :root { --bg: #0a0a0c; --panel: #16161a; --text: #e1e1e6; --hp: #ff4757; --mana: #3742fa; --sanity: #a55eea; --gold: #eccc68; --unlocked: #2ed573; }
@@ -124,11 +125,7 @@
     <button class="export-btn" onclick="exportSave()">Export .urpg</button>
 
     <label for="import-input" class="import-btn" style="cursor:pointer; display:inline-block;">Import .urpg</label>
-<<<<<<< HEAD
     <input type="file" id="import-input" accept=".urpg" onchange="handleImportFile(event)">
-=======
-    <input type="file" id="import-input" accept=".urpg" onchange="importSave(event)">
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
 </div>
 <div id="tooltip" style="position: fixed; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border: 1px solid var(--mana); border-radius: 8px; font-size: 13px; z-index: 10000; pointer-events: none; line-height: 1.4;"></div>
 
@@ -386,11 +383,7 @@
             parent: null,
             unlocked: true,
             get dmg() {
-<<<<<<< HEAD
                 return Math.floor((12*(p.dmgmult)))
-=======
-                return Math.floor((12*(p.dmgmult+1)))
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
             }
 
         },
@@ -401,17 +394,12 @@
             unlocked: false, 
             mp: 15, 
             get dmg() { 
-<<<<<<< HEAD
                 return Math.floor(((p.lv*0.5)*22)*(p.dmgmult)); 
-=======
-                return Math.floor((((p.lv*0.5)*22)+22)*(p.dmgmult+1)); 
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
             },
             get burn() {
                 return (p.lv*2);
             }
         },
-<<<<<<< HEAD
         iceshock: {
             name: "iceshock", 
             cost: 5, 
@@ -422,8 +410,6 @@
                 return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult)); 
             },
         },
-=======
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
         thunderbolt: {
             name: "Thunderbolt", 
             cost: 2, 
@@ -431,11 +417,7 @@
             unlocked: false, 
             mp: 45, 
             get dmg() { 
-<<<<<<< HEAD
                 return Math.floor((((p.lv*0.5)*70)+70)*(p.dmgmult)); 
-=======
-                return Math.floor((((p.lv*0.5)*70)+70)*(p.dmgmult+1)); 
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
             }
         },
         fingerofdeath: {
@@ -445,11 +427,7 @@
             unlocked: false, 
             mp: 100, 
             get dmg() { 
-<<<<<<< HEAD
                 return Math.floor(((p.lv*250)+250)*(p.dmgmult)); 
-=======
-                return Math.floor(((p.lv*250)+250)*(p.dmgmult+1)); 
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
             }
         },
         siphonray: {
@@ -462,11 +440,7 @@
                 return Math.floor(((p.lv*100)+100)); 
             },
             get heal() { 
-<<<<<<< HEAD
                 return Math.floor(((p.lv*100)+100)*(p.dmgmult)); 
-=======
-                return Math.floor(((p.lv*100)+100)*(p.dmgmult+1)); 
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
             }
         },
         eldritchblast: {
@@ -476,7 +450,6 @@
             unlocked: false, 
             mp: 100, 
             get dmg() {
-<<<<<<< HEAD
                 return Math.floor(((p.lv*400)+400)*(p.dmgmult)); 
             }
         },
@@ -488,29 +461,6 @@
             mp: 20000, 
             get dmg() { 
                 return Math.floor(((p.lv*40)+600)*(p.dmgmult)); 
-=======
-                return Math.floor(((p.lv*400)+400)*(p.dmgmult+1)); 
-            }
-        },
-        iceshock: {
-            name: "Iceshock", 
-            cost: 5, 
-            parent: 'eldritchblast', 
-            unlocked: false, 
-            mp: 10000, 
-            get dmg() { 
-                return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult+1)); 
-            },
-        },
-        snowgrave: {
-            name: "Snowgrave", 
-            cost: 6, 
-            parent: 'iceshock', 
-            unlocked: false, 
-            mp: 20000, 
-            get dmg() { 
-                return Math.floor(((p.lv*40)+600)*(p.dmgmult+1)); 
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
             },
             get san() {
                 return Math.floor(((p.sn-(p.sn/2))*(-1)))
@@ -1881,7 +1831,6 @@ function exportSave() {
 }
 
 
-<<<<<<< HEAD
 function importSave(saveText) {
     try {
         const decoded = xorCipher(atob(saveText.trim()), SAVE_KEY);
@@ -1935,18 +1884,6 @@ function handleImportFile(event) {
     reader.onload = function(e) {
         const text = e.target.result;
         importSave(text);  // Now calls the correct ciphered function
-=======
-// Updated file handler (replace your current onchange)
-function importSave(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        importSave(text);  // Call the ciphered import with the file text
-        updateUI();
->>>>>>> 6f96288a65ed5c2a588e8ecd31278ed5a56569b5
     };
     reader.readAsText(file);
 }
