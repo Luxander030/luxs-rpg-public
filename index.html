@@ -124,7 +124,7 @@
     <button class="export-btn" onclick="exportSave()">Export .urpg</button>
 
     <label for="import-input" class="import-btn" style="cursor:pointer; display:inline-block;">Import .urpg</label>
-    <input type="file" id="import-input" accept=".urpg" onchange="importSave(event)">
+    <input type="file" id="import-input" accept=".urpg" onchange="handleImportFile(event)">
 </div>
 <div id="tooltip" style="position: fixed; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border: 1px solid var(--mana); border-radius: 8px; font-size: 13px; z-index: 10000; pointer-events: none; line-height: 1.4;"></div>
 
@@ -1830,16 +1830,59 @@ function exportSave() {
 }
 
 
-// Updated file handler (replace your current onchange)
-function importSave(event) {
+function importSave(saveText) {
+    try {
+        const decoded = xorCipher(atob(saveText.trim()), SAVE_KEY);
+        const parsed = JSON.parse(decoded);
+
+        const payloadStr = JSON.stringify(parsed.payload);
+        const isTampered = checksum(payloadStr) !== parsed.checksum;
+
+        // Load player data
+        p = parsed.payload.data;
+
+        // Version check
+        if (!p.v || p.v < SAVE_VERSION) {
+            log("Error: Legacy or invalid save version.", "#ff4757");
+            return;
+        }
+
+        // Sync unlocked skills from p.skills array
+        for (let id in skillTree) {
+            skillTree[id].unlocked = (id === 'strike');
+        }
+        p.skills.forEach(skillId => {
+            if (skillTree[skillId]) skillTree[skillId].unlocked = true;
+        });
+
+        // Handle tampering (optional extra flavor)
+        if (isTampered && !p._luxTamperSeen) {
+            log("Lux: You altered a timeline. Interesting. Very... interesting...", "#3c23a8");
+            p._luxTamperSeen = true;
+        }
+
+        updateUI();
+        log(`Save loaded! Welcome back to day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
+        if (Math.random() < 0.05) {
+            log("Lux: Oh hello again! Long time no see huh? Or is it just because I'm immortal, time flows... differently... for me?", "#00ff00");
+        }
+    } catch (err) {
+        log("Error: Invalid or corrupted .urpg file.", "#ff4757");
+        if (Math.random() < 0.1) {
+            log("Lux: Did you really think you could edit this world like files?", "#ff0000");
+        }
+    }
+}
+
+// File handler (renamed to avoid recursion)
+function handleImportFile(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = function(e) {
         const text = e.target.result;
-        importSave(text);  // Call the ciphered import with the file text
-        updateUI();
+        importSave(text);  // Now calls the correct ciphered function
     };
     reader.readAsText(file);
 }
