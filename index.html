@@ -399,6 +399,16 @@
                 return (p.lv*2);
             }
         },
+        iceshock: {
+            name: "fireball", 
+            cost: 5, 
+            parent: 'eldritchblast', 
+            unlocked: false, 
+            mp: 10000, 
+            get dmg() { 
+                return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult+1)); 
+            },
+        },
         thunderbolt: {
             name: "Thunderbolt", 
             cost: 2, 
@@ -442,20 +452,10 @@
                 return Math.floor(((p.lv*400)+400)*(p.dmgmult+1)); 
             }
         },
-        iceshock: {
-            name: "Iceshock", 
-            cost: 5, 
-            parent: 'eldritchblast', 
-            unlocked: false, 
-            mp: 10000, 
-            get dmg() { 
-                return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult+1)); 
-            },
-        },
         snowgrave: {
             name: "Snowgrave", 
             cost: 6, 
-            parent: 'iceshock', 
+            parent: 'eldritchblast', 
             unlocked: false, 
             mp: 20000, 
             get dmg() { 
