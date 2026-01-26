@@ -1029,6 +1029,29 @@
     }
 }
 
+const SAVE_VERSION = 8;  // Match your game version (p.v)
+const SAVE_KEY = 'LuxExistsOutsideOfTimeSoDontTryToEscapeHim';  // Any secret string; longer = better security (but this is just obfuscation, not real crypto)
+
+// Simple XOR cipher (reversible encryption with key)
+function xorCipher(str, key) {
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+        result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+}
+
+// Simple checksum (sum of char codes; detects tampering)
+function checksum(str) {
+    let sum = 0;
+    for (let i = 0; i < str.length; i++) {
+        sum += str.charCodeAt(i);
+    }
+    return sum;
+}
+
+
+
 
     function updateUI() {
     // 1. Player Vital Stats (HP, Mana, Sanity)
@@ -1767,77 +1790,110 @@ function addExperience(amt) {
         let v = parseInt(prompt(`New ${s.toUpperCase()}:`, p[s]));
         if(!isNaN(v)) { p[s]=v; if(s.startsWith('m')) p[s.substring(1)]=Math.min(p[s.substring(1)],v); updateUI(); }
     }
-    // Function to export your current game state as a .urpg file
-    function exportSave() {
-        const saveData = JSON.stringify(p, (key, value) => 
-            value === Infinity ? "Infinity" : value
-        );
-        const blob = new Blob([saveData], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `luxs_rpg_save.urpg`;
-        if (Math.random() < 0.05) {
-            link.download = `luxs_world_not_yours.urpg`;
-        } else if (Math.random() >= 0.25) {
-            link.download = `luxs_rpg_save.urpg`;
-        }
-        link.click();
-        URL.revokeObjectURL(url);
-        log("Save file exported", "var(--gold)");
-        if (Math.random() < 0.05) {
-            log(`Lux: You may have escaped this timeline, but I exist in each timeline. No matter where you go, I'm still here =)`,"#ff0000")
-        }
+// Helper to download as file (you already have this; keeping for completeness)
+function download(text, filename) {
+    const blob = new Blob([text], { type: 'text/plain' });  // Changed to text/plain for compatibility
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Fixed export with ciphering
+function exportSave() {
+    const payload = { v: SAVE_VERSION, data: p };
+    const payloadStr = JSON.stringify(payload);
+    
+    const wrapped = JSON.stringify({
+        payload: payload,  // Note: this was 'payload' (object), not 'payloadStr' (string) in your original
+        checksum: checksum(payloadStr)
+    });
+    
+    const encoded = btoa(xorCipher(wrapped, SAVE_KEY));
+    
+    // Random filename with Lux taunt
+    let filename = 'luxs_rpg_save.urpg';
+    let tauntColor = '#3c23a8';
+    if (Math.random() < 0.05) {
+        filename = 'luxs_world_not_yours.urpg';
+        log(`Lux: This world was never yours to keep.`, tauntColor);
+    } else {
+        log(`Lux: You may have escaped this timeline, but I exist in each one.`, tauntColor);
     }
     
-    // Function to read a .urpg file and overwrite the game state
+    download(encoded, filename);
+    log('Save file exported', 'var(--gold)');
+}
+
+
+// Updated file handler (replace your current onchange)
 function importSave(event) {
     const file = event.target.files[0];
     if (!file) return;
-
+    
     const reader = new FileReader();
     reader.onload = function(e) {
-        try {
-            const loadedData = JSON.parse(e.target.result, (key, value) => 
-                value === "Infinity" ? Infinity : value
-            );
-
-            // CRITICAL: Block any file that doesn't have version 8
-            if (!loadedData.v || loadedData.v < 8) {
-                log("Error: Legacy save files are not compatible.", "#ff4757");
-                if (Math.random() < 0.05) {
-                    log(`Lux: You thought you could turn back time to when I didn't exist. Think. Again. Mortal.`,"#ff0000")
-                }
-                // Reset the file input so the user can try again
-                event.target.value = ""; 
-                return;
-            }
-
-            // If it passes the check, proceed with the import
-            p = loadedData;
-
-            // Sync skill tree "unlocked" states
-            for (let id in skillTree) {
-                skillTree[id].unlocked = (id === 'strike'); 
-            }
-            p.skills.forEach(skillId => {
-                if (skillTree[skillId]) skillTree[skillId].unlocked = true;
-            });
-
-            updateUI();
-            log(`Save loaded! Welcome back to day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
-            if (Math.random() < 0.05) {
-                log(`Lux: Oh hello again! Long time no see huh? Or is it just because I'm immortal, time flows... differently... for me?`,"#00ff00")
-            }
-        } catch (err) {
-            log("Error: This file is either corrupted or not a valid .urpg file.", "#ff4757");
-            if (Math.random() < 0.1) {
-                log(`Lux: Did you really think you could edit this world like files?`,"#ff0000")
-            }
-        }
+        const text = e.target.result;
+        importSave(text);  // Call the ciphered import with the file text
+        updateUI();
     };
     reader.readAsText(file);
 }
+
+
+
+    // Function to read a .urpg file and overwrite the game state
+// function importSave(event) {
+//     const file = event.target.files[0];
+//     if (!file) return;
+
+//     const reader = new FileReader();
+//     reader.onload = function(e) {
+//         try {
+//             const loadedData = JSON.parse(e.target.result, (key, value) => 
+//                 value === "Infinity" ? Infinity : value
+//             );
+
+//             // CRITICAL: Block any file that doesn't have version 8
+//             if (!loadedData.v || loadedData.v < 8) {
+//                 log("Error: Legacy save files are not compatible.", "#ff4757");
+//                 if (Math.random() < 0.05) {
+//                     log(`Lux: You thought you could turn back time to when I didn't exist. Think. Again. Mortal.`,"#ff0000")
+//                 }
+//                 // Reset the file input so the user can try again
+//                 event.target.value = ""; 
+//                 return;
+//             }
+
+//             // If it passes the check, proceed with the import
+//             p = loadedData;
+
+//             // Sync skill tree "unlocked" states
+//             for (let id in skillTree) {
+//                 skillTree[id].unlocked = (id === 'strike'); 
+//             }
+//             p.skills.forEach(skillId => {
+//                 if (skillTree[skillId]) skillTree[skillId].unlocked = true;
+//             });
+
+//             updateUI();
+//             log(`Save loaded! Welcome back to day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
+//             if (Math.random() < 0.05) {
+//                 log(`Lux: Oh hello again! Long time no see huh? Or is it just because I'm immortal, time flows... differently... for me?`,"#00ff00")
+//             }
+//         } catch (err) {
+//             log("Error: This file is either corrupted or not a valid .urpg file.", "#ff4757");
+//             if (Math.random() < 0.1) {
+//                 log(`Lux: Did you really think you could edit this world like files?`,"#ff0000")
+//             }
+//         }
+//     };
+//     reader.readAsText(file);
+// }
 </script>
 </body>
 </html>
