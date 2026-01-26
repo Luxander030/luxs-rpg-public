@@ -382,7 +382,7 @@
             parent: null,
             unlocked: true,
             get dmg() {
-                return Math.floor((12*(p.dmgmult+1)))
+                return Math.floor((12*(p.dmgmult)))
             }
 
         },
@@ -393,7 +393,7 @@
             unlocked: false, 
             mp: 15, 
             get dmg() { 
-                return Math.floor(((p.lv*0.5)*22)*(p.dmgmult+1)); 
+                return Math.floor(((p.lv*0.5)*22)*(p.dmgmult)); 
             },
             get burn() {
                 return (p.lv*2);
@@ -406,7 +406,7 @@
             unlocked: false, 
             mp: 30, 
             get dmg() { 
-                return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult+1)); 
+                return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult)); 
             },
         },
         thunderbolt: {
@@ -416,7 +416,7 @@
             unlocked: false, 
             mp: 45, 
             get dmg() { 
-                return Math.floor((((p.lv*0.5)*70)+70)*(p.dmgmult+1)); 
+                return Math.floor((((p.lv*0.5)*70)+70)*(p.dmgmult)); 
             }
         },
         fingerofdeath: {
@@ -426,7 +426,7 @@
             unlocked: false, 
             mp: 100, 
             get dmg() { 
-                return Math.floor(((p.lv*250)+250)*(p.dmgmult+1)); 
+                return Math.floor(((p.lv*250)+250)*(p.dmgmult)); 
             }
         },
         siphonray: {
@@ -439,7 +439,7 @@
                 return Math.floor(((p.lv*100)+100)); 
             },
             get heal() { 
-                return Math.floor(((p.lv*100)+100)*(p.dmgmult+1)); 
+                return Math.floor(((p.lv*100)+100)*(p.dmgmult)); 
             }
         },
         eldritchblast: {
@@ -449,7 +449,7 @@
             unlocked: false, 
             mp: 100, 
             get dmg() {
-                return Math.floor(((p.lv*400)+400)*(p.dmgmult+1)); 
+                return Math.floor(((p.lv*400)+400)*(p.dmgmult)); 
             }
         },
         snowgrave: {
@@ -459,7 +459,7 @@
             unlocked: false, 
             mp: 20000, 
             get dmg() { 
-                return Math.floor(((p.lv*40)+600)*(p.dmgmult+1)); 
+                return Math.floor(((p.lv*40)+600)*(p.dmgmult)); 
             },
             get san() {
                 return Math.floor(((p.sn-(p.sn/2))*(-1)))
