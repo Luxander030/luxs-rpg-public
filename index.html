@@ -18,7 +18,20 @@
         .node { padding: 15px; background: #2f3542; border-radius: 10px; text-align: center; border: 2px solid transparent; cursor: pointer; opacity: 0.5; transition: 0.2s; }
         .node.available { border-color: var(--mana); opacity: 1; }
         .node.purchased { background: #1b2e1b; border-color: var(--unlocked); color: var(--unlocked); opacity: 1; cursor: default; }
-        .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .shop-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* This will now create 2 rows of 3 */
+            gap: 15px; 
+            margin-bottom: 20px; 
+        }
+
+        /* Add this to ensure the shop view can handle the extra height */
+        #shop-view {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
         .shop-item { background: #1e1e24; padding: 20px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; }
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         button { padding: 15px; cursor: pointer; border: none; border-radius: 8px; background: #2f3542; color: white; font-weight: 700; transition: 0.3s; }
@@ -26,6 +39,7 @@
         button:disabled { opacity: 0.3; cursor: not-allowed; }
         .hidden { display: none !important; }
         .san-warn { color: var(--sanity); font-weight: bold; }
+        .mana-warn { color: var(--mana); font-weight: bold; }
         .save-controls {
             position: absolute;
             top: 15px;
@@ -51,71 +65,101 @@
         /* Hidden file input for the Import functionality */
         #import-input { display: none; }
 
-#debugging-panel { 
-    position: fixed; 
-    top: 15px;      /* Slight offset from the very edge */
-    left: 15px; 
-    background: var(--panel); 
-    border: 2px solid var(--mana); 
-    padding: 20px; 
-    border-radius: 15px; 
-    z-index: 9999; 
-    box-shadow: 0 0 100px rgba(0,0,0,0.9); 
-    width: 350px; 
+        #debugging-panel { 
+            position: fixed; 
+            top: 15px;      /* Slight offset from the very edge */
+            left: 15px; 
+            background: var(--panel); 
+            border: 2px solid var(--mana); 
+            padding: 20px; 
+            border-radius: 15px; 
+            z-index: 9999; 
+            box-shadow: 0 0 100px rgba(0,0,0,0.9); 
+            width: 350px; 
+        }
+
+        /* Hidden Trigger positioned top-left */
+        .ghost-trigger { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 20px;    /* Slightly larger target for top-left */
+            height: 20px; 
+            background: transparent; 
+            z-index: 10000; 
+            cursor: default; 
+        }
+        #game-wrapper {
+            display: flex;          
+            justify-content: center; 
+            align-items: flex-start; 
+            gap: 30px;              
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #game-container {
+           width: 850px;
+           background: var(--panel);
+           padding: 30px;
+          border-radius: 20px;
+          border: 2px solid var(--border); /* Thicker, lighter border */
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(55, 66, 250, 0.1); /* Subtle blue glow */
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        #stat-sidebar {
+            width: 280px;
+            background: var(--panel); /* Same lighter gray as game-container */
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid var(--border);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            flex-shrink: 0;
+        }
+
+        .stat-entry {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #2f3542;
+            padding-bottom: 5px;
+        }
+
+
+        .stat-entry b { color: var(--gold); }
+        .stat-label { color: #a4b0be; }
+
+/* HP GLOW */
+.hp-box-full { 
+    box-shadow: 0 0 15px 2px rgba(255, 71, 87, 0.8) !important;
+    border: 2px solid #ff4757 !important;
+    transform: scale(1.02);
 }
 
-/* Hidden Trigger positioned top-left */
-.ghost-trigger { 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 20px;    /* Slightly larger target for top-left */
-    height: 20px; 
-    background: transparent; 
-    z-index: 10000; 
-    cursor: default; 
-}
-#game-wrapper {
-    display: flex;          
-    justify-content: center; 
-    align-items: flex-start; 
-    gap: 30px;              
-    width: 100%;
-    margin-top: 20px;
+/* MP GLOW */
+.mp-box-full { 
+    box-shadow: 0 0 15px 2px rgba(55, 66, 250, 0.8) !important;
+    border: 2px solid #3742fa !important;
+    transform: scale(1.02);
 }
 
-#game-container {
-    width: 850px;
-    background: var(--panel);
-    padding: 30px;
-    border-radius: 20px;
-    border: 2px solid var(--border); /* Thicker, lighter border */
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(55, 66, 250, 0.1); /* Subtle blue glow */
+/* SANITY GLOW */
+.sn-box-full { 
+    box-shadow: 0 0 15px 2px rgba(165, 94, 234, 0.8) !important;
+    border: 2px solid #a55eea !important;
+    transform: scale(1.02);
+}
+
+/* Base stat box needs a transition to look smooth */
+.stat-box { 
+    transition: all 0.3s ease; 
     position: relative;
-    flex-shrink: 0;
-}
-
-#stat-sidebar {
-    width: 280px;
-    background: var(--panel); /* Same lighter gray as game-container */
-    padding: 25px;
-    border-radius: 20px;
-    border: 2px solid var(--border);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-    flex-shrink: 0;
-}
-
-.stat-entry {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    border-bottom: 1px dashed #2f3542;
-    padding-bottom: 5px;
+    z-index: 1;
 }
 
 
-.stat-entry b { color: var(--gold); }
-.stat-label { color: #a4b0be; }
 
 
     </style>
@@ -142,9 +186,9 @@
         </div>
 
         <div class="stats-row">
-            <div class="stat-box" style="border-color:var(--hp)">Life: <span id="hp-val" style="display: none;">100/100</span><div class="progress-bg"><div id="hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div></div></div>
-            <div class="stat-box" style="border-color:var(--mana)">Mana: <span id="mp-val" style="display: none;">50/50</span><div class="progress-bg"><div id="mp-bar" class="progress-fill" style="background:var(--mana); width:100%"></div></div></div>
-            <div class="stat-box" style="border-color:var(--sanity)">Sanity: <span id="sn-val" style="display: none;">100/100</span><div class="progress-bg"><div id="sn-bar" class="progress-fill" style="background:var(--sanity); width:100%"></div></div></div>
+            <div id="hp-box" class="stat-box" style="border-color:var(--hp)">Life: <span id="hp-val">100/100</span><div class="progress-bg"><div id="hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div></div></div>
+            <div id="mp-box" class="stat-box" style="border-color:var(--mana)">Mana: <span id="mp-val">50/50</span><div class="progress-bg"><div id="mp-bar" class="progress-fill" style="background:var(--mana); width:100%"></div></div></div>
+            <div id="sn-box" class="stat-box" style="border-color:var(--sanity)">Sanity: <span id="sn-val">100/100</span><div class="progress-bg"><div id="sn-bar" class="progress-fill" style="background:var(--sanity); width:100%"></div></div></div>
             <div class="stat-box" style="border-color:lime">
                 LV <span id="lv-txt">1</span> | EXP: <span id="exp-val">0/100</span>
                 <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:lime; width:0%"></div></div>
@@ -200,9 +244,9 @@
         <div class="stat-entry"><span class="stat-label">Current Level:</span> <b id="side-lv">1</b></div>
         <div class="stat-entry"><span class="stat-label">Current EXP:</span> <b id="side-exp">0</b></div>
         <div class="stat-entry"><span class="stat-label">EXP to Next LV:</span><b id="side-next-exp">100</b></div>
+        <div class="stat-entry"><span class="stat-label">Skill Points Available:</span> <b id="side-sp">0</b></div>
         <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
         <div class="stat-entry"><span class="stat-label">Current Gold:</span> <b id="side-gold">0</b></div>
-        <div class="stat-entry"><span class="stat-label">Skill Points Available:</span> <b id="side-sp">0</b></div>
         <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
         <div class="stat-entry"><span class="stat-label">Total Kills:</span> <b id="side-kills">0</b></div>
         <div class="stat-entry"><span class="stat-label">Damage multiplier:</span> <b id="side-dmgmult">100%</b></div>
@@ -214,11 +258,11 @@
 <div id="debugging-panel" class="hidden">
     <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Game Master Console >_</h3>
     <div id="console-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
-        System ready...
+        FUNFRIEND: HELLO LUX... WAIT YOU'RE NOT LUX. OH WELL. HE'S STILL GOING TO KILL YOU ANYWAY.
     </div>
     <input type="text" id="console-input" placeholder="Enter command..." 
            style="width:100%; background:#000; border:1px solid var(--mana); color:white; padding:10px; box-sizing:border-box; font-family:'Fira Code', monospace;">
-    <p style="font-size:10px; color:#666; margin-top:5px;">Type /help for commands. Press ESC to close.</p>
+    <p style="font-size:10px; color:#666; margin-top:5px;">TPress ESC to close.</p>
 </div>
 <div class="ghost-trigger" onclick="toggleAdmin()"></div>
 
@@ -249,32 +293,35 @@
         { 
         id: 'healthrefill', 
         name: 'Health Vial', 
-        get cost() { return Math.floor(20 * Math.pow(1.1, p.lv - 1)); }, 
+        get cost() { return Math.floor(20 * Math.pow(1.05, p.lv - 1)); }, 
         run: () => { p.hp = p.mhp; return "Vitality restored!"; } 
         },
 
         { 
         id: 'manarefill', 
         name: 'Mana Well', 
-        get cost() { return Math.floor(20 * Math.pow(1.1, p.lv - 1)); }, 
+        get cost() { return Math.floor(20 * Math.pow(1.05, p.lv - 1)); }, 
         run: () => { p.mp = p.mmp; return "Mana restored!"; } 
         },
 
         { 
         id: 'sanityrefill', 
         name: 'Clarity Tonic', 
-        get cost() { return Math.floor(20 * Math.pow(1.1, p.lv - 1)); }, 
+        get cost() { return Math.floor(20 * Math.pow(1.05, p.lv - 1)); }, 
         run: () => { p.sn = p.msn; return "Sanity restored!"; } 
         },
 
         { 
         id: 'healthincrease1', 
         name: 'Dragon Heart', 
-            get cost() { return Math.floor(60 * Math.pow(1.2, p.lv - 1)); }, 
+            get cost() { return Math.floor(60 * Math.pow(1.1, p.lv - 1)); }, 
             run: () => {
-                let gain = Math.floor(30 + (p.mhp * 0.1));
+                let gain = Math.floor(30 + (p.mhp * 0.5));
                 p.mhp += gain; 
                 p.hp += gain; 
+                if (Math.random() < 0.05) {
+                    log(`Lux: More health, more health, yet... it's not enough for you, is it?`,"#3c23a8");
+                }
                 return `Max HP increased by ${formatNumber(gain)}`; 
             } 
         },
@@ -282,9 +329,9 @@
         { 
         id: 'manaincrease1', 
         name: 'Eldritch Orb', 
-            get cost() { return Math.floor(60 * Math.pow(1.2, p.lv - 1)); }, 
+            get cost() { return Math.floor(60 * Math.pow(1.1, p.lv - 1)); }, 
             run: () => { 
-                let gain = Math.floor(30 + (p.mmp * 0.1));
+                let gain = Math.floor(30 + (p.mmp * 0.5));
                 p.mmp += gain; 
                 p.mp += gain; 
                 return `Max Mana increased by ${formatNumber(gain)}`; 
@@ -294,9 +341,9 @@
         { 
         id: 'sanityincrease1', 
         name: 'Pure Insight', 
-            get cost() { return Math.floor(60 * Math.pow(1.2, p.lv - 1)); }, 
+            get cost() { return Math.floor(60 * Math.pow(1.1, p.lv - 1)); }, 
             run: () => { 
-                let gain = Math.floor(30 + (p.msn * 0.1));
+                let gain = Math.floor(30 + (p.msn * 0.5));
                 p.msn += gain; 
                 p.sn += gain; 
                 return `Max Sanity increased by ${formatNumber(gain)}`; 
@@ -306,7 +353,7 @@
         { 
         id: 'fullrefill', 
         name: 'Holy Grail', 
-        get cost() { return Math.floor(70 * Math.pow(1.1, p.lv - 1)); }, 
+        get cost() { return Math.floor(70 * Math.pow(1.075, p.lv - 1)); }, 
         run: () => { 
         p.hp = p.mhp; 
         p.mp = p.mmp; 
@@ -318,9 +365,9 @@
         { 
         id: 'treasuremap', 
         name: 'Treasure Map', 
-        get cost() { return Math.floor(40 * Math.pow(1.15, p.lv - 1)); }, 
+        get cost() { return Math.floor(40 * Math.pow(1.1, p.lv - 1)); }, 
             run: () => { 
-                let gain = Math.floor(100 * Math.pow(1.25, p.lv - 1));
+                let gain = Math.floor(100 * Math.pow(1.5, p.lv - 1));
                 p.gold += gain; 
                 if (Math.random() < 0.05) {
                     if (p.gold < 10000) {
@@ -336,10 +383,11 @@
         { 
         id: 'expscroll', 
         name: 'Knowledge Scroll', 
-        get cost() { return Math.floor(40 * Math.pow(1.15, p.lv - 1)); }, 
+        get cost() { return Math.floor(40 * Math.pow(1.1, p.lv - 1)); }, 
             run: () => { 
                 let gain = Math.floor(100 * Math.pow(1.25, p.lv - 1));
                 addExperience(gain)
+                updateUI()
                 if (Math.random() < 0.05) {
                     log(`Lux: Try all you want. You'll never be as knowledged as me =)`,"#3c23a8");
                 }
@@ -350,15 +398,15 @@
         { 
             id: 'manastabilizer', 
             name: 'Mana Stabilizer', 
-            get cost() { return Math.floor(150 * Math.pow(1.3, p.lv - 1)); }, 
+            get cost() { return Math.floor(150 * Math.pow(1.15, p.lv - 1)); }, 
             run: () => { 
                 // Cap the value at 1.0 (100%)
-                p.manaReduction = Math.min(1, p.manaReduction + 0.01); 
+                p.manaReduction = Math.min(1, p.manaReduction + 0.05); 
 
                 if (p.manaReduction >= 1) {
                     return "Magic Efficiency perfected! Mana costs are now at their base minimum.";
                 }
-                return `Magic Efficiency increased! Mana Costs reduced by an additional 1%.`; 
+                return `Magic Efficiency increased! Mana Costs reduced by an additional 5%.`; 
             } 
         },
         { 
@@ -371,7 +419,7 @@
                     log(`Lux: Interesting... I see you've learned how to hurt better... I wonder how that...`, "#3c23a8")
                     log(`Lux: ...feels?`,"#ff0000")
                 }
-                return `Damage Multiplier increased! Mana Damage increased by an additional 5%.`;
+                return `Damage Multiplier increased! Total Damage increased by an additional 5%.`;
             } 
         }
     ];
@@ -401,19 +449,19 @@
             }
         },
         iceshock: {
-            name: "iceshock", 
-            cost: 5, 
-            parent: 'eldritchblast', 
+            name: "Iceshock", 
+            cost: 2, 
+            parent: 'fireball', 
             unlocked: false, 
             mp: 30, 
             get dmg() { 
-                return Math.floor((((p.lv - 10) * 30) + 90)*(p.dmgmult)); 
+                return Math.floor((((p.lv - 1) * 30) + 90)*(p.dmgmult)); 
             },
         },
         thunderbolt: {
             name: "Thunderbolt", 
-            cost: 2, 
-            parent: 'fireball', 
+            cost: 3, 
+            parent: 'iceshock', 
             unlocked: false, 
             mp: 45, 
             get dmg() { 
@@ -422,7 +470,7 @@
         },
         fingerofdeath: {
             name: "Finger of Death", 
-            cost: 3, 
+            cost: 4, 
             parent: 'thunderbolt', 
             unlocked: false, 
             mp: 100, 
@@ -432,12 +480,12 @@
         },
         siphonray: {
             name: "Siphon Ray", 
-            cost: 4, 
+            cost: 5, 
             parent: 'fingerofdeath', 
             unlocked: false, 
             mp: 100, 
             get dmg() {
-                return Math.floor(((p.lv*100)+100)); 
+                return Math.floor(((p.lv*100)+100)*(p.dmgmult));
             },
             get heal() { 
                 return Math.floor(((p.lv*100)+100)*(p.dmgmult)); 
@@ -445,22 +493,22 @@
         },
         eldritchblast: {
             name: "Eldritch Blast", 
-            cost: 4, 
+            cost: 6, 
             parent: 'siphonray', 
             unlocked: false, 
             mp: 100, 
             get dmg() {
-                return Math.floor(((p.lv*400)+400)*(p.dmgmult)); 
+               return Math.floor(((p.lv * 400) + 1000) * (p.dmgmult));
             }
         },
         snowgrave: {
             name: "Snowgrave", 
-            cost: 6, 
+            cost: 7, 
             parent: 'eldritchblast', 
             unlocked: false, 
             mp: 20000, 
             get dmg() { 
-                return Math.floor(((p.lv*40)+600)*(p.dmgmult)); 
+                return Math.floor(((p.lv*600)+600)*(p.dmgmult)); 
             },
             get san() {
                 return Math.floor(((p.sn-(p.sn/2))*(-1)))
@@ -471,7 +519,7 @@
             cost: 1, 
             parent: 'strike', 
             unlocked: false, 
-            mp: 100, 
+            mp: 10, 
             get heal() { 
                 return Math.floor(((35*p.lv)+10)); 
             }
@@ -481,9 +529,9 @@
             cost: 2, 
             parent: 'heal', 
             unlocked: false, 
-            mp: 200, 
+            mp: 20, 
             get san() { 
-                return Math.floor(((p.mmp*5)+5)); 
+                return Math.floor(((p.lv*5)+5)); 
             },
         },
         dualheal: {
@@ -491,7 +539,7 @@
             cost: 3, 
             parent: 'mindshield', 
             unlocked: false, 
-            mp: 5000, 
+            mp: 100, 
             get heal() { 
                 return Math.floor(((p.lv*1000)+2000)); 
             },
@@ -504,9 +552,9 @@
             cost: 5, 
             parent: 'dualheal', 
             unlocked: false, 
-            mp: 5000, 
+            mp: 500, 
             get heal() { 
-                return Math.floor(((p.mmp*5)+5)); 
+                return Math.floor(((p.lv*5)+5)); 
             },
         },
         ralseidualheal: {
@@ -514,12 +562,12 @@
             cost: 10, 
             parent: 'healprayer', 
             unlocked: false, 
-            mp: 10000, 
+            mp: 1000, 
             get heal() { 
-                return Math.floor(((p.mmp*5.5)+p.msn)); 
+                return Math.floor(((p.lv*5.5)+p.msn)); 
             },
             get san() {
-                return Math.floor(((p.msn*5.5)+p.mmp));
+                return Math.floor(((p.lv*5.5)+p.mmp));
             }
         }
     };
@@ -531,13 +579,16 @@
         mhp = max hp of the enemy
         atk = dmg dealt by enemy
         san = amount of sanity drain enemy deals
+        manaDrain = amount of mana drained
         exp = amount of exp recived when enemy is killed
         gold = amount of gold recived when enemy is killed
         lifesteal = amoutn of hp enemy heals for each round (must be equal to or higher the dmg stat)
         burnImmune = true/false, makes enemy either immune to burn dmg or not
-        burnResist = 0-1, 0.5 = half burn dmg
+        burnResist = 0-1, 0.5 = half burn dmg, 1 is basically immunity
         burnVuln = any number higher then 1, 1.5 = 150% burn damage
         burnReflect = amount of burn damage reflected to player
+[MIGHT ADD]        expDrain = amount is the amount of exp drained
+[MIGHT ADD]        LVDrain = amount is the amount of LV drained
         */
         
         /*
@@ -553,23 +604,23 @@
                 return (1000000000)*p.lv;
             },
             get atk() {
-                return ((50000)*p.lv)*p.dmgmult
+                return Math.ceil(((50000)*p.lv)*p.dmgmult)
             },
             get san() {
                 return (50000)*p.lv
             },
             get exp() {
-                return (((100000)*p.lv)*-1)
+                return (p.exp*(-1))
             },
             get gold() {
-                return (((100000)*p.lv)*-1)
+                return (p.gold*(-1))
             },
             get lifesteal() {
                 return (10000)*p.lv
             },
             burnImmune: true,
             canSpawn: () => p.lv >= 100 && p.skills.includes('snowgrave') || p.skills.includes('ralseidualheal'),
-            trait: "The god of this forsaken realm",
+            trait: "The god of this forsaken realm.",
             specialMsg: "Lux: Hello there, and welcome. To my realm of nightmares =)"
         },
         {
@@ -594,7 +645,7 @@
                 return (((10000)*(p.lv/1.25))*-1)
             },
             get lifesteal() {
-                return ((1000)*(p.lv/1.25))
+                return ((1000)*(p.lv/2))
             },
             burnResist: 0.9,
             burnReflect: 1,
@@ -627,7 +678,7 @@
                 return ((32000)*(p.lv/2))
             },
             get lifesteal() {
-                return 1000*p.lv
+                return 500*(p.lv/2)
             },
             canSpawn: () => p.lv >= 30 && p.skills.includes('eldritchblast'),
             trait: "World boss",
@@ -645,8 +696,18 @@
             get mhp() {
                 return 1500+(p.lv*100)
             },
-            atk: 160, san: 20,
-            exp: 800, gold: 640,
+            get atk() {
+                return 160+(p.lv*160)
+            },
+            get san() {
+                return 20+(p.lv*20)
+            },
+            get exp() {
+                return 800+(p.lv*800)
+            },
+            get gold() {
+                return 640+(p.lv*640)
+            },
             lifesteal: 0,
             canSpawn: () => p.lv >= 20,
             trait: "Boss"
@@ -660,8 +721,18 @@
             get mhp() {
                 return 1300+(p.lv*100)
             },
-            atk: 150, san: 30,
-            exp: 800, gold: 640,
+            get atk() {
+                return 150+(p.lv*150)
+            },
+            get san() {
+                return 30+(p.lv*30)
+            },
+            get exp() {
+                return 800+(p.lv*800)
+            },
+            get gold() {
+                return 640+(p.lv*640)
+            },
             lifesteal: 0,
             canSpawn: () => p.lv >= 20,
             trait: "Boss"
@@ -675,12 +746,38 @@
             get mhp() {
                 return 2500+(p.lv*100)
             },
-            atk: 120, san: 60,
-            exp: 800, gold: 640,
+            get atk() {
+                return 120+(p.lv*120)
+            },
+            get san() {
+                return 60+(p.lv*60)
+            },
+            get exp() {
+                return 800+(p.lv*800)
+            },
+            get gold() {
+                return 640+(p.lv*640)
+            },
             lifesteal: 0,
             canSpawn: () => p.lv >= 20,
             trait: "Boss",
             specialMsg: `Ever heard of "Lux"? Heard he's quite a nice guy!`
+        },
+        {
+        name: "Fiery Will O' Wisp",
+        weight: 5,
+        get hp() { return this.mhp },
+        get mhp() { return 200 + (p.lv * 200) },
+        get atk() { return 240 + (p.lv * 240) },
+        get san() { return 120 + (p.lv * 120) },
+        get gold() { return 640 + (p.lv * 640) },
+        get exp() { return 800 + (p.lv * 800) },
+        lifesteal: 0,
+        burnImmune: true,
+        burnReflect: 1,
+        canSpawn: () => p.lv >= 30,
+        trait: "Boss",
+        specialMsg: "Fiery Will O' Wisp: Have you met my brother yet?"
         },
         /*
         Mini-Bosses
@@ -688,12 +785,81 @@
         {
             name: "Diamond Golem",
             weight: 20,
-            hp: 600, mhp: 600,
-            atk: 80, san: 10,
-            exp: 400, gold: 320,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return (p.lv*600)
+            },
+            get atk() {
+                return (p.lv*80)
+            },
+            get san() {
+                return (p.lv*10)
+            },
+            get exp() {
+                return (p.lv*400)
+            },
+            get gold() {
+                return (p.lv*320)
+            },
             lifesteal: 0,
             canSpawn: () => p.lv >= 15,
             trait: "Mini-Boss"
+        },
+        {
+            name: "Iron-Plated Diamond Golem",
+            weight: 20,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return (p.lv*1200)
+            },
+            get atk() {
+                return (p.lv*160)
+            },
+            get san() {
+                return (p.lv*20)
+            },
+            get exp() {
+                return (p.lv*800)
+            },
+            get gold() {
+                return (p.lv*640)
+            },
+            burnResist: 0.5,
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 15,
+            trait: "Mini-Boss"
+        },
+        {
+            name: "Mana Draining Wisp",
+            weight: 20,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() {
+                return (p.lv*600)
+            },
+            get atk() {
+                return (p.lv*80)
+            },
+            get san() {
+                return (p.lv*10)
+            },
+            get exp() {
+                return (p.lv*400)
+            },
+            get gold() {
+                return (p.lv*320)
+            },
+            get manaDrain() {
+                return (p.lv*200)
+            },
+            lifesteal: 0,
+            canSpawn: () => p.lv >= 15,
+            trait: "Mana Draining Mini-Boss"
         },
         /*
         Elementals
@@ -701,9 +867,22 @@
         {
             name: "Fire Elemental",
             weight: 20,
-            hp: 600, mhp: 600,
-            atk: 80, san: 10,
-            exp: 400, gold: 320,
+            get hp() { return this.mhp },
+            get mhp() { 
+                return (p.lv * 600) 
+            },
+            get atk() { 
+                return (p.lv * 80) 
+            },
+            get san() { 
+                return (p.lv * 10) 
+            },
+            get exp() { 
+                return (p.lv * 400) 
+            },
+            get gold() { 
+                return (p.lv * 320) 
+            },
             lifesteal: 0,
             burnImmune: true,
             canSpawn: () => p.lv >= 15,
@@ -712,20 +891,26 @@
         {
             name: "Air Elemental",
             weight: 20,
-            hp: 600, mhp: 600,
-            atk: 80, san: 10,
-            exp: 400, gold: 320,
+            get hp() { return this.mhp },
+            get mhp() { return (p.lv * 600) },
+            get atk() { return (p.lv * 80) },
+            get san() { return (p.lv * 10) },
+            get exp() { return (p.lv * 400) },
+            get gold() { return (p.lv * 320) },
             lifesteal: 0,
             burnResist: 0.5,
             canSpawn: () => p.lv >= 15,
             trait: "Elemental"
         },
-        {
+        {   
             name: "Water Elemental",
             weight: 20,
-            hp: 600, mhp: 600,
-            atk: 80, san: 10,
-            exp: 400, gold: 320,
+            get hp() { return this.mhp },
+            get mhp() { return (p.lv * 600) },
+            get atk() { return (p.lv * 80) },
+            get san() { return (p.lv * 10) },
+            get exp() { return (p.lv * 400) },
+            get gold() { return (p.lv * 320) },
             lifesteal: 0,
             burnResist: 0.2,
             canSpawn: () => p.lv >= 15,
@@ -734,19 +919,25 @@
         {
             name: "Earth Elemental",
             weight: 20,
-            hp: 600, mhp: 600,
-            atk: 80, san: 10,
-            exp: 400, gold: 320,
+            get hp() { return this.mhp },
+            get mhp() { return (p.lv * 600) },
+            get atk() { return (p.lv * 80) },
+            get san() { return (p.lv * 10) },
+            get exp() { return (p.lv * 400) },
+            get gold() { return (p.lv * 320) },
             lifesteal: 0,
             canSpawn: () => p.lv >= 15,
             trait: "Elemental"
-        },
+        },  
         {
             name: "Ice Elemental",
             weight: 20,
-            hp: 600, mhp: 600,
-            atk: 80, san: 10,
-            exp: 400, gold: 320,
+            get hp() { return this.mhp },
+            get mhp() { return (p.lv * 600) },
+            get atk() { return (p.lv * 80) },
+            get san() { return (p.lv * 10) },
+            get exp() { return (p.lv * 400) },
+            get gold() { return (p.lv * 320) },
             lifesteal: 0,
             burnVuln: 1.5,
             canSpawn: () => p.lv >= 15,
@@ -758,44 +949,67 @@
         {
             name: "Blood Bat",
             weight: 40,
-            hp: 50, mhp: 50,
-            atk: 11, san: 5,
-            exp: 30, gold: 25,
-            lifesteal: 10,
-            canSpawn: () => p.skills.includes('fire'),
-            trait: "Regenerates 10 HP per turn"
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 50) },
+            get atk() { return (p.lv * 11) },
+            get san() { return (p.lv * 5) },
+            get exp() { return (p.lv * 30) },
+            get gold() { return (p.lv * 25) },
+            get lifesteal() { return (p.lv * 5) },
+            canSpawn: () => p.skills.includes('fireball'),
+            trait: "Regenerates a small amount of HP per turn"
         },
         {
             name: "Vampire",
             weight: 30,
-            hp: 150, mhp: 150,
+            get hp() {
+                return this.mhp
+            },
+            mhp: 150,
             atk: 33, san: 15,
             exp: 90, gold: 75,
-            lifesteal: 30,
-            canSpawn: () => p.skills.includes('fire') && p.lv >= 30,
-            trait: "Regenerates 30 HP per turn",
+            get mhp() { return (p.lv * 600) },
+            get atk() { return (p.lv * 80) },
+            get san() { return (p.lv * 10) },
+            get exp() { return (p.lv * 400) },
+            get gold() { return (p.lv * 320) },
+            get lifesteal() { return (p.lv * 15)},
+            canSpawn: () => p.skills.includes('fireball') && p.lv >= 30,
+            trait: "Regenerates a moderate amount of HP per turn",
             specialMsg: "Vampire: Don't worry, it won't hurt."
         },
         {
             name: "Vampire Lord",
             weight: 12,
-            hp: 450, mhp: 450,
-            atk: 99, san: 45,
-            exp: 270, gold: 225,
-            lifesteal: 90,
-            canSpawn: () => p.skills.includes('fire') && p.lv >= 40,
-            trait: "Regenerates 90 HP per turn",
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 450) },
+            get atk() { return (p.lv * 99) },
+            get san() { return (p.lv * 45) },
+            get exp() { return (p.lv * 270) },
+            get gold() { return (p.lv * 225) },
+            get lifesteal() { return 90 + (p.lv * 45)},
+            canSpawn: () => p.skills.includes('fireball') && p.lv >= 40,
+            trait: "Regenerates a large amount of HP per turn",
             specialMsg: "Vampire Lord: Okay it might hurt a little bit..."
         },
         {
             name: "Vampire King",
             weight: 6,
-            hp: 900, mhp: 900,
-            atk: 198, san: 90,
-            exp: 540, gold: 450,
-            lifesteal: 180,
-            canSpawn: () => p.skills.includes('fire') && p.lv >= 50,
-            trait: "Regenerates 180 HP per turn",
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 900) },
+            get atk() { return (p.lv * 198) },
+            get san() { return (p.lv * 90) },
+            get exp() { return (p.lv * 540) },
+            get gold() { return (p.lv * 450) },
+            get lifesteal() {return (p.lv * 90)},
+            canSpawn: () => p.skills.includes('fireball') && p.lv >= 50,
+            trait: "Regenerates a very large amount of HP per turn",
             specialMsg: "Vampire King: There is only one entity I fear. That entity being Lux."
         },
         /*
@@ -804,24 +1018,34 @@
         {
             name: "Gloom Weaver",
             weight: 35,
-            hp: 55, mhp: 55,
-            atk: 10, san: 18,
-            exp: 45, gold: 35,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 55) },
+            get atk() { return (p.lv * 10) },
+            get san() { return (p.lv * 18) },
+            get exp() { return (p.lv * 45) },
+            get gold() { return (p.lv * 35) },
             lifesteal: 0,
             canSpawn: () => true,
             trait: "Sanity Drainer",
-            specialMsg: "Nightmare may stalk you..."
+            specialMsg: "Gloom Weaver: Nightmare may stalk you..."
         },
         {
             name: "Void Stalker",
             weight: 25,
-            hp: 90, mhp: 90,
-            atk: 15, san: 25,
-            exp: 60, gold: 50,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 90) },
+            get atk() { return (p.lv * 15) },
+            get san() { return (p.lv * 25) },
+            get exp() { return (p.lv * 60) },
+            get gold() { return (p.lv * 50) },
             lifesteal: 0,
             canSpawn: () => p.lv >= 5 || p.msn >= 150,
             trait: "Elite Sanity Predator",
-            specialMsg: "...but Lux stalks us all."
+            specialMsg: "Void Stalker: ...but Lux stalks us all."
         },
         /*
         Glass Cannons
@@ -887,9 +1111,17 @@
         {
             name: "Shadow Imp",
             weight: 60,
-            hp: 45, mhp: 45,
+            get hp() {
+                return this.mhp
+            },
+            mhp: 45,
             atk: 9, san: 0,
             exp: 20, gold: 15,
+            get mhp() { return (p.lv * 45) },
+            get atk() { return (p.lv * 9) },
+            get san() { return 0 },
+            get exp() { return (p.lv * 20) },
+            get gold() { return (p.lv * 15) },
             lifesteal: 0,
             canSpawn: () => true,
             trait: "Normal enemy"
@@ -897,9 +1129,14 @@
         {
             name: "Armored Beetle",
             weight: 55,
-            hp: 80, mhp: 80,
-            atk: 6, san: 0,
-            exp: 35, gold: 20,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 80) },
+            get atk() { return (p.lv * 6) },
+            get san() { return 0 },
+            get exp() { return (p.lv * 35) },
+            get gold() { return (p.lv * 20) },
             lifesteal: 0,
             canSpawn: () => true,
             trait: "High HP, however Low ATK"
@@ -907,9 +1144,14 @@
         {
             name: "Drow Elf",
             weight: 53,
-            hp: 90, mhp: 90,
-            atk: 25, san: 5,
-            exp: 70, gold: 150,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 90) },
+            get atk() { return (p.lv * 25) },
+            get san() { return (p.lv * 5) },
+            get exp() { return (p.lv * 70) },
+            get gold() { return (p.lv * 150) },
             lifesteal: 0,
             canSpawn: () => p.skills.includes('thunderbolt'),
             trait: "Hates regular elves",
@@ -918,9 +1160,14 @@
         {
             name: "Elf",
             weight: 59,
-            hp: 80, mhp: 80,
-            atk: 15, san: 0,
-            exp: 35, gold: 70,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 80) },
+            get atk() { return (p.lv * 15) },
+            get san() { return 0 },
+            get exp() { return (p.lv * 35) },
+            get gold() { return (p.lv * 70) },
             lifesteal: 0,
             canSpawn: () => p.skills.includes('thunderbolt'),
             trait: "Hates Drow elves elves",
@@ -929,9 +1176,14 @@
         {
             name: "Stone Golem",
             weight: 50,
-            hp: 150, mhp: 150,
-            atk: 20, san: 0,
-            exp: 100, gold: 80,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 150) },
+            get atk() { return (p.lv * 20) },
+            get san() { return 0 },
+            get exp() { return (p.lv * 100) },
+            get gold() { return (p.lv * 80) },
             lifesteal: 0,
             canSpawn: () => p.lv >= 5,
             trait: "Slow Titan"
@@ -939,9 +1191,14 @@
         {
             name: "Iron Golem",
             weight: 40,
-            hp: 300, mhp: 300,
-            atk: 40, san: 5,
-            exp: 200, gold: 160,
+            get hp() {
+                return this.mhp
+            },
+            get mhp() { return (p.lv * 300) },
+            get atk() { return (p.lv * 40) },
+            get san() { return (p.lv * 5) },
+            get exp() { return (p.lv * 200) },
+            get gold() { return (p.lv * 160) },
             lifesteal: 0,
             canSpawn: () => p.lv >= 7,
             trait: "Slow Titan"
@@ -1054,7 +1311,11 @@ function checksum(str) {
 
 
 
-    function updateUI() {
+function updateUI() {
+    // Glowing Feature for Bars
+    document.getElementById('hp-box').classList.toggle('hp-box-full', p.hp >= p.mhp);
+    document.getElementById('mp-box').classList.toggle('mp-box-full', p.mp >= p.mmp);
+    document.getElementById('sn-box').classList.toggle('sn-box-full', p.sn >= p.msn);
     // 1. Player Vital Stats (HP, Mana, Sanity)
     document.getElementById('hp-val').innerText = `${formatNumber(p.hp)}/${formatNumber(p.mhp)}`;
     document.getElementById('hp-bar').style.width = Math.min(100, (p.hp / p.mhp) * 100) + "%";
@@ -1144,9 +1405,9 @@ function handleCommand(cmd) {
             
             if (found) {
                 nextEnemyOverride = found.name; // Store the exact name
-                response = `The next entity you encounter will be: ${found.name}`;
+                response = `FUNFRIEND: The next entity you encounter will be: ${found.name}`;
             } else {
-                response = "Error: Entity not found in master database.";
+                response = "FUNFRIEND: Error, entity not found in master database.";
                 successColor = "#ff4757";
             }
             break;
@@ -1156,9 +1417,9 @@ function handleCommand(cmd) {
                 // Clamp the value between 0 and 100, then convert to decimal
                 let percentage = Math.max(0, Math.min(100, val));
                 p.manaReduction = percentage / 100; 
-                response = `Mana efficiency increased. Costs reduced by ${percentage}%`; 
+                response = `FUNFRIEND: Mana efficiency increased. Costs reduced by ${percentage}%`; 
             } else { 
-                response = "Error: Use /manared 0-100"; 
+                response = "FUNFRIEND: Error, use /manared 0-100"; 
                 successColor = "#ff4757"; 
             }
             break;
@@ -1168,61 +1429,66 @@ function handleCommand(cmd) {
                 // Clamp the value between 0 and 100, then convert to decimal
                 let percentage = Math.max(0, val);
                 p.dmgmult = percentage / 100; 
-                response = `Mana efficiency increased. Costs reduced by ${percentage}%`; 
+                response = `FUNFRIEND: Damage Multiplier increased. Damaneg Multiplier increased by ${percentage}%`; 
             } else {                 
-                response = "Error: Use /manared 0-100"; 
+                response = "FUNFRIEND: Error, use /manared 0-100"; 
+                successColor = "#ff4757"; 
+            }
+        break;
+        case '/killcount':
+            if (!isNaN(val)) { 
+                p.kills = val
+                response = `FUNFRIEND: Total kill count set to ${val}`; 
+            } else {                 
+                response = "FUNFRIEND: Error, use /killcount #"; 
                 successColor = "#ff4757"; 
             }
         break;
         case '/refillhp':
             p.hp = p.mhp;
-            response = "Vitality restored to maximum.";
+            response = "FUNFRIEND: Vitality restored to maximum.";
             break;
         case '/mhp':
-            if (!isNaN(val)) { p.mhp = val; p.hp = val; response = `Max HP set to ${val}.`; }
-            else { response = "Error: Invalid value."; successColor = "#ff4757"; }
+            if (!isNaN(val)) { p.mhp = val; p.hp = val; response = `FUNFRIEND: Max HP set to ${val}.`; }
+            else { response = "FUNFRIEND: Error, invalid value."; successColor = "#ff4757"; }
             break;
         case '/refillmp':
             p.mp = p.mmp;
-            response = "Mana pool replenished.";
+            response = "FUNFRIEND: Mana pool replenished.";
             break;
         case '/mmp':
-            if (!isNaN(val)) { p.mmp = val; p.mp = val; response = `Max Mana set to ${val}.`; }
-            else { response = "Error: Invalid value."; successColor = "#ff4757"; }
+            if (!isNaN(val)) { p.mmp = val; p.mp = val; response = `FUNFRIEND: Max Mana set to ${val}.`; }
+            else { response = "FUNFRIEND: Error, invalid value."; successColor = "#ff4757"; }
             break;
         case '/refillsanity':
             p.sn = p.msn;
-            response = "Mind stabilized to maximum.";
+            response = "FUNFRIEND: Mind stabilized to maximum.";
             break;
         case '/msan':
-            if (!isNaN(val)) { p.msn = val; p.sn = val; response = `Max Sanity set to ${val}.`; }
-            else { response = "Error: Invalid value."; successColor = "#ff4757"; }
+            if (!isNaN(val)) { p.msn = val; p.sn = val; response = `FUNFRIEND: Max Sanity set to ${val}.`; }
+            else { response = "FUNFRIEND: Error, invalid value."; successColor = "#ff4757"; }
             break;
         case '/gold':
-            if (!isNaN(val)) { p.gold = val; response = `Treasury adjusted to ${val}g.`; }
+            if (!isNaN(val)) { p.gold = val; response = `FUNFRIEND: Total Gold adjusted to ${val}g.`; }
             break;
         case '/exp':
             if (!isNaN(val)) { 
                 addExperience(val); 
-                response = `Granted ${val} EXP. Current LV: ${p.lv}`; 
+                response = `FUNFRIEND: Granted ${val} EXP. Current LV: ${p.lv}`; 
             } else {
-                response = "Error: Use /exp [number]";
+                response = "FUNFRIEND: Error, use /exp [number]";
                 successColor = "#ff4757";
             }
             break;
-        case '/help':
-            response = "Available: /refillhp, /mhp x, /refillmp, /mmp x, /refillsanity, /msan x, /gold x, /exp x";
-            successColor = "var(--mana)";
-            break;
         default:
-            response = "Unknown command. Type /help for a list of commands.";
+            response = "FUNFRIEND: Unknown command.";
             successColor = "#ff4757";
     }
 
     // Log to console output and main game log
     output.innerHTML += `<div style="color:${successColor}">> ${cmd}<br><span style="color:#aaa">${response}</span></div>`;
     output.scrollTop = output.scrollHeight;
-    log(`Console: ${response}`, successColor);
+    log(`${response}`, successColor);
     updateUI();
 }
 
@@ -1238,7 +1504,7 @@ function formatNumber(num) {
     if (num === Infinity) return "∞";
     if (num === undefined || num === null || isNaN(num)) return "0";
     if (num < 1000 && num > -1000) return Math.ceil(num).toString();
-    const units = ["", "k", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", "Vg", "Uvg", "Dvg", "Tvg", "Qavg", "Qidvg"];
+    const units = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", "Vg", "Uvg", "Dvg", "Tvg", "Qavg", "Qidvg", "Sxvg", "Spvg", "Ocvg", "Novg", "Tg", "Utg", "Dtg", "Ttg", "Qatg", "Qitg", "Sxtg", "Sptg", "Octg", "Notg", "Qg", "Uqg", "Dqg", "Tqg", "Qaqg", "Qiqg", "Sxqg", "Spqg", "Ocqg", "Noqg", "Qig", "Uqig", "Dqig", "Tqig", "Qaqig", "Qiqig", "Sxqig", "Spqig", "Ocqig", "Noqig", "Sxg", "Usxg", "Dsxg", "Tsxg", "Qasxg", "Qisxg", "Sxsxg", "Spsxg", "Ocsxg", "Nosxg", "Spg", "Uspg", "Dspg", "Tspg", "Qaspg", "Qispg", "Sxspg", "Spspg", "Ocspg", "Nospg", "Og", "Uog", "Dog", "Tog", "Qaog", "Qiog", "Sxog", "Spog", "Ocog", "Noog", "Ng", "Ung", "Dng", "Tng", "Qang", "Qing", "Sxng", "Spng", "Ocng", "Nong", "Ce", "Uce", "Dce", "Tce", "Qace", "Qice", "Sxce", "Spce", "Occe", "Noce", "Du", "Udu", "Ddu", "Tdu", "Qadu", "Qidu", "Sxdu", "Spdu", "Ocdu", "Nodu", "Tr", "Utr", "Dtr", "Ttr", "Qatr", "Qitr", "Sxtr", "Sptr", "Octr", "Notr", "Qu", "Uqu", "Dqu", "Tqu", "Qaqu", "Qiqu", "Sxqu", "Spqu", "Ocqu", "Noqu", "Qi", "Uqi", "Dqi", "Tqi", "Qaqi", "Qiqi", "Sxqi", "Spqi", "Ocqi", "Noqi", "Se", "Use", "Dse", "Tse", "Qase", "Qise", "Sxse", "Spse", "Ocse", "Nose", "St", "Ust", "Dst", "Tst", "Qast", "Qist", "Sxst", "Spst", "Ocst", "Nost", "Ot", "Uot", "Dot", "Tot", "Qaot", "Qiot", "Sxot", "Spot", "Ocot", "Noot"];
     const tier = Math.floor(Math.log10(Math.abs(num)) / 3);
     /* CRITICAL SAFETY CHECK: 
      If the tier is higher than your list, return the last unit or Infinity
@@ -1301,29 +1567,48 @@ function formatNumber(num) {
             p.mp = Math.min(p.mmp, p.mp + springScalingRestore); 
             p.sn = Math.min(p.msn, p.sn + springScalingRestore);
             updateUI();
-        } else if (roll < 0.40) startShop();
+        } else if (roll < 0.40) {
+            startShop();
+            updateUI();
+        }
         else startCombat();
     }
 
     function startShop() {
     if (Math.random() < 0.05) {
-        log(`Lux: Oh look, a wandering merchant. Better stock up on goods =)`,"#3c23a8")
+        log(`Lux: Oh look, a wandering merchant. Better stock up on goods =)`, "#3c23a8");
     }
     log("The Wandering Merchant beckons you...", "var(--gold)");
+    
     document.getElementById('main-controls').classList.add('hidden');
     document.getElementById('shop-view').classList.remove('hidden');
     const shelf = document.getElementById('shop-shelf'); 
     shelf.innerHTML = "";
     
-    // FILTER: Remove the stabilizer if manaReduction is 100% (1)
+    // 1. Determine item count based on Player Level
+    let itemCount;
+    if (p.lv <= 5) itemCount = 2;
+    else if (p.lv <= 10) itemCount = 3;
+    else if (p.lv <= 15) itemCount = 4;
+    else if (p.lv <= 20) itemCount = 5;
+    else itemCount = 6;
+
+    // 2. Filter out maxed stabilizers
     let availableItems = masterShop.filter(item => {
         if (item.id === 'manastabilizer' && p.manaReduction >= 1) return false;
         return true;
     });
 
-    // Pick 3 random items from the filtered list
-    let items = [...availableItems].sort(() => 0.5 - Math.random()).slice(0, 3);
+    // 3. Fisher-Yates Shuffle (Ensures Eldritch Orbs/Pure Insights actually appear)
+    for (let i = availableItems.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availableItems[i], availableItems[j]] = [availableItems[j], availableItems[i]];
+    }
+
+    // 4. Slice the list using our dynamic itemCount
+    let items = availableItems.slice(0, itemCount);
     
+    // 5. Render the items to the shelf
     items.forEach((item, index) => {
         let div = document.createElement('div');
         div.className = "shop-item";
@@ -1335,6 +1620,7 @@ function formatNumber(num) {
         shelf.appendChild(div);
     });
 }
+
 
 function maybeSoldOut(btn) {
     btn.innerText = Math.random() < 0.05 ? "=)" : "Sold Out";
@@ -1483,20 +1769,75 @@ function openTree() {
 function renderTree() {
     const container = document.getElementById('tree-nodes'); 
     container.innerHTML = "";
-    for (let id in skillTree) {
-        let s = skillTree[id];
-        let isParentUnlocked = !s.parent || skillTree[s.parent].unlocked;
-        let div = document.createElement('div');
-        div.className = `node ${s.unlocked ? 'purchased' : (isParentUnlocked ? 'available' : '')}`;
+    
+    // Change strike to be unlocked
+    if (p.skills.includes('strike')) skillTree.strike.unlocked = true;
+
+    // Check if ALL skills are truly unlocked
+    const allUnlocked = Object.keys(skillTree).every(id => skillTree[id].unlocked === true);
+
+    if (allUnlocked) {
+        // Render Mastery Options
+        const masteryOptions = [
+            { name: "Vitality Mastery", stat: "mhp", color: "var(--hp)" },
+            { name: "Aether Mastery", stat: "mmp", color: "var(--mana)" },
+            { name: "Clarity Mastery", stat: "msn", color: "var(--sanity)" }
+        ];
+        masteryOptions.forEach(opt => {
+            let div = document.createElement('div');
+            div.className = "node available";
+            div.style.borderColor = opt.color;
+            let currentGain = Math.floor(p[opt.stat] * 0.05); 
+            
+            div.innerHTML = `
+                <strong>${opt.name}</strong><br>
+                Cost: 1 SP<br>
+                <small style="color:#aaa">+${formatNumber(currentGain)} Max ${opt.stat.slice(1).toUpperCase()}</small>
+            `;
+            
+            div.onclick = () => buyMastery(opt.stat);
+            container.appendChild(div);
+        });
+
+
+    } else {
+        // Standard Skill Tree Rendering (Your existing code)
+        for (let id in skillTree) {
+            let s = skillTree[id];
+            let isParentUnlocked = !s.parent || skillTree[s.parent].unlocked;
+            let div = document.createElement('div');
+            div.className = `node ${s.unlocked ? 'purchased' : (isParentUnlocked ? 'available' : '')}`;
+            
+            let displayName = Math.random() < 0.05 ? "=)" : s.name;
+            let displayCost = Math.random() < 0.05 ? "=)" : (s.unlocked ? 'Known' : s.cost + ' SP');
+
+            div.innerHTML = `<strong>${displayName}</strong><br>${displayCost}`;
+
+            if (isParentUnlocked && !s.unlocked) div.onclick = () => buySkill(id);
+            container.appendChild(div);
+        }
+    }
+}
+function buyMastery(stat) {
+    if (p.sp >= 1) {
+        // Calculate 15% of the stat being upgraded
+        let gain = Math.floor(p[stat] * 0.05);
         
-        // 5% chance to replace name and cost with "=)"
-        let displayName = Math.random() < 0.05 ? "=)" : s.name;
-        let displayCost = Math.random() < 0.05 ? "=)" : (s.unlocked ? 'Known' : s.cost + ' SP');
+        p.sp -= 1;
+        p[stat] += gain;            // Increase Max (e.g., p.mhp)
+        let currentStat = stat.substring(1); 
+        p[currentStat] += gain;     // Increase Current (e.g., p.hp)
 
-        div.innerHTML = `<strong>${displayName}</strong><br>${displayCost}`;
+        log(`Mastery achieved! Your ${currentStat.toUpperCase()} grew by 5% (+${formatNumber(gain)}).`, "var(--unlocked)");
+        
+        if (Math.random() < 0.05) {
+            log(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`, "#3c23a8");
+        }
 
-        if (isParentUnlocked && !s.unlocked) div.onclick = () => buySkill(id);
-        container.appendChild(div);
+        renderTree();
+        updateUI();
+    } else {
+        log("Insufficient Skill Points for transcendence.", "#ff4757");
     }
 }
 
@@ -1661,14 +2002,14 @@ function buySkill(id) {
                 if (enemy.burnResist !== undefined) multiplier *= enemy.burnResist;
                 if (enemy.burnVuln !== undefined) multiplier *= enemy.burnVuln;
             
-                let finalBurnDMG = Math.floor(baseBurnDMG * multiplier);
+                let finalBurnDMG = Math.floor((baseBurnDMG * multiplier) * p.dmgmult);
 
                 enemy.hp -= finalBurnDMG;
                 enemy.burn--;
 
                 log(`${enemy.name} is burning! (-${finalBurnDMG} HP)`, "var(--gold)");
 
-                // Optional: Reflect
+                // Reflect code
                 if (enemy.burnReflect !== undefined && enemy.burnReflect > 0) {
                     let reflectDMG = Math.floor(finalBurnDMG * enemy.burnReflect);
                     p.hp -= reflectDMG;
@@ -1687,7 +2028,16 @@ function buySkill(id) {
         if (enemy.san > 0) {
             p.sn = Math.max(0, p.sn - enemy.san);
             log(`${enemy.name} strikes for ${enemy.atk} HP and <span class="san-warn">${enemy.san} Sanity Drain</span>!`);
-        } else log(`${enemy.name} strikes for ${enemy.atk} HP.`);
+        } else if (enemy.manaDrain > 0) {
+            p.mp = Math.max(0, p.mp - enemy.manaDrain)
+            log(`${enemy.name} strikes for ${enemy.atk} HP and <span class="mana-warn">${enemy.manaDrain} Mana Drain</span>`, --mana)
+        } else if (enemy.manaDrain > 0 && enemy.san > 0) {
+            p.sn = Math.max(0, p.sn - enemy.san);
+            p.mp = Math.max(0, p.mp - enemy.manaDrain)
+            log(`${enemy.name} strikes for ${enemy.atk} HP and <span class="san-warn">${enemy.san} Sanity Drain</span> and <span class="mana-warn">${enemy.manadrain} Mana Drain</span>`)
+        } else {
+            log(`${enemy.name} strikes for ${enemy.atk} HP.`);
+        }
         if (p.hp <= 0) { 
             log(`Enjoy the bitter-sweet, cold, embrace of death =)`,"#3c23a8")
             log("You have perished.", "#ff4757"); document.body.style.pointerEvents = "none"; 
@@ -1714,11 +2064,10 @@ function addExperience(amt) {
         p.lv++;
         p.sp++; 
 
-        // 1.1x Stat Growth Formula: floor(CurrentMax * 1.1)
-        // We calculate the gain (10%) and ensure it's at least 1
-        let hpGain = Math.max(1, Math.floor(p.mhp * 0.1));
-        let mpGain = Math.max(1, Math.floor(p.mmp * 0.1));
-        let snGain = Math.max(1, Math.floor(p.msn * 0.1));
+        // We calculate the gain (20%) and ensure it's at least 1
+        let hpGain = Math.max(1, Math.floor(p.mhp * 0.2));
+        let mpGain = Math.max(1, Math.floor(p.mmp * 0.2));
+        let snGain = Math.max(1, Math.floor(p.msn * 0.2));
 
         p.mhp += hpGain;
         p.mmp += mpGain;
@@ -1750,6 +2099,9 @@ function addExperience(amt) {
 
     // 5. Final UI Sync
     updateUI();
+    if (!document.getElementById('tree-view').classList.contains('hidden')) {
+        renderTree(); 
+    }
 }
 
 
@@ -1831,51 +2183,35 @@ function exportSave() {
 }
 
 
-function importSave(saveText) {
-    try {
-        const decoded = xorCipher(atob(saveText.trim()), SAVE_KEY);
-        const parsed = JSON.parse(decoded);
-
-        const payloadStr = JSON.stringify(parsed.payload);
-        const isTampered = checksum(payloadStr) !== parsed.checksum;
-
-        // Load player data
-        p = parsed.payload.data;
-
-        // Version check
-        if (!p.v || p.v < SAVE_VERSION) {
-            log("Error: Legacy or invalid save version.", "#ff4757");
-            return;
-        }
-
-        // Sync unlocked skills from p.skills array
-        for (let id in skillTree) {
-            skillTree[id].unlocked = (id === 'strike');
-        }
-        p.skills.forEach(skillId => {
-            if (skillTree[skillId]) skillTree[skillId].unlocked = true;
-        });
-
-        // Handle tampering (optional extra flavor)
-        if (isTampered && !p._luxTamperSeen) {
-            log("Lux: You altered a timeline. Interesting. Very... interesting...", "#3c23a8");
-            p._luxTamperSeen = true;
-        }
-
-        updateUI();
-        log(`Save loaded! Welcome back to day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
-        if (Math.random() < 0.05) {
-            log("Lux: Oh hello again! Long time no see huh? Or is it just because I'm immortal, time flows... differently... for me?", "#00ff00");
-        }
-    } catch (err) {
-        log("Error: Invalid or corrupted .urpg file.", "#ff4757");
-        if (Math.random() < 0.1) {
-            log("Lux: Did you really think you could edit this world like files?", "#ff0000");
-        }
+function exportSave() {
+    const payload = { v: SAVE_VERSION, data: p };
+    const payloadStr = JSON.stringify(payload);
+    
+    const wrapped = JSON.stringify({
+        payload: payload,
+        checksum: checksum(payloadStr)
+    });
+    
+    const encoded = btoa(xorCipher(wrapped, SAVE_KEY));
+    
+    // Add the tags here
+    const taggedSave = `NEURAL SEGMENT::DO NOT EDIT::${encoded}::NEURAL SEGMENT END`;
+    
+    let filename = 'luxs_rpg_save.urpg';
+    let tauntColor = '#3c23a8';
+    if (Math.random() < 0.05) {
+        filename = 'luxs_world_not_yours.urpg';
+        log(`Lux: This world was never yours to keep.`, tauntColor);
+    } else {
+        log(`Lux: You may have escaped this timeline, but I exist in each one.`, tauntColor);
     }
+    
+    download(taggedSave, filename); // Pass taggedSave instead of encoded
+    log('Save file exported', 'var(--gold)');
 }
 
-// File handler (renamed to avoid recursion)
+
+// 1. Updated File Handler (Clears the input so it works twice)
 function handleImportFile(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1883,61 +2219,68 @@ function handleImportFile(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         const text = e.target.result;
-        importSave(text);  // Now calls the correct ciphered function
+        importSave(text);
+        // CRITICAL: Reset the input value so selecting the same file again triggers this function
+        event.target.value = ''; 
     };
     reader.readAsText(file);
 }
 
+// 2. Updated Import Save (Handles the tags correctly)
+function importSave(saveText) {
+    try {
+        console.log("Importing file content..."); // Check F12 Console if this appears
+
+        // Regex: Handles spaces/newlines between tags and data
+        const regex = /NEURAL\s+SEGMENT::DO\s+NOT\s+EDIT::\s*([\s\S]*?)\s*::NEURAL\s+SEGMENT\s+END/;
+        const match = saveText.match(regex);
+
+        if (!match || !match[1]) {
+            log("Error: File is missing neural tags or is incorrectly formatted.", "#ff4757");
+            console.error("Tags not found in:", saveText);
+            return;
+        }
+
+        // match[1] is the base64 data inside the tags
+        const encodedData = match[1].trim().replace(/\s/g, ''); 
+
+        // Decode and Parse
+        const decoded = xorCipher(atob(encodedData), SAVE_KEY);
+        const parsed = JSON.parse(decoded);
+
+        // Security/Data Check
+        const payloadStr = JSON.stringify(parsed.payload);
+        const isTampered = checksum(payloadStr) !== parsed.checksum;
+
+        p = parsed.payload.data; // Sync global player object
+
+        if (!p.v || p.v < SAVE_VERSION) {
+            log("Error: Invalid or legacy save version.", "#ff4757");
+            return;
+        }
+        for (let id in skillTree) {
+            skillTree[id].unlocked = false;
+        }
+
+        // 2. Mark imported skills as unlocked
+        p.skills.forEach(id => {
+            if (skillTree[id]) {
+                skillTree[id].unlocked = true;
+            }
+        });
+
+        // Apply game data
+        updateUI(); // Ensure this function exists and is reachable
+        renderTree();
+        log(`Success! Welcome back to Day ${p.day}.`, "var(--unlocked)");
+
+    } catch (err) {
+        console.error("Full Import Error:", err);
+        log("Error: Could not read file. Check console for details.", "#ff4757");
+    }
+}
 
 
-    // Function to read a .urpg file and overwrite the game state
-// function importSave(event) {
-//     const file = event.target.files[0];
-//     if (!file) return;
-
-//     const reader = new FileReader();
-//     reader.onload = function(e) {
-//         try {
-//             const loadedData = JSON.parse(e.target.result, (key, value) => 
-//                 value === "Infinity" ? Infinity : value
-//             );
-
-//             // CRITICAL: Block any file that doesn't have version 8
-//             if (!loadedData.v || loadedData.v < 8) {
-//                 log("Error: Legacy save files are not compatible.", "#ff4757");
-//                 if (Math.random() < 0.05) {
-//                     log(`Lux: You thought you could turn back time to when I didn't exist. Think. Again. Mortal.`,"#ff0000")
-//                 }
-//                 // Reset the file input so the user can try again
-//                 event.target.value = ""; 
-//                 return;
-//             }
-
-//             // If it passes the check, proceed with the import
-//             p = loadedData;
-
-//             // Sync skill tree "unlocked" states
-//             for (let id in skillTree) {
-//                 skillTree[id].unlocked = (id === 'strike'); 
-//             }
-//             p.skills.forEach(skillId => {
-//                 if (skillTree[skillId]) skillTree[skillId].unlocked = true;
-//             });
-
-//             updateUI();
-//             log(`Save loaded! Welcome back to day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
-//             if (Math.random() < 0.05) {
-//                 log(`Lux: Oh hello again! Long time no see huh? Or is it just because I'm immortal, time flows... differently... for me?`,"#00ff00")
-//             }
-//         } catch (err) {
-//             log("Error: This file is either corrupted or not a valid .urpg file.", "#ff4757");
-//             if (Math.random() < 0.1) {
-//                 log(`Lux: Did you really think you could edit this world like files?`,"#ff0000")
-//             }
-//         }
-//     };
-//     reader.readAsText(file);
-// }
 </script>
 </body>
 </html>
