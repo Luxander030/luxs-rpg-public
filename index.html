@@ -325,6 +325,20 @@
                 return `Max HP increased by ${formatNumber(gain)}`; 
             } 
         },
+        { 
+        id: 'healthincrease2', 
+        name: 'Dragon Heart +', 
+            get cost() { return Math.floor(60 * Math.pow(1.15, p.lv - 1)); }, 
+            run: () => {
+                let gain = Math.floor(60 + (p.mhp * 0.75));
+                p.mhp += gain; 
+                p.hp += gain; 
+                if (Math.random() < 0.05) {
+                    log(`Lux: More health, more health, yet... it's not enough for you, is it?`,"#3c23a8");
+                }
+                return `Max HP increased by ${formatNumber(gain)}`; 
+            } 
+        },
 
         { 
         id: 'manaincrease1', 
@@ -337,6 +351,17 @@
                 return `Max Mana increased by ${formatNumber(gain)}`; 
             } 
         },
+        { 
+        id: 'manaincrease2', 
+        name: 'Eldritch Orb +', 
+            get cost() { return Math.floor(60 * Math.pow(1.15, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(60 + (p.mmp * 0.75));
+                p.mmp += gain; 
+                p.mp += gain; 
+                return `Max Mana increased by ${formatNumber(gain)}`; 
+            } 
+        },
 
         { 
         id: 'sanityincrease1', 
@@ -344,6 +369,17 @@
             get cost() { return Math.floor(60 * Math.pow(1.1, p.lv - 1)); }, 
             run: () => { 
                 let gain = Math.floor(30 + (p.msn * 0.5));
+                p.msn += gain; 
+                p.sn += gain; 
+                return `Max Sanity increased by ${formatNumber(gain)}`; 
+            } 
+        },
+        { 
+        id: 'sanityincrease2', 
+        name: 'Pure Insight +', 
+            get cost() { return Math.floor(60 * Math.pow(1.15, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(60 + (p.msn * 0.75));
                 p.msn += gain; 
                 p.sn += gain; 
                 return `Max Sanity increased by ${formatNumber(gain)}`; 
@@ -379,6 +415,23 @@
                 return `Found a hidden cache of ${formatNumber(gain)} gold!`; 
             } 
         },
+        { 
+        id: 'treasuremap2', 
+        name: 'Ancient Treasure Map', 
+        get cost() { return Math.floor(40 * Math.pow(1.15, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(200 * Math.pow(1.75, p.lv - 1));
+                p.gold += gain; 
+                if (Math.random() < 0.05) {
+                    if (p.gold < 10000) {
+                        log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"#3c23a8");
+                    } else {
+                        log(`Lux: You know... I never get why humans are so... greedy in the first place. Their lives are short anyway. Why would they need that much gold?`,"#3c23a8");
+                    }
+                }
+                return `Found a hidden cache of ${formatNumber(gain)} gold!`; 
+            } 
+        },
 
         { 
         id: 'expscroll', 
@@ -386,6 +439,20 @@
         get cost() { return Math.floor(40 * Math.pow(1.1, p.lv - 1)); }, 
             run: () => { 
                 let gain = Math.floor(100 * Math.pow(1.25, p.lv - 1));
+                addExperience(gain)
+                updateUI()
+                if (Math.random() < 0.05) {
+                    log(`Lux: Try all you want. You'll never be as knowledged as me =)`,"#3c23a8");
+                }
+                return `Learned new knowledge. (+${formatNumber(gain)} EXP)`; 
+            } 
+        },
+        { 
+        id: 'expscroll2', 
+        name: 'Ancient Knowledge Scroll', 
+        get cost() { return Math.floor(40 * Math.pow(1.15, p.lv - 1)); }, 
+            run: () => { 
+                let gain = Math.floor(150 * Math.pow(1.5, p.lv - 1));
                 addExperience(gain)
                 updateUI()
                 if (Math.random() < 0.05) {
@@ -410,12 +477,39 @@
             } 
         },
         { 
+            id: 'manastabilizer2', 
+            name: 'Mana Stabilizer +', 
+            get cost() { return Math.floor(150 * Math.pow(1.2, p.lv - 1)); }, 
+            run: () => { 
+                // Cap the value at 1.0 (100%)
+                p.manaReduction = Math.min(1, p.manaReduction + 0.1); 
+
+                if (p.manaReduction >= 1) {
+                    return "Magic Efficiency perfected! Mana costs are now at their base minimum.";
+                }
+                return `Magic Efficiency increased! Mana Costs reduced by an additional 10%.`; 
+            } 
+        },
+        { 
             id: 'dmgmult', 
             name: 'Damage Multiplier', 
             get cost() { return Math.floor(300 * Math.pow(1.3, p.lv - 1)); }, 
             run: () => { 
                 p.dmgmult += 0.05; 
                 if (Math.random() < 0.05) {
+                    log(`Lux: Interesting... I see you've learned how to hurt better... I wonder how that...`, "#3c23a8")
+                    log(`Lux: ...feels?`,"#ff0000")
+                }
+                return `Damage Multiplier increased! Total Damage increased by an additional 5%.`;
+            } 
+        },
+        { 
+            id: 'dmgmult2', 
+            name: 'Perfected Damage Multiplier', 
+            get cost() { return Math.floor(300 * Math.pow(1.35, p.lv - 1)); }, 
+            run: () => { 
+                p.dmgmult += 0.05; 
+                if (Math.random() < 0.1) {
                     log(`Lux: Interesting... I see you've learned how to hurt better... I wonder how that...`, "#3c23a8")
                     log(`Lux: ...feels?`,"#ff0000")
                 }
