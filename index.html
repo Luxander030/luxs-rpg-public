@@ -334,7 +334,7 @@
                 p.mhp += gain; 
                 p.hp += gain; 
                 if (Math.random() < 0.05) {
-                    log(`Lux: More health, more health, yet... it's not enough for you, is it?`,"#3c23a8");
+                    log(`Lux: Even more health. Yet still so mortal...`,"#3c23a8");
                 }
                 return `Max HP increased by ${formatNumber(gain)}`; 
             } 
@@ -348,6 +348,9 @@
                 let gain = Math.floor(30 + (p.mmp * 0.5));
                 p.mmp += gain; 
                 p.mp += gain; 
+                if (Math.random() < 0.05) {
+                    LuxLog(`Lux: Increasing your ability to cast spells... interesting...`)
+                }
                 return `Max Mana increased by ${formatNumber(gain)}`; 
             } 
         },
@@ -359,6 +362,9 @@
                 let gain = Math.floor(60 + (p.mmp * 0.75));
                 p.mmp += gain; 
                 p.mp += gain; 
+                if (Math.random() < 0.05) {
+                    LuxLog(`Lux: More, and more, and more... yet it's not enough is it?`)
+                }
                 return `Max Mana increased by ${formatNumber(gain)}`; 
             } 
         },
@@ -371,6 +377,9 @@
                 let gain = Math.floor(30 + (p.msn * 0.5));
                 p.msn += gain; 
                 p.sn += gain; 
+                if (Math.random() < 0.05) {
+                    LuxLog(`Lux: Ah yes, "Sanity". A most fragile thing.`)
+                }
                 return `Max Sanity increased by ${formatNumber(gain)}`; 
             } 
         },
@@ -382,6 +391,9 @@
                 let gain = Math.floor(60 + (p.msn * 0.75));
                 p.msn += gain; 
                 p.sn += gain; 
+                if (Math.random() < 0.05) {
+                    LuxLog(`Lux: Sanity is fragile, no matter how much of it you have.`)
+                }
                 return `Max Sanity increased by ${formatNumber(gain)}`; 
             } 
         },
@@ -394,8 +406,11 @@
         p.hp = p.mhp; 
         p.mp = p.mmp; 
         p.sn = p.msn; 
-        return "HP, Mana, and Sanity restored"; 
-            }
+        if (Math.random() < 0.05) {
+            LuxLog(`Lux: You spent gold on some sparkling water... interesting... very... interesting...`)
+        }
+            return "HP, Mana, and Sanity restored"; 
+        }
         },
 
         { 
@@ -469,7 +484,9 @@
             run: () => { 
                 // Cap the value at 1.0 (100%)
                 p.manaReduction = Math.min(1, p.manaReduction + 0.05); 
-
+                if (Math.random() < 0.05) {
+                    LuxLog(`Lux: Decreasing the mental price of things... interesting...`)
+                }
                 if (p.manaReduction >= 1) {
                     return "Magic Efficiency perfected! Mana costs are now at their base minimum.";
                 }
@@ -483,7 +500,9 @@
             run: () => { 
                 // Cap the value at 1.0 (100%)
                 p.manaReduction = Math.min(1, p.manaReduction + 0.1); 
-
+                if (Math.random() < 0.05) {
+                    LuxLog(`Lux: Everything ends. Including your mana.`)
+                }
                 if (p.manaReduction >= 1) {
                     return "Magic Efficiency perfected! Mana costs are now at their base minimum.";
                 }
@@ -695,13 +714,13 @@
                 return this.mhp;
             },
             get mhp() {
-                return (1000000000)*p.lv;
+                return (((1000000000)*p.lv)*p.mhp);
             },
             get atk() {
                 return Math.ceil(((50000)*p.lv)*p.dmgmult)
             },
             get san() {
-                return (50000)*p.lv
+                return p.msn
             },
             get exp() {
                 return (p.exp*(-1))
@@ -713,6 +732,7 @@
                 return (10000)*p.lv
             },
             burnImmune: true,
+            burnReflect: 5,
             canSpawn: () => p.lv >= 100 && p.skills.includes('snowgrave') || p.skills.includes('ralseidualheal'),
             trait: "The god of this forsaken realm.",
             specialMsg: "Lux: Hello there, and welcome. To my realm of nightmares =)"
@@ -1697,7 +1717,7 @@ function formatNumber(num) {
         return true;
     });
 
-    // 3. Fisher-Yates Shuffle (Ensures Eldritch Orbs/Pure Insights actually appear)
+    // 3. Fisher-Yates Shuffle
     for (let i = availableItems.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [availableItems[i], availableItems[j]] = [availableItems[j], availableItems[i]];
@@ -1747,7 +1767,7 @@ function buyItem(id, btnId) {
         updateUI(); 
     } else {
     if (Math.random() < 0.05) {
-        log(`Lux: You're broke, you know that? Or are you blind as hell? Actually, I don't care if you're blind or not. Just makes it either faster or slower to kill you later.`,"#3c23a8")
+        log(`Lux: You're broke. The result of spending gold on stuff you don't need.`,"#3c23a8")
     }
         log("You lack the coin. This world is not for the poor...", "#ff4757");
     }
@@ -1878,7 +1898,7 @@ function renderTree() {
         // Render Mastery Options
         const masteryOptions = [
             { name: "Vitality Mastery", stat: "mhp", color: "var(--hp)" },
-            { name: "Aether Mastery", stat: "mmp", color: "var(--mana)" },
+            { name: "Magic Mastery", stat: "mmp", color: "var(--mana)" },
             { name: "Clarity Mastery", stat: "msn", color: "var(--sanity)" }
         ];
         masteryOptions.forEach(opt => {
@@ -1986,7 +2006,7 @@ function buySkill(id) {
     if (nextEnemyOverride) {
         selectedEnemy = enemies.find(e => e.name.toLowerCase() === nextEnemyOverride.toLowerCase());
         nextEnemyOverride = null; 
-        if (selectedEnemy) log("You have encountered an unnatural enemy. Maybe Lux sent them?", "#3c23a8");
+        if (selectedEnemy) log("You have encountered an unnatural enemy. Maybe Lux sent them? Stay safe.", "#3c23a8");
     }
 
     // 2. STANDARD SELECTION (If no override exists)
