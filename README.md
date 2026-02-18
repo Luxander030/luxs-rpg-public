@@ -16,18 +16,13 @@ Basic information:
 - Sanity: Do you want to be insane or not?
     - Importance: If it reaches 0, you lose mana at the start of each day (Mana Lost scales with the amount of days survived)
     - How to upgrade it:
-        - Use the "Pure Insight" item from the shop
+        - Use the "Eldritch Orb" item from the shop
         - Level up
 - Mana Reduction: Wait what was this one again?
     - Importance:
         - Decreases the multiplier on spells when you increase your max mana
     - How to upgrade it:
         - Purchase the "Mana Stabilizer" from the shop
-- Damage Multiplier: Big Number means Big Damage
-      - Importance:
-          - Increases your total damage output
-      - How to upgrade it:
-          - Purchase the "Damage Multiplier" from the shop
 - Gold: Are we rich or are we not?
 - EXP: Required to level up.
 - LV: Gain a skill point when you level up
