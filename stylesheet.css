@@ -1,0 +1,56 @@
+:root { --bg: #0a0a0c; --panel: #16161a; --text: #e1e1e6; --hp: #ff4757; --mana: #3742fa; --sanity: #a55eea; --gold: #eccc68; --unlocked: #2ed573; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
+.stats-row { display: flex; gap: 15px; margin-bottom: 25px; }
+.stat-box { flex: 1; background: #000; padding: 15px; border-radius: 12px; border-bottom: 4px solid #2f3542; }
+.progress-bg { background: #1e1e24; height: 14px; border-radius: 7px; margin-top: 10px; overflow: hidden; position: relative; }
+.progress-fill { height: 100%; transition: width 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+.hp-label { position: absolute; width: 100%; text-align: center; font-size: 11px; font-weight: 800; top: 0; color: white; text-shadow: 1px 1px 2px black; }
+#log { height: 200px; background: #050505; overflow-y: auto; padding: 15px; font-family: 'Fira Code', monospace; border-radius: 8px; border: 1px solid #2f3542; margin-bottom: 25px; font-size: 14px; }
+.tree-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+.node { padding: 15px; background: #2f3542; border-radius: 10px; text-align: center; border: 2px solid transparent; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+.node.available { border-color: var(--mana); opacity: 1; }
+.node.purchased { background: #1b2e1b; border-color: var(--unlocked); color: var(--unlocked); opacity: 1; cursor: default; }
+.shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+#shop-view { max-height: 500px; overflow-y: auto; padding-right: 10px; }
+.shop-item { background: #1e1e24; padding: 20px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+button { padding: 15px; cursor: pointer; border: none; border-radius: 8px; background: #2f3542; color: white; font-weight: 700; transition: 0.3s; }
+button:hover:not(:disabled) { background: #57606f; transform: translateY(-2px); }
+button:disabled { opacity: 0.3; cursor: not-allowed; }
+.hidden { display: none !important; }
+.san-warn { color: var(--sanity); font-weight: bold; }
+.mana-warn { color: var(--mana); font-weight: bold; }
+.save-controls { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
+.export-btn { padding: 6px 12px; font-size: 12px; background: #444; border: 1px solid #666; }
+.import-btn { padding: 6px 12px; font-size: 12px; background: #444; border: 1px solid #666; }
+#tooltip b { color: var(--gold); }
+#tooltip span { display: block; margin-top: 4px; border-top: 1px solid #444; padding-top: 4px; font-size: 11px; color: #aaa; }
+#import-input { display: none; }
+#debugging-panel { position: fixed; top: 15px;left: 15px; background: var(--panel); border: 2px solid var(--mana); padding: 20px; border-radius: 15px; z-index: 9999; box-shadow: 0 0 100px rgba(0,0,0,0.9); width: 350px; }
+.ghost-trigger { position: fixed; top: 0; left: 0; width: 20px;height: 20px; background: transparent; z-index: 10000; cursor: default; }
+#game-wrapper { display: flex; justify-content: center; align-items: flex-start; gap: 30px; width: 100%; margin-top: 20px; }
+#game-container { width: 850px; background: var(--panel); padding: 30px; border-radius: 20px; border: 2px solid var(--border); box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(55, 66, 250, 0.1); position: relative; flex-shrink: 0; }
+#stat-sidebar { width: 280px; background: var(--panel); padding: 25px; border-radius: 20px; border: 2px solid var(--border); box-shadow: 0 0 40px rgba(0, 0, 0, 0.8); flex-shrink: 0; }
+.stat-entry { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed #2f3542; padding-bottom: 5px; }
+.stat-entry b { color: var(--gold); }
+.stat-label { color: #a4b0be; }
+.hp-box-full { 
+    box-shadow: 0 0 15px 2px rgba(255, 71, 87, 0.8) !important;
+    border: 2px solid #ff4757 !important;
+    transform: scale(1.02);
+}
+.mp-box-full { 
+    box-shadow: 0 0 15px 2px rgba(55, 66, 250, 0.8) !important;
+    border: 2px solid #3742fa !important;
+    transform: scale(1.02);
+}
+.sn-box-full { 
+    box-shadow: 0 0 15px 2px rgba(165, 94, 234, 0.8) !important;
+    border: 2px solid #a55eea !important;
+    transform: scale(1.02);
+}
+.stat-box { 
+    transition: all 0.3s ease; 
+    position: relative;
+    z-index: 1;
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Lux's RPG Game</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+<div class="save-controls">
+    <button class="export-btn" onclick="exportSave()">Export .urpg</button>
+
+    <label for="import-input" class="import-btn" style="cursor:pointer; display:inline-block;">Import .urpg</label>
+    <input type="file" id="import-input" accept=".urpg" onchange="handleImportFile(event)">
+</div>
+<div id="tooltip" style="position: fixed; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border: 1px solid var(--mana); border-radius: 8px; font-size: 13px; z-index: 10000; pointer-events: none; line-height: 1.4;"></div>
+
+<div id="game-wrapper">
+
+    <div id="game-container">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0">Day <span id="day-txt">1</span></h2>
+            <div style="font-size: 1.1em;">
+                Gold: <span id="gold-txt" style="color:var(--gold)">0</span> | 
+                SP: <span id="sp-txt" style="color:var(--unlocked)">0</span>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div id="hp-box" class="stat-box" style="border-color:var(--hp)">Life: <span id="hp-val">100/100</span><div class="progress-bg"><div id="hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div></div></div>
+            <div id="mp-box" class="stat-box" style="border-color:var(--mana)">Mana: <span id="mp-val">50/50</span><div class="progress-bg"><div id="mp-bar" class="progress-fill" style="background:var(--mana); width:100%"></div></div></div>
+            <div id="sn-box" class="stat-box" style="border-color:var(--sanity)">Sanity: <span id="sn-val">100/100</span><div class="progress-bg"><div id="sn-bar" class="progress-fill" style="background:var(--sanity); width:100%"></div></div></div>
+            <div class="stat-box" style="border-color:lime">
+                LV <span id="lv-txt">1</span> | EXP: <span id="exp-val">0/100</span>
+                <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:lime; width:0%"></div></div>
+            </div>
+        </div>
+
+        <div id="log">Welcome to your standard RPG.</div>
+
+        <div id="shop-view" class="hidden">
+            <h3>Wandering Merchant</h3>
+            <div id="shop-shelf" class="shop-grid"></div>
+            <button style="width:100%" onclick="exitEvent()">Continue</button>
+        </div>
+
+        <div id="tree-view" class="hidden">
+            <h3>Spell Tree</h3>
+            <div class="tree-grid" id="tree-nodes"></div>
+            <button style="width:100%; margin-top:20px;" onclick="exitEvent()">Close Spell Tree</button>
+        </div>
+        <div id="combat-view" class="hidden">
+            <div style="background:#1e1e24; padding:25px; border-radius:15px; margin-bottom:20px; border: 1px solid #2f3542; text-align:center;">
+                <h3 id="e-name" style="margin:0; text-transform:uppercase; letter-spacing:2px;">Target</h3>
+                <div class="progress-bg" style="width:100%; max-width:400px; height:24px; margin:15px auto;">
+                    <div id="e-hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div>
+                    <div id="e-hp-txt" class="hp-label">HP: -- / --</div>
+                </div>
+                <div id="e-traits" style="font-size:0.8em; color:#a4b0be"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="action-search" placeholder="Search spells..." oninput="renderCombatButtons()" style="width: 100%; padding: 10px; background: #000; border: 1px solid var(--mana); color: white; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            <div id="special-actions" style="margin-bottom: 10px; display: grid; grid-template-columns: 1fr;">
+                <button id="spare-btn" onclick="spareEnemy()" style="background: #2ed573; color: #000;">Spare</button>
+            </div>
+            <div class="controls" id="combat-btns"></div>
+        </div>
+
+        <div id="main-controls" class="controls">
+            <button onclick="nextDay()">Explore Onward</button>
+            <button onclick="openTree()">Study Spells</button>
+        </div>
+
+    </div> 
+    <div id="stat-sidebar">
+        <h3 style="margin-top:0; color:var(--mana); border-bottom: 2px solid var(--mana); padding-bottom: 10px;">Character Stats</h3>
+        <div class="stat-entry"><span class="stat-label">Current Max Life:</span> <b id="side-mhp">100</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Life:</span> <b id="side-hp">100</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Current Max Mana:</span> <b id="side-mmp">50</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Mana:</span> <b id="side-mp">50</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Mana Reduction:</span> <b id="side-red">0%</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Current Max Sanity:</span> <b id="side-msn">100</b></div>
+        <div class="stat-entry"><span class="stat-label">Current Sanity:</span> <b id="side-sn">100</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Current Level:</span> <b id="side-lv">1</b></div>
+        <div class="stat-entry"><span class="stat-label">Current EXP:</span> <b id="side-exp">0</b></div>
+        <div class="stat-entry"><span class="stat-label">EXP to Next LV:</span><b id="side-next-exp">100</b></div>
+        <div class="stat-entry"><span class="stat-label">Skill Points Available:</span> <b id="side-sp">0</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Current Gold:</span> <b id="side-gold">0</b></div>
+        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+        <div class="stat-entry"><span class="stat-label">Total Kills:</span> <b id="side-kills">0</b></div>
+        <div class="stat-entry"><span class="stat-label">Damage multiplier:</span> <b id="side-dmgmult">100%</b></div>
+    </div>
+
+</div>
+<div id="debugging-panel" class="hidden">
+    <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Game Master Console >_</h3>
+    <div id="console-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
+        FUNFRIEND: HELLO LUX... WAIT... YOU'RE NOT LUX. OH WELL. HE'S STILL GOING TO KILL YOU ANYWAY.
+    </div>
+    <input type="text" id="console-input" placeholder="Enter command..." 
+           style="width:100%; background:#000; border:1px solid var(--mana); color:white; padding:10px; box-sizing:border-box; font-family:'Fira Code', monospace;">
+    <p style="font-size:10px; color:#666; margin-top:5px;">TPress ESC to close.</p>
+</div>
+<div class="ghost-trigger" onclick="toggleAdmin()"></div>
+</body>
+<script src="maincode.js"></script>
+<script src="consts.js"></script>
+<script src="playerinfo.js"></script>
+</html>
