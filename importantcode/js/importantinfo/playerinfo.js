@@ -11,7 +11,7 @@ let p = {
     lv: 1n, // LV
     sp: 0n, // Skill points
     day: 1n, // Current Day at start
-    skills: ['strike'], // Skills at start
+    skills: ['strike', 'heal'], // Skills at start
     manaReduction: 0n,  // Mana Reduction (0 is 0% reduction and base)
     kills: 0n, // Total amount of kills
     sparedenemies: 0n,

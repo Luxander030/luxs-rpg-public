@@ -1,0 +1,30 @@
+.tree-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px; 
+    margin-top: 15px; 
+}
+
+.node { 
+    padding: 15px; 
+    background: #2f3542; 
+    border-radius: 10px; 
+    text-align: center; 
+    border: 2px solid transparent; 
+    cursor: pointer; 
+    opacity: 0.5; 
+    transition: 0.2s; 
+}
+
+.node.available { 
+    border-color: var(--mana); 
+    opacity: 1; 
+}
+
+.node.purchased { 
+    background: #1b2e1b; 
+    border-color: var(--unlocked); 
+    color: var(--unlocked); 
+    opacity: 1; 
+    cursor: default; 
+}

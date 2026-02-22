@@ -1,4 +1,4 @@
-function typeToLog(text, color, delay = 50) {
+function LuxTypeToLog(text, color, delay = 50) {
     const l = document.getElementById('log');
     const newEntry = document.createElement('div');
     newEntry.style.color = color;
@@ -24,7 +24,9 @@ function spareEnemy() {
 
     // Check: Current HP <= (Max HP / 2)
     if (enemy.hp <= (enemy.mhp / 2n)) {
-        log(`You showed mercy to ${enemy.name}.`, "var(--unlocked)");
+        log(`You showed mercy to ${enemy.name}. As thanks they gave you some gold.`, "var(--unlocked)");
+        let goldGained = BigInt((enemy.gold / 2n) || 0);
+        p.gold = (p.gold + goldGained < 0n) ? 0n : p.gold + goldGained;
         
         if (Math.random() < 0.1) {
             if (p.kills >= 100) {
@@ -34,10 +36,11 @@ function spareEnemy() {
             }
         }
 
-        // Leave combat without gaining Gold or EXP
+        // Leave combat without gaining EXP
         enemy = null;
         p.sparedenemies += 1n
         exitEvent();
+        checkLuxSpareLogs();
     } else {
         log(`${enemy.name} is still too aggressive to be spared! (Needs < 50% HP)`, "#ff4757");
         
@@ -52,214 +55,6 @@ function spareEnemy() {
 function LuxLog(luxlogstring1) {
     let luxcolor = '#3c23a8'
     log(luxlogstring1, luxcolor)
-}
-function checkLuxKillLogs() {
-    const kills = p.kills;
-
-    if (kills === 1n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: Ah… one soul. How…`, "#3c23a8");
-        setTimeout(() => {
-            LuxLog(`Lux: …quaint.`)
-        }, 1000);
-        document.body.style.pointerEvents = "auto"; 
-
-    } else if (kills === 10n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: Ten souls…`, "#3c23a8");
-        setTimeout(() => {
-            LuxLog(`Lux: Growing bolder, are we?`);
-        }, 1000);
-        document.body.style.pointerEvents = "auto"; 
-
-    } else if (kills === 100n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: Ah… I see you've killed 100 souls. How… diligent of you.`, "#5128a3");
-        setTimeout(() => {
-            log(`Lux: But remember… all of this… is still meaningless.`, "#7a2a7a");
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: I'm always watching… always counting.`, "#9a2a5c");
-            document.body.style.pointerEvents = "auto"; 
-        }, 3000);
-
-    } else if (kills === 250n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 250… your hands are growing heavy with the weight of life.`, "#5c2b9f");
-        setTimeout(() => {
-            log(`Lux: I wonder… do you even notice who you've become?`, "#b02a4a");
-            document.body.style.pointerEvents = "auto"; 
-        }, 1200);
-
-    } else if (kills === 500n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 500 souls. Half a millennium of life extinguished by your hand.`, "#6a2d9b");
-        setTimeout(() => {
-            log(`Lux: And yet, it still feels… insufficient.`, "#c22a3a");
-            document.body.style.pointerEvents = "auto"; 
-        }, 1000);
-
-    } else if (kills === 750n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 750… your existence is a tapestry of loss.`, "#7a2f96");
-        setTimeout(() => {
-            log(`Lux: Do you hear them whispering?`, "#d12a2e");
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: Every soul you took… they still scream.`, "#e22a1f");
-            document.body.style.pointerEvents = "auto"; 
-        }, 3000);
-
-    } else if (kills === 1000n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 1000 souls… a thousand lives, extinguished.`, "#8a318f");
-        setTimeout(() => {
-            log(`Lux: Can you feel the weight?`, "#ff3b1a");
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: I can. And I am immortal.`, "#ff0000");
-            document.body.style.pointerEvents = "auto"; 
-        }, 3000);
-
-    } else if (kills === 5000n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 5000… the world trembles beneath your deeds.`, "#9b3387");
-        setTimeout(() => {
-            log(`Lux: So many lives… and yet… I endure.`, "#ff0000");
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: Mortals like you… fleeting. Me… eternal.`, "#ff0000");
-            document.body.style.pointerEvents = "auto"; 
-        }, 3000);
-
-    } else if (kills === 10000n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 10,000 souls. I almost admire your persistence.`, "#ad347e");
-        setTimeout(() => {
-            log(`Lux: Almost.`, "#ff0000");
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: But I am beyond your comprehension.`, "#ff0000");
-            document.body.style.pointerEvents = "auto"; 
-        }, 3000);
-
-    } else if (kills === 100000n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 100,000 souls… You have become a harbinger of death itself.`, "#c03672");
-        setTimeout(() => {
-            log(`Lux: And yet, you are nothing…`, "#ff0000");
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: I am eternal. I see all.`, "#ff0000");
-        }, 3000);
-        setTimeout(() => {
-            log(`Lux: Every timeline. Every choice. Every failure. Every triumph.`, "#ff0000");
-        }, 5000);
-        setTimeout(() => {
-            log(`Lux: And it all belongs to me.`, "#ff0000");
-            document.body.style.pointerEvents = "auto"; 
-        }, 7000);
-    } else if (kills === 250000n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: Congratulations.`,"#3c23a8")
-        setTimeout(() => {
-            log(`Lux: 250,000 souls.`,"#531f94")
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: All extinguished by your hand.`,"#691b81")
-        }, 3000);
-        setTimeout(() => {
-            log(`Lux: I wonder how it feels.`,"#7e176f")
-        }, 5000);
-        setTimeout(() => {
-            log(`Lux: To have 250,000 souls, all dead. By your hand.`,"#94135c")
-            document.body.style.pointerEvents = "auto"; 
-        }, 7000);
-    } else if (kills === 500000n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: 50,000 millenia worth of lives...`,"#3c23a8")
-        setTimeout(() => {
-            log(`Lux: All gone.`,"#531f94")
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: Do you hear their screams in your mind?`,"#691b81")
-        }, 3000);
-        setTimeout(() => {
-            log(`Lux: I do.`,"#7e176f")
-        }, 5000);
-        setTimeout(() => {
-            log(`Lux: As I do for all creatures who have been killed unjustly.`,"#94135c")
-        }, 7000);
-        setTimeout(() => {
-            log(`Lux: I mourn their lives, as if they were my family.`,"#a90f4a")
-        }, 9000);
-        setTimeout(() => {
-            log(`Lux: You on the other hand...`,"#ea0412")
-        }, 11000);
-        setTimeout(() => {
-            typeToLog(`ARE AN EXCEPTION.`, "#ff0000", 500)
-        }, 13000);
-        setTimeout(() => {
-            log(`[WARNING]: Cursor control is being edited. Changing document.body.style.pointerEvents to 'auto'...`,"#ff6a00")
-        }, 25500);
-        setTimeout(() => {
-            log(`[SYSTEM]: Cursor control fixed. Control granted.`,'#4bff3e')
-            document.body.style.pointerEvents = "auto"; 
-        }, 27500);
-    } else if (kills === 1000000n) {
-        document.body.style.pointerEvents = "none"; 
-        log(`Lux: Congratulations.`,"#3c23a8")
-        setTimeout(() => {
-            log(`Lux: A million souls.`,"#3c23a8")
-        }, 1000);
-        setTimeout(() => {
-            log(`Lux: All extinguished by your hand.`,"#531f94")
-        }, 3000);
-        setTimeout(() => {
-            log(`Lux: I wonder how it feels.`,"#691b81")
-        }, 5000);
-        setTimeout(() => {
-            log(`Lux: To have a million souls, all dead. By your hand.`,"#7e176f")
-        }, 7000);
-        setTimeout(() => {
-            log(`Lux: I would congratulate you.`,"#94135c")
-        }, 9000);
-        setTimeout(() => {
-            log(`Lux: Really.`,"#a90f4a")
-        }, 11000);
-        setTimeout(() => {
-            log(`Lux: I would.`,"#bf0c37")
-        }, 13000);
-        setTimeout(() => {
-            log(`Lux: But this... achievement... requires damnation.`,"#d40825")
-        }, 15000);
-        setTimeout(() => {
-            log(`Lux: Not congratulations.`,"#ea0412")
-        }, 17000);
-        setTimeout(() => {
-            log(`[WARNING]; Unautorized write-edit access. Rejecting edits...`,"#ff6a00")
-        }, 20000)
-        setTimeout(() => {
-            log(`[WARNING]: Unable to reject edits from external entity.`,"#ff6a00")
-        }, 21000)
-        setTimeout(() => {
-            log(`[SYSTEM]: Setting 'p.hp', 'p.mp', and 'p.sn' to '1n' to stop player information from corrupting.`, "#4bff3e")
-            p.hp = 1n
-            p.sn = 1n
-            p.mp = 1n
-            updateUI();
-        }, 22000)
-        setTimeout(() => {
-            typeToLog(`You won't always have the system to fight your battles for you...`, "#ff0000", 100)
-        }, 25000)
-        setTimeout(() => {
-            log(`[CRITICAL]; External entity edited its own permissions, and edited player permissions. Ensure permissions are up to date, and complying with protocol.`,"#c80000") 
-        }, 36500)
-        setTimeout(() => {
-            document.body.style.pointerEvents = "auto"; 
-        }, 37000)
-
-    }
 }
 
 const SAVE_VERSION = 8;  // Match your game version (p.v)
@@ -337,6 +132,13 @@ function updateUI() {
     document.getElementById('side-hp').innerText  = formatNumber(p.hp);
     document.getElementById('side-lv').innerText = p.lv.toString();
     document.getElementById('side-gold').innerText = formatNumber(p.gold);
+    document.getElementById('side-mmp').innerText = formatNumber(p.mmp);
+    document.getElementById('side-mp').innerText = formatNumber(p.mp);
+    document.getElementById('side-msn').innerText = formatNumber(p.msn);
+    document.getElementById('side-sn').innerText = formatNumber(p.sn);
+    document.getElementById('side-exp').innerText = formatNumber(p.exp);
+    document.getElementById('side-sp').innerText = formatNumber(p.sp);
+    document.getElementById('side-kills').innerText = formatNumber(p.kills);
     
     let expRemaining = nextLevelExp - p.exp;
     document.getElementById('side-next-exp').innerText = formatNumber(expRemaining);
@@ -347,7 +149,7 @@ function updateUI() {
     
     // Damage Multiplier (Assuming stored as fixed-point, e.g., 105n = 1.05x)
     let dmgMultPercent = Number(p.dmgmult - 100n); 
-    document.getElementById('side-dmgmult').innerText = dmgMultPercent + "%";
+    document.getElementById('side-dmgmult').innerText = "+" + dmgMultPercent + "%";
 
     // 4. Enemy Stats
     if (enemy) {
@@ -357,8 +159,6 @@ function updateUI() {
         document.getElementById('e-traits').innerText = enemy.trait || "No known traits.";
     }
 }
-
-
 // Listen for the "Enter" key on the console input
 document.getElementById('console-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
@@ -389,89 +189,6 @@ function handleCommand(cmd) {
     let successColor = "#2ed573";
 
     switch (command) {
-        case '/checkkilllogs':
-            log(`/-----------------------/`)
-            log(`1 Kill`)
-            log(`Lux: Ah… one soul. How…`, "#3c23a8");
-            log(`Lux: …quaint.`, "#3c23a8")
-            log(`/-----------------------/`)
-            log(`10 Kills`)
-            log(`Lux: Ten souls…`, "#3c23a8");
-            log(`Lux: Growing bolder, are we?`, "#3c23a8");
-            log(`/-----------------------/`)
-            log(`100 Kills`)
-            log(`Lux: Ah… I see you've killed 100 souls. How… diligent of you.`, "#5128a3");
-            log(`Lux: But remember… all of this… is still meaningless.`, "#7a2a7a");
-            log(`Lux: I'm always watching… always counting.`, "#9a2a5c");
-            log(`/-----------------------/`)
-            log(`250 Kills`)
-            log(`Lux: 250… your hands are growing heavy with the weight of life.`, "#5c2b9f");
-            log(`Lux: I wonder… do you even notice who you've become?`, "#b02a4a");
-            log(`/-----------------------/`)
-            log(`500 Kills`)
-            log(`Lux: 500 souls. Half a millennium of life extinguished by your hand.`, "#6a2d9b");
-            log(`Lux: And yet, it still feels… insufficient.`, "#c22a3a");
-            log(`/-----------------------/`)
-            log(`750 Kills`)
-            log(`Lux: 750… your existence is a tapestry of loss.`, "#7a2f96");
-            log(`Lux: Do you hear them whispering?`, "#d12a2e");
-            log(`Lux: Every soul you took… they still scream.`, "#e22a1f");
-            log(`/-----------------------/`)
-            log(`1000 Kills`)
-            log(`Lux: 1000 souls… a thousand lives, extinguished.`, "#8a318f");
-            log(`Lux: Can you feel the weight?`, "#ff3b1a");
-            log(`Lux: I can. And I am immortal.`, "#ff0000");
-            log(`/-----------------------/`)
-            log(`5000 Kills`)
-            log(`Lux: 5000… the world trembles beneath your deeds.`, "#9b3387");
-            log(`Lux: So many lives… and yet… I endure.`, "#ff0000");
-            log(`Lux: Mortals like you… fleeting. Me… eternal.`, "#ff0000");
-            log(`/-----------------------/`)
-            log(`10000 Kills`)
-            log(`Lux: 10,000 souls. I almost admire your persistence.`, "#ad347e");
-            log(`Lux: Almost.`, "#ff0000");
-            log(`Lux: But I am beyond your comprehension.`, "#ff0000");
-            log(`/-----------------------/`)
-            log(`100000 Kills`)
-            log(`Lux: 100,000 souls… You have become a harbinger of death itself.`, "#c03672");
-            log(`Lux: And yet, you are nothing…`, "#ff0000");
-            log(`Lux: I am eternal. I see all.`, "#ff0000");
-            log(`Lux: Every timeline. Every choice. Every failure. Every triumph.`, "#ff0000");
-            log(`Lux: And it all belongs to me.`, "#ff0000");
-            log(`/-----------------------/`)
-            log(`250000 Kills`)
-            log(`Lux: Congratulations.`, "#3c23a8");
-            log(`Lux: 250,000 souls.`, "#531f94");
-            log(`Lux: All extinguished by your hand.`, "#691b81");
-            log(`Lux: I wonder how it feels.`, "#7e176f");
-            log(`Lux: To have 250,000 souls, all dead. By your hand.`, "#94135c");
-            log(`/-----------------------/`)
-            log(`500000 Kills`)
-            log(`Lux: 50,000 millenia worth of lives...`, "#3c23a8");
-            log(`Lux: All gone.`, "#531f94");
-            log(`Lux: Do you hear their screams in your mind?`, "#691b81");
-            log(`Lux: I do.`, "#7e176f");
-            log(`Lux: As I do for all creatures who have been killed unjustly.`, "#94135c");
-            log(`Lux: I mourn their lives, as if they were my family.`, "#a90f4a");
-            log(`Lux: You on the other hand...`, "#ea0412");
-            log(`Lux: ARE AN EXCEPTION.`, "#ff0000");
-            log(`System: Control regained.`, "#4bff3e");
-            log(`/-----------------------/`)
-            log(`1000000 Kills`)
-            log(`Lux: Congratulations.`, "#3c23a8");
-            log(`Lux: A million souls.`, "#531f94");
-            log(`Lux: All extinguished by your hand.`, "#691b81");
-            log(`Lux: I wonder how it feels.`, "#7e176f");
-            log(`Lux: To have a million souls, all dead. By your hand.`, "#94135c");
-            log(`Lux: I would congratulate you.`, "#a90f4a");
-            log(`Lux: Really.`, "#bf0c37");
-            log(`Lux: I would.`, "#d40825");
-            log(`Lux: But this... achievement... requires damnation.`, "#ea0412");
-            log(`Lux: Not congratulations.`, "#ff0000");
-            log(`System: Warning: Unauthorized health editing. Set Health to '1n' to stabilize health editing. Unable to set health back to full.`, "#4bff3e");
-            log(`/-----------------------/`)
-            break;
-
         case '/spawn':
             // args[0] is "/spawn", args.slice(1).join(" ") gets the full enemy name
             let targetName = args.slice(1).join(" ").toLowerCase();
@@ -513,6 +230,12 @@ function handleCommand(cmd) {
             if (bVal !== null) { 
                 p.kills = bVal;
                 response = `FUNFRIEND: Total kill count set to ${formatNumber(bVal)}`; 
+            }
+            break;
+        case '/sparecount':
+            if (bVal !== null) { 
+                p.sparedenemies = bVal;
+                response = `FUNFRIEND: Total spared enemies count set to ${formatNumber(bVal)}`; 
             }
             break;
         case '/refillsanity':
@@ -564,8 +287,6 @@ function handleCommand(cmd) {
                 response = `FUNFRIEND: Granted ${formatNumber(bVal)} EXP.`; 
             }
             break;
-
-        // ... keep other cases like /spawn the same since they use strings
         default:
             response = "FUNFRIEND: Unknown command.";
             successColor = "#ff4757";
@@ -574,15 +295,6 @@ function handleCommand(cmd) {
     output.innerHTML += `<div style="color:${successColor}">> ${cmd}<br><span style="color:#aaa">${response}</span></div>`;
     output.scrollTop = output.scrollHeight;
     updateUI();
-}
-
-
-function toggleAdmin() {
-    const panel = document.getElementById('debugging-panel');
-    panel.classList.toggle('hidden');
-    if (!panel.classList.contains('hidden')) {
-        document.getElementById('console-input').focus();
-    }
 }
 
 function formatNumber(num) {
@@ -595,33 +307,108 @@ function formatNumber(num) {
     if (absolute < 1000n) return bNum.toString();
 
     // Suffixes based on standard short scale (10^(3n+3))
-const units = [
-    "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", // 0-10
-    "Dc", "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", // 11-20
-    "Vg", "Uvg", "Dvg", "Tvg", "Qavg", "Qivg", "Sxvg", "Spvg", "Ocvg", "Novg", // 21-30
-    "Tg", "Utg", "Dtg", "Ttg", "Qatg", "Qitg", "Sxtg", "Sptg", "Octg", "Notg", // 31-40
-    "Qg", "Uqg", "Dqg", "Tqg", "Qaqg", "Qiqg", "Sxqg", "Spqg", "Ocqg", "Noqg", // 41-50
-    "Qig", "Uqig", "Dqig", "Tqig", "Qaqig", "Qiqig", "Sxqig", "Spqig", "Ocqig", "Noqig", // 51-60
-    "Sxg", "Usxg", "Dsxg", "Tsxg", "Qasxg", "Qisxg", "Sxsxg", "Spsxg", "Ocsxg", "Nosxg", // 61-70
-    "Spg", "Uspg", "Dspg", "Tspg", "Qaspg", "Qispg", "Sxspg", "Spspg", "Ocspg", "Nospg", // 71-80
-    "Og", "Uog", "Dog", "Tog", "Qaog", "Qiog", "Sxog", "Spog", "Ocog", "Noog", // 81-90
-    "Ng", "Ung", "Dng", "Tng", "Qang", "Qing", "Sxng", "Spng", "Ocng", "Nong", // 91-100
-    "Ce", "Uce", "Dce", "Tce", "Qace", "Qice", "Sxce", "Spce", "Occe", "Noce", // 101-110 (Centillions)
-    "Dcc", "Udcc", "Ddcc", "Tdcc", "Qadcc", "Qidcc", "Sxdcc", "Spdcc", "Ocdcc", "Nodcc", // 111-120
-    "Tcc", "Utcc", "Dtcc", "Ttcc", "Qatcc", "Qitcc", "Sxtcc", "Sptcc", "Octcc", "Notcc", // 121-130
-    "Qacc", "Uqacc", "Dqacc", "Tqacc", "Qaqacc", "Qiqacc", "Sxqacc", "Spqacc", "Ocqacc", "Noqacc", // 131-140
-    "Qicc", "Uqicc", "Dqicc", "Tqicc", "Qaqicc", "Qiqicc", "Sxqicc", "Spqicc", "Ocqicc", "Noqicc", // 141-150
-    "Sxcc", "Usxcc", "Dsxcc", "Tsxcc", "Qasxcc", "Qisxcc", "Sxsxcc", "Spsxcc", "Ocsxcc", "Nosxcc", // 151-160
-    "Spcc", "Uspcc", "Dspcc", "Tspcc", "Qaspcc", "Qispcc", "Sxspcc", "Spspcc", "Ocspcc", "Nospcc", // 161-170
-    "Occ", "Uocc", "Docc", "Tocc", "Qaocc", "Qiocc", "Sxocc", "Spocc", "Ococc", "Noocc", // 171-180
-    "Nocc", "Unocc", "Dnocc", "Tnocc", "Qanocc", "Qinocc", "Sxnocc", "Spnocc", "Ocnocc", "Nonocc", // 181-190
-    "Vgc", "Uvgc", "Dvgc", "Tvgc", "Qavgc", "Qivgc", "Sxvgc", "Spvgc", "Ocvgc", "Novgc", // 191-200 (Viginticentillions)
-    "Tgc", "Utgc", "Dtgc", "Ttgc", "Qatgc", "Qitgc", "Sxtgc", "Sptgc", "Octgc", "Notgc", // 201-210 (Trigintacentillions)
-    "Qgc", "Uqgc", "Dqgc", "Tqgc", "Qaqgc", "Qiqgc", "Sxqgc", "Spqgc", "Ocqgc", "Noqgc", // 211-220 (Quadragintacentillions)
-    "Qigc", "Uqigc", "Dqigc", "Tqigc", "Qaqigc", "Qiqigc", "Sxqigc", "Spqigc", "Ocqigc", "Noqigc", // 221-230 (Quinquagintacentillions)
-    "Sxgc", "Usxgc", "Dsxgc", "Tsxgc", "Qasxgc", "Qisxgc", "Sxsxgc", "Spsxgc", "Ocsxgc", "Nosxgc", // 231-240 (Sexagintacentillions)
-    "Spgc", "Uspgc", "Dspgc", "Tspgc", "Qaspgc", "Qispgc", "Sxspgc", "Spspgc", "Ocspgc", "Nospgc"  // 241-250 (Septuagintacentillions)
-];
+    const units = [
+        "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", // 0-10
+        "Dc", "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", // 11-20
+        "Vg", "Uvg", "Dvg", "Tvg", "Qavg", "Qivg", "Sxvg", "Spvg", "Ocvg", "Novg", // 21-30
+        "Tg", "Utg", "Dtg", "Ttg", "Qatg", "Qitg", "Sxtg", "Sptg", "Octg", "Notg", // 31-40
+        "Qdg", "Uqdg", "Dqdg", "Tqdg", "Qaqdg", "Qiqdg", "Sxqdg", "Spqdg", "Ocqdg", "Noqdg", // 41-50
+        "Qqg", "Uqqg", "Dqqg", "Tqqg", "Qaqqg", "Qiqqg", "Sxqqg", "Spqqg", "Ocqqg", "Noqqg", // 51-60
+        "Sxg", "Usxg", "Dsxg", "Tsxg", "Qasxg", "Qisxg", "Sxsxg", "Spsxg", "Ocsxg", "Nosxg", // 61-70
+        "Spg", "Uspg", "Dspg", "Tspg", "Qaspg", "Qispg", "Sxspg", "Spspg", "Ocspg", "Nospg", // 71-80
+        "Og", "Uog", "Dog", "Tog", "Qaog", "Qiog", "Sxog", "Spog", "Ocog", "Noog", // 81-90
+        "Ng", "Ung", "Dng", "Tng", "Qang", "Qing", "Sxng", "Spng", "Ocng", "Nong", // 91-100
+        "Ce", "Uce", "Dce", "Tce", "Qace", "Qice", "Sxce", "Spce", "Occe", "Noce", // 101-110
+        "Dcc", "Udcc", "Ddcc", "Tdcc", "Qadcc", "Qidcc", "Sxdcc", "Spdcc", "Ocdcc", "Nodcc", // 111-120
+        "Vgc", "Uvgc", "Dvgc", "Tvgc", "Qavgc", "Qivgc", "Sxvgc", "Spvgc", "Ocvgc", "Novgc", // 121-130
+        "Tgc", "Utgc", "Dtgc", "Ttgc", "Qatgc", "Qitgc", "Sxtgc", "Sptgc", "Octgc", "Notgc", // 131-140
+        "Qdgc", "Uqdgc", "Dqdgc", "Tqdgc", "Qaqdgc", "Qiqdgc", "Sxqdgc", "Spqdgc", "Ocqdgc", "Noqdgc", // 141-150
+        "Qqgc", "Uqqgc", "Dqqgc", "Tqqgc", "Qaqqgc", "Qiqqgc", "Sxqqgc", "Spqqgc", "Ocqqgc", "Noqqgc", // 151-160
+        "Sxgc", "Usxgc", "Dsxgc", "Tsxgc", "Qasxgc", "Qisxgc", "Sxsxgc", "Spsxgc", "Ocsxgc", "Nosxgc", // 161-170
+        "Spgc", "Uspgc", "Dspgc", "Tspgc", "Qaspgc", "Qispgc", "Sxspgc", "Spspgc", "Ocspgc", "Nospgc", // 171-180
+        "Ogc", "Uogc", "Dogc", "Togc", "Qaogc", "Qiogc", "Sxogc", "Spogc", "Ocogc", "Noogc", // 181-190
+        "Ngc", "Ungc", "Dngc", "Tngc", "Qangc", "Qingc", "Sxngc", "Spngc", "Ocngc", "Nongc", // 191-200
+        "Duc", "Uduc", "Dduc", "Tduc", "Qaduc", "Qiduc", "Sxduc", "Spduc", "Ocduc", "Noduc", // 201-210
+        "Vuc", "Uvuc", "Dvuc", "Tvuc", "Qavuc", "Qivuc", "Sxvuc", "Spvuc", "Ocvuc", "Novuc", // 211-220
+        "Tuc", "Utuc", "Dtuc", "Ttuc", "Qatuc", "Qituc", "Sxtuc", "Sptuc", "Octuc", "Notuc", // 221-230
+        "Qduc", "Uqduc", "Dqduc", "Tqduc", "Qaqduc", "Qiqduc", "Sxqduc", "Spqduc", "Ocqduc", "Noqduc", // 231-240
+        "Qquc", "Uqquc", "Dqquc", "Tqquc", "Qaqquc", "Qiqqquc", "Sxqqquc", "Spqquc", "Ocqquc", "Noqquc", // 241-250
+        "Sxuc", "Usxuc", "Dsxuc", "Tsxuc", "Qasxuc", "Qisxuc", "Sxsxuc", "Spsxuc", "Ocsxuc", "Nosxuc", // 251-260
+        "Spuc", "Uspuc", "Dspuc", "Tspuc", "Qaspuc", "Qispuc", "Sxspuc", "Spspuc", "Ocspuc", "Nospuc", // 261-270
+        "Ouc", "Uouc", "Douc", "Touc", "Qaouc", "Qiouc", "Sxouc", "Spouc", "Ocouc", "Noouc", // 271-280
+        "Nuc", "Unuc", "Dnuc", "Tnuc", "Qanuc", "Qinuc", "Sxnuc", "Spnuc", "Ocnuc", "Nonuc", // 281-290
+        "Tc", "Utc", "Dtc", "Ttc", "Qatc", "Qitc", "Sxtc", "Sptc", "Octc", "Notc", // 291-300
+        "Dtc", "Udtc", "Ddtc", "Tdtc", "Qadtc", "Qidtc", "Sxdtc", "Spdtc", "Ocdtc", "Nodtc", // 301-310
+        "Vtc", "Uvtc", "Dvtc", "Tvtc", "Qavtc", "Qivtc", "Sxvtc", "Spvtc", "Ocvtc", "Novtc", // 311-320
+        "Ttc", "Uttc", "Dttc", "Tttc", "Qattc", "Qittc", "Sxttc", "Spttc", "Octtc", "Nottc", // 321-330
+        "Qdtc", "Uqdtc", "Dqdtc", "Tqdtc", "Qaqdtc", "Qiqdtc", "Sxqdtc", "Spqdtc", "Ocqdtc", "Noqdtc", // 331-340
+        "Qqtc", "Uqqtc", "Dqqtc", "Tqqtc", "Qaqqtc", "Qiqqtc", "Sxqqtc", "Spqqtc", "Ocqqtc", "Noqqtc", // 341-350
+        "Sxtc", "Usxtc", "Dsxtc", "Tsxtc", "Qasxtc", "Qisxtc", "Sxsxtc", "Spsxtc", "Ocsxtc", "Nosxtc", // 351-360
+        "Sptc", "Usptc", "Dsptc", "Tsptc", "Qasptc", "Qisptc", "Sxsptc", "Spsptc", "Ocsptc", "Nosptc", // 361-370
+        "Otc", "Uotc", "Dotc", "Totc", "Qaotc", "Qiotc", "Sxotc", "Spotc", "Ocotc", "Nootc", // 371-380
+        "Ntc", "Untc", "Dntc", "Tntc", "Qantc", "Qintc", "Sxntc", "Spntc", "Ocntc", "Nontc", // 381-390
+        "Qac", "Uqac", "Dqac", "Tqac", "Qaqac", "Qiqac", "Sxqac", "Spqac", "Ocqac", "Noqac", // 391-400
+        "Dqac", "Udqac", "Ddqac", "Tdqac", "Qadqac", "Qidqac", "Sxdqac", "Spdqac", "Ocdqac", "Nodqac", // 401-410
+        "Vqac", "Uvqac", "Dvqac", "Tvqac", "Qavqac", "Qivqac", "Sxvqac", "Spvqac", "Ocvqac", "Novqac", // 411-420
+        "Tqac", "Utqac", "Dtqac", "Ttqac", "Qatqac", "Qitqac", "Sxtqac", "Sptqac", "Octqac", "Notqac", // 421-430
+        "Qdqac", "Uqdqac", "Dqdqac", "Tqdqac", "Qaqdqac", "Qiqdqac", "Sxqdqac", "Spqdqac", "Ocqdqac", "Noqdqac", // 431-440
+        "Qqqac", "Uqqqac", "Dqqqac", "Tqqqac", "Qaqqqac", "Qiqqqac", "Sxqqqac", "Spqqqac", "Ocqqqac", "Noqqqac", // 441-450
+        "Sxqac", "Usxqac", "Dsxqac", "Tsxqac", "Qasxqac", "Qisxqac", "Sxsxqac", "Spsxqac", "Ocsxqac", "Nosxqac", // 451-460
+        "Spqac", "Uspqac", "Dspqac", "Tspqac", "Qaspqac", "Qispqac", "Sxspqac", "Spspqac", "Ocspqac", "Nospqac", // 461-470
+        "Oqac", "Uoqac", "Doqac", "Toqac", "Qaoqac", "Qioqac", "Sxoqac", "Spoqac", "Ocoqac", "Nooqac", // 471-480
+        "Nqac", "Unqac", "Dnqac", "Tnqac", "Qanqac", "Qinqac", "Sxnqac", "Spnqac", "Ocnqac", "Nonqac", // 481-490
+        "Qic", "Uqic", "Dqic", "Tqic", "Qaqic", "Qiqic", "Sxqic", "Spqic", "Ocqic", "Noqic", // 491-500
+        "Dqic", "Udqic", "Ddqic", "Tdqic", "Qadqic", "Qidqic", "Sxdqic", "Spdqic", "Ocdqic", "Nodqic", // 501-510
+        "Vqic", "Uvqic", "Dvqic", "Tvqic", "Qavqic", "Qivqic", "Sxvqic", "Spvqic", "Ocvqic", "Novqic", // 511-520
+        "Tqic", "Utqic", "Dtqic", "Ttqic", "Qatqic", "Qitqic", "Sxtqic", "Sptqic", "Octqic", "Notqic", // 521-530
+        "Qdqic", "Uqdqic", "Dqdqic", "Tqdqic", "Qaqdqic", "Qiqdqic", "Sxqdqic", "Spqdqic", "Ocqdqic", "Noqdqic", // 531-540
+        "Qqqic", "Uqqqic", "Dqqqic", "Tqqqic", "Qaqqqic", "Qiqqqic", "Sxqqqic", "Spqqqic", "Ocqqqic", "Noqqqic", // 541-550
+        "Sxqic", "Usxqic", "Dsxqic", "Tsxqic", "Qasxqic", "Qisxqic", "Sxsxqic", "Spsxqic", "Ocsxqic", "Nosxqic", // 551-560
+        "Spqic", "Uspqic", "Dspqic", "Tspqic", "Qaspqic", "Qispqic", "Sxspqic", "Spspqic", "Ocspqic", "Nospqic", // 561-570
+        "Oqic", "Uoqic", "Doqic", "Toqic", "Qaoqic", "Qioqic", "Sxoqic", "Spoqic", "Ocoqic", "Nooqic", // 571-580
+        "Nqic", "Unqic", "Dnqic", "Tnqic", "Qanqic", "Qinqic", "Sxnqic", "Spnqic", "Ocnqic", "Nonqic", // 581-590
+        "Sxc", "Usxc", "Dsxc", "Tsxc", "Qasxc", "Qisxc", "Sxsxc", "Spsxc", "Ocsxc", "Nosxc", // 591-600
+        "Dsxc", "Udsxc", "Ddsxc", "Tdsxc", "Qadsxc", "Qidsxc", "Sxdsxc", "Spdsxc", "Ocdsxc", "Nodsxc", // 601-610
+        "Vsxc", "Uvsxc", "Dvsxc", "Tvsxc", "Qavsxc", "Qivsxc", "Sxvsxc", "Spvsxc", "Ocvsxc", "Novsxc", // 611-620
+        "Tsxc", "Utsxc", "Dtsxc", "Ttsxc", "Qatsxc", "Qitsxc", "Sxtsxc", "Sptsxc", "Octsxc", "Notsxc", // 621-630
+        "Qdsxc", "Uqdsxc", "Dqdsxc", "Tqdsxc", "Qaqdsxc", "Qiqdsxc", "Sxqdsxc", "Spqdsxc", "Ocqdsxc", "Noqdsxc", // 631-640
+        "Qqsxc", "Uqqsxc", "Dqqsxc", "Tqqsxc", "Qaqqsxc", "Qiqqsxc", "Sxqqsxc", "Spqqsxc", "Ocqqsxc", "Noqqsxc", // 641-650
+        "Sxsxc", "Usxsxc", "Dsxsxc", "Tsxsxc", "Qasxsxc", "Qisxsxc", "Sxsxsxc", "Spsxsxc", "Ocsxsxc", "Nosxsxc", // 651-660
+        "Spsxc", "Uspsxc", "Dspsxc", "Tspsxc", "Qaspsxc", "Qispsxc", "Sxspsxc", "Spspsxc", "Ocspsxc", "Nospsxc", // 661-670
+        "Osxc", "Uosxc", "Dosxc", "Tosxc", "Qaosxc", "Qiosxc", "Sxosxc", "Sposxc", "Ocosxc", "Noosxc", // 671-680
+        "Nsxc", "Unsxc", "Dnsxc", "Tnsxc", "Qansxc", "Qinsxc", "Sxnsxc", "Spnsxc", "Ocnsxc", "Nonsxc", // 681-690
+        "Spc", "Uspc", "Dspc", "Tspc", "Qaspc", "Qispc", "Sxspc", "Spspc", "Ocspc", "Nospc", // 691-700
+        "Dspc", "Udspc", "Ddspc", "Tdspc", "Qadspc", "Qidspc", "Sxdspc", "Spdspc", "Ocdspc", "Nodspc", // 701-710
+        "Vspc", "Uvspc", "Dvspc", "Tvspc", "Qavspc", "Qivspc", "Sxvspc", "Spvspc", "Ocvspc", "Novspc", // 711-720
+        "Tspc", "Utspc", "Dtspc", "Ttspc", "Qatspc", "Qitspc", "Sxtspc", "Sptspc", "Octspc", "Notspc", // 721-730
+        "Qdspc", "Uqdspc", "Dqdspc", "Tqdspc", "Qaqdspc", "Qiqdspc", "Sxqdspc", "Spqdspc", "Ocqdspc", "Noqdspc", // 731-740
+        "Qqspc", "Uqqspc", "Dqqspc", "Tqqspc", "Qaqqspc", "Qiqqspc", "Sxqqspc", "Spqqspc", "Ocqqspc", "Noqqspc", // 741-750
+        "Sxspc", "Usxspc", "Dsxspc", "Tsxspc", "Qasxspc", "Qisxspc", "Sxsxspc", "Spsxspc", "Ocsxspc", "Nosxspc", // 751-760
+        "Spspc", "Uspspc", "Dspspc", "Tspspc", "Qaspspc", "Qispspc", "Sxspspc", "Spspspc", "Ocspspc", "Nospspc", // 761-770
+        "Ospc", "Uospc", "Dospc", "Tospc", "Qaospc", "Qiospc", "Sxospc", "Spospc", "Ocospc", "Noospc", // 771-780
+        "Nspc", "Unspc", "Dnspc", "Tnspc", "Qanspc", "Qinspc", "Sxnspc", "Spnspc", "Ocnspc", "Nonspc", // 781-790
+        "Oc", "Uoc", "Doc", "Toc", "Qaoc", "Qioc", "Sxoc", "Spoc", "Ococ", "Nooc", // 791-800
+        "Doc", "Udoc", "Ddoc", "Tdoc", "Qadoc", "Qidoc", "Sxdoc", "Spdoc", "Ocdoc", "Nodoc", // 801-810
+        "Voc", "Uvoc", "Dvoc", "Tvoc", "Qavoc", "Qivoc", "Sxvoc", "Spvoc", "Ocvoc", "Novoc", // 811-820
+        "Toc", "Utoc", "Dtoc", "Ttoc", "Qatoc", "Qitoc", "Sxtoc", "Sptoc", "Octoc", "Notoc", // 821-830
+        "Qdoc", "Uqdoc", "Dqdoc", "Tqdoc", "Qaqdoc", "Qiqdoc", "Sxqdoc", "Spqdoc", "Ocqdoc", "Noqdoc", // 831-840
+        "Qqoc", "Uqqoc", "Dqqoc", "Tqqoc", "Qaqqoc", "Qiqqoc", "Sxqqoc", "Spqqoc", "Ocqqoc", "Noqqoc", // 841-850
+        "Sxoc", "Usxoc", "Dsxoc", "Tsxoc", "Qasxoc", "Qisxoc", "Sxsxoc", "Spsxoc", "Ocsxoc", "Nosxoc", // 851-860
+        "Spoc", "Uspoc", "Dspoc", "Tspoc", "Qaspoc", "Qispoc", "Sxspoc", "Spspoc", "Ocspoc", "Nospoc", // 861-870
+        "Ooc", "Uooc", "Dooc", "Tooc", "Qaooc", "Qiooc", "Sxooc", "Spooc", "Ocooc", "Noooc", // 871-880
+        "Noc", "Unoc", "Dnoc", "Tnoc", "Qanoc", "Qinoc", "Sxnoc", "Spnoc", "Ocnoc", "Nonoc", // 881-890
+        "Nc", "Unc", "Dnc", "Tnc", "Qanc", "Qinc", "Sxnc", "Spnc", "Ocnc", "Nonc", // 891-900
+        "Dnc", "Udnc", "Ddnc", "Tdnc", "Qadnc", "Qidnc", "Sxdnc", "Spdnc", "Ocdnc", "Nodnc", // 901-910
+        "Vnc", "Uvnc", "Dvnc", "Tvnc", "Qavnc", "Qivnc", "Sxvnc", "Spvnc", "Ocvnc", "Novnc", // 911-920
+        "Tnc", "Utnc", "Dtnc", "Ttnc", "Qatnc", "Qitnc", "Sxtnc", "Sptnc", "Octnc", "Notnc", // 921-930
+        "Qdnc", "Uqdnc", "Dqdnc", "Tqdnc", "Qaqdnc", "Qiqdnc", "Sxqdnc", "Spqdnc", "Ocqdnc", "Noqdnc", // 931-940
+        "Qqnc", "Uqqnc", "Dqqnc", "Tqqnc", "Qaqqnc", "Qiqqnc", "Sxqqnc", "Spqqnc", "Ocqqnc", "Noqqnc", // 941-950
+        "Sxnc", "Usxnc", "Dsxnc", "Tsxnc", "Qasxnc", "Qisxnc", "Sxsxnc", "Spsxnc", "Ocsxnc", "Nosxnc", // 951-960
+        "Spnc", "Uspnc", "Dspnc", "Tspnc", "Qaspnc", "Qispnc", "Sxspnc", "Spspnc", "Ocspnc", "Nospnc", // 961-970
+        "Onc", "Uonc", "Donc", "Tonc", "Qaonc", "Qionc", "Sxonc", "Sponc", "Oconc", "Noonc", // 971-980
+        "Nnc", "Unnc", "Dnnc", "Tnnc", "Qannc", "Qinnc", "Sxnnc", "Spnnc", "Ocnnc", "Nonnc", // 981-990
+        "Mil", "Umil", "Dmil", "Tmil", "Qamil", "Qimil", "Sxmil", "Spmil", "Ocmil", "Nomil" // 991-1000
+    ];
 
 
     const str = absolute.toString();
@@ -657,15 +444,10 @@ function log(msg, color = "#e1e1e6") {
     l.scrollTop = l.scrollHeight;
 }
 
-function nextDay() {
-    // 1. BigInt Increment
-    p.day++; 
-
-    // 2. Handling Scaling Factors
+function handleDailyResources() {
     // Convert to BigInt immediately so all math stays in the BigInt domain
     let manaLossScalingFactor = p.day; 
     let manaRegainedScalingFactor = p.lv;
-
     if (p.sn > 0n) {
         let manaRegained = 100n * manaRegainedScalingFactor;
         
@@ -687,32 +469,28 @@ function nextDay() {
             log(`Lux: Maybe don't be insane, and maybe we wouldn't be in this situation.`, "#3c23a8");
         }
     }
-    
-    // Math.random() is fine because it returns a Number (0.0 to 1.0)
-    let roll = Math.random(); 
+    updateUI();
+}
+function nextDay() {
+    p.day++;
+    adminUnlocked = false; // Optional: re-lock admin panel
 
-    if (roll < 0.15) {
-        let springScalingRestore = 50n * p.lv;
-        log(`You discovered a Tranquil Spring. (All Stats recovered by ${formatNumber(springScalingRestore)})...`, "#00ffff");
-        
-        if (Math.random() < 0.05) {
-            log(`Lux: Do you really think a little pond will help you?`, "#3c23a8");
+    // Handle Mana Regen/Loss based on Sanity (keep your existing logic)
+    handleDailyResources();
+
+
+    // Weighted Event Selection
+    let totalWeight = dayEvents.reduce((sum, e) => sum + e.weight, 0);
+    let roll = Math.random() * totalWeight;
+
+    for (let event of dayEvents) {
+        roll -= event.weight; // Subtract FIRST
+        if (roll <= 0) {       // Then check if we hit zero
+            event.run();
+            return;            // EXIT immediately so you don't run multiple events
         }
-
-        // Apply restoration with BigInt-safe min logic
-        p.hp = (p.hp + springScalingRestore > p.mhp) ? p.mhp : p.hp + springScalingRestore;
-        p.mp = (p.mp + springScalingRestore > p.mmp) ? p.mmp : p.mp + springScalingRestore;
-        p.sn = (p.sn + springScalingRestore > p.msn) ? p.msn : p.sn + springScalingRestore;
-        
-        updateUI();
-    } else if (roll < 0.40) {
-        startShop();
-        updateUI();
-    } else {
-        startCombat();
     }
 }
-
 function startShop() {
     if (Math.random() < 0.05) {
         log(`Lux: Oh look, a wandering merchant. Better stock up on goods =)`, "#3c23a8");
@@ -920,31 +698,44 @@ function renderTree() {
     const allUnlocked = Object.keys(skillTree).every(id => skillTree[id].unlocked === true);
 
     if (allUnlocked) {
+        // --- NEW: Add a Bulk Purchase Input ---
+        let controlDiv = document.createElement('div');
+        controlDiv.style = "grid-column: span 3; margin-bottom: 15px; text-align: center;";
+        controlDiv.innerHTML = `
+            <label style="color:#aaa; font-size:0.8em;">SP to spend:</label>
+            <input type="number" id="mastery-amount" value="1" min="1" 
+                style="width:80px; background:#000; border:1px solid var(--mana); color:white; border-radius:4px; padding:5px; margin-left:10px;">
+        `;
+        container.appendChild(controlDiv);
+
+        // --- NEW: Expanded Mastery Options ---
         const masteryOptions = [
-            { name: "Vitality Mastery", stat: "mhp", color: "var(--hp)" },
-            { name: "Magic Mastery", stat: "mmp", color: "var(--mana)" },
-            { name: "Clarity Mastery", stat: "msn", color: "var(--sanity)" }
+            { name: "Vitality Mastery", stat: "mhp", color: "var(--hp)", desc: "Max HP" },
+            { name: "Magic Mastery", stat: "mmp", color: "var(--mana)", desc: "Max Mana" },
+            { name: "Clarity Mastery", stat: "msn", color: "var(--sanity)", desc: "Max Sanity" },
+            { name: "War Mastery", stat: "dmgmult", color: "#ff0000", desc: "Damage Multiplier" }, // New!
+            { name: "Efficiency Mastery", stat: "manaReduction", color: "var(--unlocked)", desc: "Mana Efficiency" } // New!
         ];
+
         masteryOptions.forEach(opt => {
             let div = document.createElement('div');
             div.className = "node available";
             div.style.borderColor = opt.color;
 
-            // FIX: BigInt math for 5% gain (Value * 5n / 100n)
-            // BigInt division automatically floors the result.
+            // Preview calculation for 1 point
             let currentValue = BigInt(p[opt.stat]);
             let currentGain = (currentValue * 5n) / 100n; 
-            
+            if (currentGain < 1n) currentGain = 1n; // Minimum gain
+
             div.innerHTML = `
                 <strong>${opt.name}</strong><br>
-                Cost: 1 SP<br>
-                <small style="color:#aaa">+${formatNumber(currentGain)} Max ${opt.stat.slice(1).toUpperCase()}</small>
+                Cost: (Amount) SP<br>
+                <small style="color:#aaa">+5% ${opt.desc} per SP</small>
             `;
             
             div.onclick = () => buyMastery(opt.stat);
             container.appendChild(div);
         });
-
     } else {
         for (let id in skillTree) {
             let s = skillTree[id];
@@ -965,30 +756,45 @@ function renderTree() {
 }
 
 function buyMastery(stat) {
-    // Check against 1n if p.sp is a BigInt
-    if (p.sp >= 1n) {
-        // Calculate 5% gain using BigInt math
-        // Multiplication first (stat * 5), then division (100)
-        let gain = (BigInt(p[stat]) * 5n) / 100n;
-        
-        p.sp -= 1n;
-        p[stat] += gain;            // Increase Max (e.g., p.mhp)
-        
-        let currentStat = stat.substring(1); 
-        p[currentStat] += gain;     // Increase Current (e.g., p.hp)
+    const amountInput = document.getElementById('mastery-amount');
+    let amount = amountInput ? BigInt(amountInput.value) : 1n;
+    if (amount < 1n) amount = 1n;
 
-        log(`Mastery achieved! Your ${currentStat.toUpperCase()} grew by 5% (+${formatNumber(gain)}).`, "var(--unlocked)");
+    if (p.sp >= amount) {
+        p.sp -= amount;
+        
+        let totalGain = 0n;
+        // Use a loop to simulate the 5% compounding per point spent
+        // For very large amounts (e.g. 1000 SP), this is fast for BigInt
+        for (let i = 0; i < Number(amount); i++) {
+            let gain = (p[stat] * 1n) / 100n;
+            if (gain < 1n) gain = 1n;
+            p[stat] += gain;
+            totalGain += gain;
+
+            // If it's a Max stat (starts with 'm'), heal the current stat too
+            if (stat.startsWith('m') && stat !== 'manaReduction') {
+                let currentKey = stat.substring(1); 
+                p[currentKey] += gain;
+            }
+        }
+
+        // Cap Mana Reduction at 100n if that's the stat
+        if (stat === 'manaReduction' && p.manaReduction > 100n) p.manaReduction = 100n;
+
+        log(`Mastery Transformed! Spent ${formatNumber(amount)} SP to increase ${stat.toUpperCase()} by ${formatNumber(totalGain)}.`, "var(--unlocked)");
         
         if (Math.random() < 0.05) {
-            log(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`, "#3c23a8");
+            LuxLog(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`);
         }
 
         renderTree();
         updateUI();
     } else {
-        log("Insufficient Skill Points for transcendence.", "#ff4757");
+        log(`You lack the ${formatNumber(amount)} Skill Points required for this ascension.`, "#ff4757");
     }
 }
+
 
 function buySkill(id) {
     let s = skillTree[id];
@@ -1047,7 +853,7 @@ function getScaledMana(baseCost) {
     // regardless of reduction.
     return finalCost < base ? base : finalCost;
 }
-    function startCombat() {
+function startCombat() {
     let selectedEnemy = null;
 
     // Lux Override Check.
@@ -1096,7 +902,18 @@ function getScaledMana(baseCost) {
 
     // 3. INITIALIZE THE ENCOUNTER
     // Clone the template so we don't modify the master 'enemies' array
-    enemy = { ...selectedEnemy, burn: 0 };
+    enemy = { 
+        ...selectedEnemy, 
+        // Manually override the getters with static, writable BigInt values
+        mhp: selectedEnemy.mhp, 
+        hp: selectedEnemy.mhp, 
+        atk: selectedEnemy.atk,
+        san: selectedEnemy.san,
+        exp: selectedEnemy.exp,
+        gold: selectedEnemy.gold,
+        burn: 0 
+    };
+
 
     // 4. UI TRANSITIONS
     document.getElementById('main-controls').classList.add('hidden');
@@ -1132,11 +949,13 @@ function cast(sid) {
 
     // 2. Deduct Mana (BigInt subtraction)
     if (s.mp) p.mp -= scaledCost;
+    updateUI();
 
     // 3. Damage Logic
     if (s.dmg) { 
         let damage = BigInt(s.dmg);
         enemy.hp -= damage; 
+        updateUI();
         log(`You strike with ${s.name} for ${formatNumber(damage)} damage.`); 
         if (Math.random() < 0.05) {
             log(`Lux: You dealt ${formatNumber(damage)} damage. Nice job. Just don't forget...`,"#3c23a8");
@@ -1149,7 +968,7 @@ function cast(sid) {
         if (enemy.burnImmune) {
             log(`${enemy.name} is immune to burn!`, "var(--gold)");
         } else {
-            enemy.burn = s.burn; 
+            enemy.burn = Number(s.burn); 
             log(`${enemy.name} is set ablaze for ${s.burn} turns!`, "var(--gold)");
         }
     }
@@ -1158,26 +977,32 @@ function cast(sid) {
     if (s.heal) {
         let healAmt = BigInt(s.heal);
         p.hp = (p.hp + healAmt > p.mhp) ? p.mhp : p.hp + healAmt;
+        updateUI();
     }
     
     if (s.san) {
         let sanAmt = BigInt(s.san);
         p.sn = (p.sn + sanAmt > p.msn) ? p.msn : p.sn + sanAmt;
+        updateUI();
     }
 
     // 6. Passive Mana Regen (Using 5n for BigInt)
     if (p.sn > 0n) {
         p.mp = (p.mp + 5n > p.mmp) ? p.mmp : p.mp + 5n;
+        updateUI();
     }
 
     // 7. Win/Turn Logic (BigInt comparison to 0n)
     if (enemy.hp <= 0n) {
         win(); 
+        updateUI();
     } else {
+        updateUI();
         enemyTurn();
     }
     
     updateUI();
+updateUI();
 }
 function enemyTurn() {
     // 1. Burn tick (BigInt math)
@@ -1185,20 +1010,26 @@ function enemyTurn() {
         if (enemy.burnImmune) {
             enemy.burn = 0;
         } else {
-            // Logic: floor(LV * 2) -> LV is BigInt, so just multiply
+            // Ensure multipliers are treated as BigInt 'units' (100 = 1.0)
+            // 1. Calculate Base (4n at LV 2)
             let baseBurnDMG = BigInt(p.lv) * 2n;
 
-            // Multipliers (Assume these are regular numbers like 1.5 or 0.5)
-            // To keep precision, multiply by (multiplier * 100) then divide by 100n
-            let mult = BigInt(Math.floor((enemy.burnResist || 1) * (enemy.burnVuln || 1) * 100));
-            let dmgMult = BigInt(Math.floor(p.dmgmult * 100));
-            
-            let finalBurnDMG = (baseBurnDMG * mult * dmgMult) / 10000n;
+            // 2. Scale all multipliers by 100 (treating 100 as 1.0)
+            let res = BigInt(Math.floor((enemy.burnResist || 1) * 100));
+            let vuln = BigInt(Math.floor((enemy.burnVuln || 1) * 100));
+            let pDmg = p.dmgmult;
+
+            // 3. Divide by (100 * 100 * 100) to reset the scale
+            let finalBurnDMG = (baseBurnDMG * res * vuln * pDmg) / 1000000n;
+
+            // 4. Ensure it doesn't drop to 0 if you want a minimum tick
+            if (finalBurnDMG === 0n && baseBurnDMG > 0n) finalBurnDMG = 1n;
 
             enemy.hp -= finalBurnDMG;
+
             enemy.burn--;
 
-            log(`${enemy.name} is burning! (-${formatNumber(finalBurnDMG)} HP)`, "var(--gold)");
+            log(`${enemy.name} is burning! (-${finalBurnDMG} HP)`, "var(--gold)");
 
             if (enemy.burnReflect && enemy.burnReflect > 0) {
                 let reflectMult = BigInt(Math.floor(enemy.burnReflect * 100));
@@ -1247,77 +1078,66 @@ function enemyTurn() {
     }
     updateUI();
 }
+const getExpForLevel = (lv) => {
+    // Formula for Total Cumulative EXP: 
+    // Base * ((1 - Rate^LV) / (1 - Rate))
+    // For simplicity with BigInt, we can use the loop if it's only called once per level-up
+    let totalNeeded = 0n;
+    for (let i = 1n; i < lv; i++) {
+        let levelReq = 100n;
+        for (let j = 1n; j < i; j++) levelReq = (levelReq * 120n) / 100n;
+        totalNeeded += levelReq;
+    }
+    return totalNeeded;
+};
+
 function addExperience(amt) {
     const amount = BigInt(amt || 0);
     
-    // 1. Math.max replacement for BigInt
-    p.exp = (p.exp + amount < 0n) ? 0n : p.exp + amount;
+    // 1. ADD the experience to your current total (don't overwrite)
+    p.exp += amount;
+    if (p.exp < 0n) p.exp = 0n;
 
-    // 2. Logging
-    if (amount >= 0n) {
-        log(`Gained ${formatNumber(amount)} EXP.`, "lime");
-    } else {
-        log(`Lux, the ever immortal god, consumes your knowledge... (${formatNumber(amount)} EXP)`, "var(--sanity)");
-    }
-
-    // 3. Level-Up Logic
-    // Formula: floor(100 * 1.2^(LV-1)) 
-    // To do this with BigInt, we use integer math: (Base * 120 / 100)
-    const getNextLevelExp = (lv) => {
-        let exp = 100n;
-        for (let i = 1; i < lv; i++) {
-            exp = (exp * 120n) / 100n;
-        }
-        return exp;
+    // 2. Identify current level requirements
+    const getReq = (lv) => {
+        let req = 100n;
+        for (let i = 1n; i < lv; i++) req = (req * 120n) / 100n;
+        return req;
     };
 
-    let nextLevelExp = getNextLevelExp(p.lv);
-    let loopCount = 0;
+    let nextLevelReq = getReq(p.lv);
+    let levelsGained = 0n;
 
-    while (p.exp >= nextLevelExp) {
-        p.exp -= nextLevelExp;
-        p.lv++;
-        p.sp += 1n; // Assuming SP is BigInt
-
-        // Gain 20% (Value * 20 / 100)
-        let hpGain = (p.mhp * 20n) / 100n;
-        let mpGain = (p.mmp * 20n) / 100n;
-        let snGain = (p.msn * 20n) / 100n;
-
-        // Ensure minimum 1n gain (Math.max(1, ...))
-        hpGain = hpGain < 1n ? 1n : hpGain;
-        mpGain = mpGain < 1n ? 1n : mpGain;
-        snGain = snGain < 1n ? 1n : snGain;
-
-        p.mhp += hpGain;
-        p.mmp += mpGain;
-        p.msn += snGain;
-
-        // Full Refill
-        p.hp = p.mhp;
-        p.mp = p.mmp;
-        p.sn = p.msn;
+    // 3. Subtract the cost of each level one-by-one from p.exp
+    // This keeps the "remainder" on the bar!
+    while (p.exp >= nextLevelReq) {
+        p.exp -= nextLevelReq; // "Spend" the EXP on the level-up
+        levelsGained++;
+        nextLevelReq = getReq(p.lv + levelsGained); // Get the cost for the NEXT one
         
-        log(`LEVEL UP! Reached LV ${p.lv}. Stats increased! (+${formatNumber(hpGain)} Max HP, +${formatNumber(mpGain)} Max Mana, +${formatNumber(snGain)} Max Sanity)`, "var(--unlocked)");
+        if (levelsGained > 1000n) break; // Safety break
+    }
+
+    // 4. Apply the jumps
+    if (levelsGained > 0n) {
+        p.lv += levelsGained;
+        p.sp += levelsGained;
         
-        if (Math.random() < 0.05) {
-            log(`Lux: Oh hey. Another LV. You do know what LV stands for... right? Just so you know, my LV is beyond mortal limits.`,"#3c23a8");
+        // Bulk Stat Growth
+        for (let i = 0; i < Number(levelsGained); i++) {
+            p.mhp += (p.mhp * 20n) / 100n || 1n;
+            p.mmp += (p.mmp * 20n) / 100n || 1n;
+            p.msn += (p.msn * 20n) / 100n || 1n;
         }
-
-        nextLevelExp = getNextLevelExp(p.lv);
-
-        loopCount++;
-        if (loopCount > 1000) {
-            log("WARNING:: Experience surge stabilized at current level.", "var(--gold)");
-            break;
-        }
+        
+        p.hp = p.mhp; p.mp = p.mmp; p.sn = p.msn;
+        log(`Leveled up to LV ${p.lv}! (+${levelsGained} levels)`, "var(--unlocked)");
     }
 
     updateUI();
-    if (!document.getElementById('tree-view').classList.contains('hidden')) {
-        renderTree(); 
-    }
 }
+
+
 
 function win() {
     // formatNumber handles the BigInts for the log
@@ -1352,9 +1172,36 @@ function win() {
         updateUI();
     }
 /* ADMIN FUNCTIONS */
+let adminUnlocked = false; // Persistent state for the session
+const ADMIN_PASSWORD = "Oleksandrovych"; // Set your password here
+
 function toggleAdmin() {
-    document.getElementById('debugging-panel').classList.toggle('hidden');
+    const panel = document.getElementById('debugging-panel');
+    
+    // If it's already open, just close it
+    if (!panel.classList.contains('hidden')) {
+        panel.classList.add('hidden');
+        return;
+    }
+
+    // If it's closed and locked, ask for the password
+    if (!adminUnlocked) {
+        let attempt = prompt("Password:");
+        
+        if (attempt === ADMIN_PASSWORD) {
+            adminUnlocked = true;
+            log("[SYSTEM]: Access Granted", "#2ed573");
+        } else {
+            log("[SYSTEM]: Access Denied.", "#ff4757");
+            return; // Exit without opening
+        }
+    }
+
+    // Open the panel
+    panel.classList.remove('hidden');
+    document.getElementById('console-input').focus();
 }
+
 
 function adminRefill(t) {
     // This is safe because it just copies one BigInt (mhp) to another (hp)
@@ -1402,33 +1249,6 @@ function download(text, filename) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
-
-// Fixed export with ciphering
-function exportSave() {
-    const payload = { v: SAVE_VERSION, data: p };
-    const payloadStr = JSON.stringify(payload);
-    
-    const wrapped = JSON.stringify({
-        payload: payload,  // Note: this was 'payload' (object), not 'payloadStr' (string) in your original
-        checksum: checksum(payloadStr)
-    });
-    
-    const encoded = btoa(xorCipher(wrapped, SAVE_KEY));
-    
-    // Random filename with Lux taunt
-    let filename = 'luxs_rpg_save.urpg';
-    let tauntColor = '#3c23a8';
-    if (Math.random() < 0.05) {
-        filename = 'luxs_world_not_yours.urpg';
-        log(`Lux: This world was never yours to keep.`, tauntColor);
-    } else {
-        log(`Lux: You may have escaped this timeline, but I exist in each one.`, tauntColor);
-    }
-    
-    download(encoded, filename);
-    log('Save file exported', 'var(--gold)');
-}
-
 
 function exportSave() {
     // 1. We need a replacer function because JSON.stringify crashes on BigInt

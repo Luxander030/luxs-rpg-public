@@ -1,0 +1,157 @@
+:root { 
+    --bg: #0a0a0c; 
+    --panel: #16161a; 
+    --text: #e1e1e6; 
+    --hp: #ff4757; 
+    --mana: #3742fa; 
+    --sanity: #a55eea; 
+    --exp: #2bff00;
+    --gold: #eccc68; 
+    --unlocked: #2ed573; 
+}
+
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    background: var(--bg); 
+    color: var(--text); 
+    display: flex; 
+    justify-content: center; 
+    padding: 20px; 
+}
+
+#log { 
+    height: 200px; 
+    background: #050505; 
+    overflow-y: auto; 
+    padding: 15px; 
+    font-family: 'Fira Code', monospace; 
+    border-radius: 8px; 
+    border: 1px solid #2f3542; 
+    margin-bottom: 25px; 
+    font-size: 14px; 
+}
+
+.controls { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+}
+
+button { 
+    padding: 15px; 
+    cursor: pointer; 
+    border: none; 
+    border-radius: 8px; 
+    background: #2f3542; 
+    color: white; 
+    font-weight: 700; 
+    transition: 0.3s; 
+}
+
+button:hover:not(:disabled) { 
+    background: #57606f; 
+    transform: translateY(-2px); 
+}
+
+button:disabled { 
+    opacity: 0.3; 
+    cursor: not-allowed; 
+}
+
+.hidden { 
+    display: none !important; 
+}
+
+.san-warn { 
+    color: var(--sanity); 
+    font-weight: bold; 
+}
+
+.mana-warn { 
+    color: var(--mana); 
+    font-weight: bold; 
+}
+
+.save-controls { 
+    position: absolute; 
+    top: 15px; 
+    right: 15px; 
+    display: flex; 
+    gap: 8px; 
+}
+
+.export-btn { 
+    padding: 6px 12px; 
+    font-size: 12px; 
+    background: #444; 
+    border: 1px solid #666; 
+}
+
+.import-btn { 
+    padding: 6px 12px; 
+    font-size: 12px; 
+    background: #444; 
+    border: 1px solid #666; 
+}
+
+#tooltip b { 
+    color: var(--gold); 
+}
+
+#tooltip span { 
+    display: block; 
+    margin-top: 4px; 
+    border-top: 1px solid #444; 
+    padding-top: 4px; 
+    font-size: 11px; 
+    color: #aaa; 
+}
+
+#import-input { 
+    display: none; 
+}
+
+#debugging-panel { 
+    position: fixed; 
+    top: 15px;
+    left: 15px; 
+    background: var(--panel); 
+    border: 2px solid var(--mana); 
+    padding: 20px; 
+    border-radius: 15px; 
+    z-index: 9999; 
+    box-shadow: 0 0 100px rgba(0,0,0,0.9); 
+    width: 350px; 
+}
+
+.admin-icon {
+    position: absolute;
+    top: 15px;      /* Matches panel padding */
+    left: 15px;     /* Matches panel padding */
+    width: 36px;    /* Adjust size as needed */
+    height: 36px;   /* Keep it square or proportional */
+    border-radius: 4px;
+    border: 1px solid var(--mana); /* Optional: gives it a "monitored" look */
+    object-fit: cover;
+}
+
+/* Update the header in the panel to move it over so it doesn't touch the GIF */
+#debugging-panel h3 {
+    margin-left: 50px; /* Adjust based on your GIF width + gap */
+}
+
+
+.ghost-trigger { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 20px;
+    height: 20px; 
+    background: transparent; 
+    z-index: 10000; 
+    cursor: default; 
+}
+
+#game-wrapper { display: flex; justify-content: center; align-items: flex-start; gap: 30px; width: 100%; margin-top: 20px; }
+
+#game-container { width: 850px; background: var(--panel); padding: 30px; border-radius: 20px; border: 2px solid var(--border); box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(55, 66, 250, 0.1); position: relative; flex-shrink: 0; }

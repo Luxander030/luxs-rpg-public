@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <title>Lux's RPG Game</title>
-    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="icon" type="image/png" href="images/favicon/favicon.png">
+    <title>Lux's RPG</title>
+    <link rel="stylesheet" href="importantcode/css/maincss.css">
+    <link rel="stylesheet" href="importantcode/css/statsidebarcss.css">
+    <link rel="stylesheet" href="importantcode/css/shopcss.css">
+    <link rel="stylesheet" href="importantcode/css/skilltreecss.css">
+    <link rel="stylesheet" href="importantcode/css/progressbarscss.css">
 </head>
 <body>
 <div class="save-controls">
@@ -23,7 +27,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h2 style="margin:0">Day <span id="day-txt">1</span></h2>
             <div style="font-size: 1.1em;">
-                Gold: <span id="gold-txt" style="color:var(--gold)">0</span> | 
+                Gold: <span id="gold-txt" style="color:var(--gold)">50</span> | 
                 SP: <span id="sp-txt" style="color:var(--unlocked)">0</span>
             </div>
         </div>
@@ -32,9 +36,9 @@
             <div id="hp-box" class="stat-box" style="border-color:var(--hp)">Life: <span id="hp-val">100/100</span><div class="progress-bg"><div id="hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div></div></div>
             <div id="mp-box" class="stat-box" style="border-color:var(--mana)">Mana: <span id="mp-val">50/50</span><div class="progress-bg"><div id="mp-bar" class="progress-fill" style="background:var(--mana); width:100%"></div></div></div>
             <div id="sn-box" class="stat-box" style="border-color:var(--sanity)">Sanity: <span id="sn-val">100/100</span><div class="progress-bg"><div id="sn-bar" class="progress-fill" style="background:var(--sanity); width:100%"></div></div></div>
-            <div class="stat-box" style="border-color:lime">
+            <div class="stat-box" style="border-color:var(--exp)">
                 LV <span id="lv-txt">1</span> | EXP: <span id="exp-val">0/100</span>
-                <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:lime; width:0%"></div></div>
+                <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:var(--exp); width:0%"></div></div>
             </div>
         </div>
 
@@ -76,41 +80,48 @@
 
     </div> 
     <div id="stat-sidebar">
-        <h3 style="margin-top:0; color:var(--mana); border-bottom: 2px solid var(--mana); padding-bottom: 10px;">Character Stats</h3>
-        <div class="stat-entry"><span class="stat-label">Current Max Life:</span> <b id="side-mhp">100</b></div>
-        <div class="stat-entry"><span class="stat-label">Current Life:</span> <b id="side-hp">100</b></div>
-        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
-        <div class="stat-entry"><span class="stat-label">Current Max Mana:</span> <b id="side-mmp">50</b></div>
-        <div class="stat-entry"><span class="stat-label">Current Mana:</span> <b id="side-mp">50</b></div>
-        <div class="stat-entry"><span class="stat-label">Current Mana Reduction:</span> <b id="side-red">0%</b></div>
-        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
-        <div class="stat-entry"><span class="stat-label">Current Max Sanity:</span> <b id="side-msn">100</b></div>
-        <div class="stat-entry"><span class="stat-label">Current Sanity:</span> <b id="side-sn">100</b></div>
-        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
-        <div class="stat-entry"><span class="stat-label">Current Level:</span> <b id="side-lv">1</b></div>
-        <div class="stat-entry"><span class="stat-label">Current EXP:</span> <b id="side-exp">0</b></div>
-        <div class="stat-entry"><span class="stat-label">EXP to Next LV:</span><b id="side-next-exp">100</b></div>
-        <div class="stat-entry"><span class="stat-label">Skill Points Available:</span> <b id="side-sp">0</b></div>
-        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
-        <div class="stat-entry"><span class="stat-label">Current Gold:</span> <b id="side-gold">0</b></div>
-        <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
-        <div class="stat-entry"><span class="stat-label">Total Kills:</span> <b id="side-kills">0</b></div>
-        <div class="stat-entry"><span class="stat-label">Damage multiplier:</span> <b id="side-dmgmult">100%</b></div>
+        <div class="stats-scroll-container">
+            <h3 style="margin-top:0; color:var(--mana); border-bottom: 2px solid var(--mana); padding-bottom: 10px;">Character Stats</h3>
+            <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Max Life:</span> <b id="side-mhp">100</b></div>
+            <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Life:</span> <b id="side-hp">100</b></div>
+            <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+            <div class="stat-entry"><span style="color:var(--mana)" class="stat-label custom-color">Current Max Mana:</span> <b id="side-mmp">50</b></div>
+            <div class="stat-entry"><span style="color:var(--mana)" class="stat-label custom-color">Current Mana:</span> <b id="side-mp">50</b></div>
+            <div class="stat-entry"><span style="color:var(--mana)" class="stat-label custom-color">Current Mana Reduction:</span> <b id="side-red">0%</b></div>
+            <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+            <div class="stat-entry"><span style="color:var(--sanity)" class="stat-label custom-color">Current Max Sanity:</span> <b id="side-msn">100</b></div>
+            <div class="stat-entry"><span style="color:var(--sanity)" class="stat-label custom-color">Current Sanity:</span> <b id="side-sn">100</b></div>
+            <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+            <div class="stat-entry"><span style="color:var(--exp)" class="stat-label custom-color">Current Level:</span> <b id="side-lv">1</b></div>
+            <div class="stat-entry"><span style="color:var(--exp)" class="stat-label custom-color">Current EXP:</span> <b id="side-exp">0</b></div>
+            <div class="stat-entry"><span style="color:var(--exp)" class="stat-label custom-color">EXP to Next LV:</span><b id="side-next-exp">100</b></div>
+            <div class="stat-entry"><span style="color:var(--exp)" class="stat-label custom-color">Skill Points Available:</span> <b id="side-sp">0</b></div>
+            <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+            <div class="stat-entry"><span style="color:var(--gold)"class="stat-label custom-color">Current Gold:</span> <b id="side-gold">50</b></div>
+            <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+            <div class="stat-entry"><span style="color:#ff0000" class="stat-label custom-color">Total Kills:</span> <b id="side-kills">0</b></div>
+            <div class="stat-entry"><span style="color:#ff0000" class="stat-label custom-color">Damage multiplier:</span> <b id="side-dmgmult">+0%</b></div>
+        </div>
     </div>
 
 </div>
 <div id="debugging-panel" class="hidden">
-    <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Game Master Console >_</h3>
+    <img src="images/Funfriend.gif" class="admin-icon" alt="Lux">
+    <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Console</h3>
     <div id="console-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
-        FUNFRIEND: HELLO LUX... WAIT... YOU'RE NOT LUX. OH WELL. HE'S STILL GOING TO KILL YOU ANYWAY.
+        FUNFRIEND: HELLO LUX. GOOD TO SEE YOU AGAIN.
     </div>
     <input type="text" id="console-input" placeholder="Enter command..." 
            style="width:100%; background:#000; border:1px solid var(--mana); color:white; padding:10px; box-sizing:border-box; font-family:'Fira Code', monospace;">
-    <p style="font-size:10px; color:#666; margin-top:5px;">TPress ESC to close.</p>
+    <p style="font-size:10px; color:#666; margin-top:5px;">Press ESC to close.</p>
 </div>
 <div class="ghost-trigger" onclick="toggleAdmin()"></div>
 </body>
-<script src="maincode.js"></script>
-<script src="consts.js"></script>
-<script src="playerinfo.js"></script>
+<script src="importantcode/js/maincode.js"></script>
+<script src="importantcode/js/importantinfo/consts/killandsparelogs.js"></script>
+<script src="importantcode/js/importantinfo/consts/enemies.js"></script>
+<script src="importantcode/js/importantinfo/consts/shop.js"></script>
+<script src="importantcode/js/importantinfo/consts/dailyevents.js"></script>
+<script src="importantcode/js/importantinfo/consts/spells.js"></script>
+<script src="importantcode/js/importantinfo/playerinfo.js"></script>
 </html>
