@@ -62,6 +62,6 @@ Detailed information:
 - Save Exporting/Importing
     - You can export your current save as a **.urpg** file.
     - You can import your **.urpg** save file.
-        - **Word of warning: Some legacy save files will break with newer versions. I am not held responsible for any lost progress..**
+        - **Word of warning: Some legacy save files will break with newer versions (and also when I change the logic for the save export/import code). I am not held responsible for any lost progress.**
 
 # But do be warned. Lux watched us all.
