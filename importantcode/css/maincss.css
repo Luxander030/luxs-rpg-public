@@ -71,7 +71,13 @@ button:disabled {
     color: var(--mana); 
     font-weight: bold; 
 }
-
+.version {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    color: #666;
+    z-index: 200;
+}
 .save-controls { 
     position: absolute; 
     top: 15px; 

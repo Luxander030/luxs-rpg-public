@@ -214,14 +214,12 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            // Logic: 100 * 1.15^(lv-1)
-            let gain = 100n;
-            for(let i = 1n; i < p.lv; i++) gain = (gain * 115n) / 100n;
+            let gain = 1n * p.lv
             p.sp += gain
             updateUI();
-            if (Math.random() < 0.05) {
-                log(`Lux: More knowledge. More skills. i wonder when you'll lose your sanity over this?`,"#3c23a8");
-                p.sn -= gain
+            if (Math.random() < 0.1) {
+                log(`Lux: More knowledge. More skills. I wonder when you'll lose your sanity over this?`,"#3c23a8");
+                p.sn -= gain * p.lv
             }
             return `Learned new knowledge. (+${formatNumber(gain)} SP)`; 
         } 
@@ -235,14 +233,12 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            // Logic: 150 * 1.3^(lv-1)
-            let gain = 150n;
-            for(let i = 1n; i < p.lv; i++) gain = (gain * 130n) / 100n;
+            let gain = 2n * p.lv
             p.sp += gain
             updateUI();
-            if (Math.random() < 0.05) {
-                log(`Lux: More knowledge. More skills. i wonder when you'll lose your sanity over this?`,"#3c23a8");
-                p.sn -= gain * 2
+            if (Math.random() < 0.1) {
+                log(`Lux: More knowledge. More skills. I wonder when you'll lose your sanity over this?`,"#3c23a8");
+                p.sn -= (gain * p.lv) * 2
             }
             return `Learned new knowledge. (+${formatNumber(gain)} SP)`; 
         } 

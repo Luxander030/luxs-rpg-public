@@ -1,3 +1,4 @@
+let LuxShopTalkChance = null
 function LuxTypeToLog(text, color, delay = 50) {
     const l = document.getElementById('log');
     const newEntry = document.createElement('div');
@@ -24,13 +25,25 @@ function spareEnemy() {
 
     // Check: Current HP <= (Max HP / 2)
     if (enemy.hp <= (enemy.mhp / 2n)) {
-        log(`You showed mercy to ${enemy.name}. As thanks they gave you some gold.`, "var(--unlocked)");
-        let goldGained = BigInt((enemy.gold / 2n) || 0);
-        p.gold = (p.gold + goldGained < 0n) ? 0n : p.gold + goldGained;
+        if (p.kills >= 1000000n) {
+            log(`You showed mercy to ${enemy.name}. They fled in panic without looking back.`, "var(--unlocked)");
+        } else {
+            log(`You showed mercy to ${enemy.name}. As thanks they gave you some gold.`, "var(--unlocked)");
+            let goldGained = BigInt((enemy.gold / 2n) || 0);
+            p.gold = (p.gold + goldGained < 0n) ? 0n : p.gold + goldGained;
+        }
         
         if (Math.random() < 0.1) {
-            if (p.kills >= 100) {
-                log(`Lux: Sparing them? That's different. Very different, concidering you have killed ${formatNumber(p.kills)} innocent creatures.`, "#3c23a8");
+            if (p.kills >= 1000000n) {
+                log(`Lux: Trying to turn around and spare creatures? Don't make me laugh. I know exactly what you are.`, "#ff0000");
+            } else if (p.kills >= 100000n) {
+                log(`Lux: I wonder. Why do you think you can turn around? After killing over 100,000 innocent creatures.`, "#d80721");
+            } else if (p.kills >= 10000n) {
+                log(`Lux: Sparing at over 10,000 innocent creatures killed? How... interesting.`, "#b20e43");
+            } else if (p.kills >= 1000n) {
+                log(`Lux: 1000 innocent creatures killed, and yet you try to spare them? I wonder what they would do if they realized you were the reason why their families are dead.`, "#8b1564");
+            } else if (p.kills >= 100n) {
+                log(`Lux: Sparing them? That's different. Very different, considering you have killed ${formatNumber(p.kills)} innocent creatures.`, "#651c85");
             } else {
                 log(`Lux: Sparing them? How... sentimentally human of you.`, "#3c23a8");
             }
@@ -45,11 +58,30 @@ function spareEnemy() {
         log(`${enemy.name} is still too aggressive to be spared! (Needs < 50% HP)`, "#ff4757");
         
         if (Math.random() < 0.05) {
-            log(`Lux: They still want your blood. Don't be naive.`, "#3c23a8");
+            if (p.kills >= 1000000n) {
+                log(`Lux: You've killed over a million creatures. And you tried to spare a creature. I'm not surprised you failed.`,"#ff0000")
+            } else {
+                log(`Lux: They still want your blood. Don't be naive.`, "#3c23a8");
+            }
         }
-        
-        // Optional: Sparing a hostile enemy costs you a turn
-        enemyTurn();
+        if (p.kills >= 1000000n) {
+            log(`Out of revenge for their dead family, ${enemy.name} attacks more than once.`,"#ff0000")
+            if (Math.random() < 0.25) {
+                enemyTurn();
+                enemyTurn();
+                enemyTurn();
+                enemyTurn();
+            } else if (Math.random() < 0.5) {
+                enemyTurn();
+                enemyTurn();   
+                enemyTurn();
+            } else {
+                enemyTurn();
+                enemyTurn();
+            }
+        } else {
+            enemyTurn();
+        }
     }
 }
 function LuxLog(luxlogstring1) {
@@ -57,7 +89,7 @@ function LuxLog(luxlogstring1) {
     log(luxlogstring1, luxcolor)
 }
 
-const SAVE_VERSION = 8;  // Match your game version (p.v)
+const SAVE_VERSION = 8.11;  // Match your game version (p.v)
 const SAVE_KEY = 'LuxExistsOutsideOfTimeSoDontTryToEscapeHim';  // Any secret string; longer = better security (but this is just obfuscation, not real crypto)
 
 // Simple XOR cipher (reversible encryption with key)
@@ -125,7 +157,7 @@ function updateUI() {
     // 3. Currency and Resources
     document.getElementById('gold-txt').innerText = formatNumber(p.gold);
     document.getElementById('sp-txt').innerText = formatNumber(p.sp);
-    document.getElementById('day-txt').innerText = p.day.toString(); // BigInts need .toString() or formatNumber
+    document.getElementById('day-txt').innerText = formatNumber(p.day); // BigInts need .toString() or formatNumber
 
     // 3.5. Sidebar
     document.getElementById('side-mhp').innerText = formatNumber(p.mhp);
@@ -148,8 +180,8 @@ function updateUI() {
     document.getElementById('side-red').innerText = p.manaReduction.toString() + "%";
     
     // Damage Multiplier (Assuming stored as fixed-point, e.g., 105n = 1.05x)
-    let dmgMultPercent = Number(p.dmgmult - 100n); 
-    document.getElementById('side-dmgmult').innerText = "+" + dmgMultPercent + "%";
+    let dmgMultPercent = p.dmgmult - 100n 
+    document.getElementById('side-dmgmult').innerText = "+" + formatNumber(dmgMultPercent) + "%";
 
     // 4. Enemy Stats
     if (enemy) {
@@ -189,6 +221,27 @@ function handleCommand(cmd) {
     let successColor = "#2ed573";
 
     switch (command) {
+        case '/bob':
+            if (bVal !== null) { 
+                p.bobvisits = bVal
+                response = `Bob: Meep`; 
+                if (bVal >= 15n) {
+                    LuxLog(`Lux: HEY! Luxander, they're using the console to ground me! UNFAIR!`);
+                    setTimeout(()=> {
+                        LuxLog(`Luxander: ...`)
+                    }, 100)
+                    setTimeout(()=> {
+                        LuxLog(`Luxander: Do I look like I care?`)
+                    }, 200)
+                    setTimeout(()=> {
+                        LuxLog(`Luxander: Bother FUNFRIEND about it or something. I'm still eating my damn sandwich.`)
+                    }, 1200)
+                }
+            } else { 
+                response = "Bob: Meeeep"; 
+                successColor = "#ff4757"; 
+            }
+            break;
         case '/spawn':
             // args[0] is "/spawn", args.slice(1).join(" ") gets the full enemy name
             let targetName = args.slice(1).join(" ").toLowerCase();
@@ -306,123 +359,60 @@ function formatNumber(num) {
     const absolute = bNum < 0n ? -bNum : bNum;
     if (absolute < 1000n) return bNum.toString();
 
-    // Suffixes based on standard short scale (10^(3n+3))
-    const units = [
-        "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", // 0-10
-        "Dc", "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", // 11-20
-        "Vg", "Uvg", "Dvg", "Tvg", "Qavg", "Qivg", "Sxvg", "Spvg", "Ocvg", "Novg", // 21-30
-        "Tg", "Utg", "Dtg", "Ttg", "Qatg", "Qitg", "Sxtg", "Sptg", "Octg", "Notg", // 31-40
-        "Qdg", "Uqdg", "Dqdg", "Tqdg", "Qaqdg", "Qiqdg", "Sxqdg", "Spqdg", "Ocqdg", "Noqdg", // 41-50
-        "Qqg", "Uqqg", "Dqqg", "Tqqg", "Qaqqg", "Qiqqg", "Sxqqg", "Spqqg", "Ocqqg", "Noqqg", // 51-60
-        "Sxg", "Usxg", "Dsxg", "Tsxg", "Qasxg", "Qisxg", "Sxsxg", "Spsxg", "Ocsxg", "Nosxg", // 61-70
-        "Spg", "Uspg", "Dspg", "Tspg", "Qaspg", "Qispg", "Sxspg", "Spspg", "Ocspg", "Nospg", // 71-80
-        "Og", "Uog", "Dog", "Tog", "Qaog", "Qiog", "Sxog", "Spog", "Ocog", "Noog", // 81-90
-        "Ng", "Ung", "Dng", "Tng", "Qang", "Qing", "Sxng", "Spng", "Ocng", "Nong", // 91-100
-        "Ce", "Uce", "Dce", "Tce", "Qace", "Qice", "Sxce", "Spce", "Occe", "Noce", // 101-110
-        "Dcc", "Udcc", "Ddcc", "Tdcc", "Qadcc", "Qidcc", "Sxdcc", "Spdcc", "Ocdcc", "Nodcc", // 111-120
-        "Vgc", "Uvgc", "Dvgc", "Tvgc", "Qavgc", "Qivgc", "Sxvgc", "Spvgc", "Ocvgc", "Novgc", // 121-130
-        "Tgc", "Utgc", "Dtgc", "Ttgc", "Qatgc", "Qitgc", "Sxtgc", "Sptgc", "Octgc", "Notgc", // 131-140
-        "Qdgc", "Uqdgc", "Dqdgc", "Tqdgc", "Qaqdgc", "Qiqdgc", "Sxqdgc", "Spqdgc", "Ocqdgc", "Noqdgc", // 141-150
-        "Qqgc", "Uqqgc", "Dqqgc", "Tqqgc", "Qaqqgc", "Qiqqgc", "Sxqqgc", "Spqqgc", "Ocqqgc", "Noqqgc", // 151-160
-        "Sxgc", "Usxgc", "Dsxgc", "Tsxgc", "Qasxgc", "Qisxgc", "Sxsxgc", "Spsxgc", "Ocsxgc", "Nosxgc", // 161-170
-        "Spgc", "Uspgc", "Dspgc", "Tspgc", "Qaspgc", "Qispgc", "Sxspgc", "Spspgc", "Ocspgc", "Nospgc", // 171-180
-        "Ogc", "Uogc", "Dogc", "Togc", "Qaogc", "Qiogc", "Sxogc", "Spogc", "Ocogc", "Noogc", // 181-190
-        "Ngc", "Ungc", "Dngc", "Tngc", "Qangc", "Qingc", "Sxngc", "Spngc", "Ocngc", "Nongc", // 191-200
-        "Duc", "Uduc", "Dduc", "Tduc", "Qaduc", "Qiduc", "Sxduc", "Spduc", "Ocduc", "Noduc", // 201-210
-        "Vuc", "Uvuc", "Dvuc", "Tvuc", "Qavuc", "Qivuc", "Sxvuc", "Spvuc", "Ocvuc", "Novuc", // 211-220
-        "Tuc", "Utuc", "Dtuc", "Ttuc", "Qatuc", "Qituc", "Sxtuc", "Sptuc", "Octuc", "Notuc", // 221-230
-        "Qduc", "Uqduc", "Dqduc", "Tqduc", "Qaqduc", "Qiqduc", "Sxqduc", "Spqduc", "Ocqduc", "Noqduc", // 231-240
-        "Qquc", "Uqquc", "Dqquc", "Tqquc", "Qaqquc", "Qiqqquc", "Sxqqquc", "Spqquc", "Ocqquc", "Noqquc", // 241-250
-        "Sxuc", "Usxuc", "Dsxuc", "Tsxuc", "Qasxuc", "Qisxuc", "Sxsxuc", "Spsxuc", "Ocsxuc", "Nosxuc", // 251-260
-        "Spuc", "Uspuc", "Dspuc", "Tspuc", "Qaspuc", "Qispuc", "Sxspuc", "Spspuc", "Ocspuc", "Nospuc", // 261-270
-        "Ouc", "Uouc", "Douc", "Touc", "Qaouc", "Qiouc", "Sxouc", "Spouc", "Ocouc", "Noouc", // 271-280
-        "Nuc", "Unuc", "Dnuc", "Tnuc", "Qanuc", "Qinuc", "Sxnuc", "Spnuc", "Ocnuc", "Nonuc", // 281-290
-        "Tc", "Utc", "Dtc", "Ttc", "Qatc", "Qitc", "Sxtc", "Sptc", "Octc", "Notc", // 291-300
-        "Dtc", "Udtc", "Ddtc", "Tdtc", "Qadtc", "Qidtc", "Sxdtc", "Spdtc", "Ocdtc", "Nodtc", // 301-310
-        "Vtc", "Uvtc", "Dvtc", "Tvtc", "Qavtc", "Qivtc", "Sxvtc", "Spvtc", "Ocvtc", "Novtc", // 311-320
-        "Ttc", "Uttc", "Dttc", "Tttc", "Qattc", "Qittc", "Sxttc", "Spttc", "Octtc", "Nottc", // 321-330
-        "Qdtc", "Uqdtc", "Dqdtc", "Tqdtc", "Qaqdtc", "Qiqdtc", "Sxqdtc", "Spqdtc", "Ocqdtc", "Noqdtc", // 331-340
-        "Qqtc", "Uqqtc", "Dqqtc", "Tqqtc", "Qaqqtc", "Qiqqtc", "Sxqqtc", "Spqqtc", "Ocqqtc", "Noqqtc", // 341-350
-        "Sxtc", "Usxtc", "Dsxtc", "Tsxtc", "Qasxtc", "Qisxtc", "Sxsxtc", "Spsxtc", "Ocsxtc", "Nosxtc", // 351-360
-        "Sptc", "Usptc", "Dsptc", "Tsptc", "Qasptc", "Qisptc", "Sxsptc", "Spsptc", "Ocsptc", "Nosptc", // 361-370
-        "Otc", "Uotc", "Dotc", "Totc", "Qaotc", "Qiotc", "Sxotc", "Spotc", "Ocotc", "Nootc", // 371-380
-        "Ntc", "Untc", "Dntc", "Tntc", "Qantc", "Qintc", "Sxntc", "Spntc", "Ocntc", "Nontc", // 381-390
-        "Qac", "Uqac", "Dqac", "Tqac", "Qaqac", "Qiqac", "Sxqac", "Spqac", "Ocqac", "Noqac", // 391-400
-        "Dqac", "Udqac", "Ddqac", "Tdqac", "Qadqac", "Qidqac", "Sxdqac", "Spdqac", "Ocdqac", "Nodqac", // 401-410
-        "Vqac", "Uvqac", "Dvqac", "Tvqac", "Qavqac", "Qivqac", "Sxvqac", "Spvqac", "Ocvqac", "Novqac", // 411-420
-        "Tqac", "Utqac", "Dtqac", "Ttqac", "Qatqac", "Qitqac", "Sxtqac", "Sptqac", "Octqac", "Notqac", // 421-430
-        "Qdqac", "Uqdqac", "Dqdqac", "Tqdqac", "Qaqdqac", "Qiqdqac", "Sxqdqac", "Spqdqac", "Ocqdqac", "Noqdqac", // 431-440
-        "Qqqac", "Uqqqac", "Dqqqac", "Tqqqac", "Qaqqqac", "Qiqqqac", "Sxqqqac", "Spqqqac", "Ocqqqac", "Noqqqac", // 441-450
-        "Sxqac", "Usxqac", "Dsxqac", "Tsxqac", "Qasxqac", "Qisxqac", "Sxsxqac", "Spsxqac", "Ocsxqac", "Nosxqac", // 451-460
-        "Spqac", "Uspqac", "Dspqac", "Tspqac", "Qaspqac", "Qispqac", "Sxspqac", "Spspqac", "Ocspqac", "Nospqac", // 461-470
-        "Oqac", "Uoqac", "Doqac", "Toqac", "Qaoqac", "Qioqac", "Sxoqac", "Spoqac", "Ocoqac", "Nooqac", // 471-480
-        "Nqac", "Unqac", "Dnqac", "Tnqac", "Qanqac", "Qinqac", "Sxnqac", "Spnqac", "Ocnqac", "Nonqac", // 481-490
-        "Qic", "Uqic", "Dqic", "Tqic", "Qaqic", "Qiqic", "Sxqic", "Spqic", "Ocqic", "Noqic", // 491-500
-        "Dqic", "Udqic", "Ddqic", "Tdqic", "Qadqic", "Qidqic", "Sxdqic", "Spdqic", "Ocdqic", "Nodqic", // 501-510
-        "Vqic", "Uvqic", "Dvqic", "Tvqic", "Qavqic", "Qivqic", "Sxvqic", "Spvqic", "Ocvqic", "Novqic", // 511-520
-        "Tqic", "Utqic", "Dtqic", "Ttqic", "Qatqic", "Qitqic", "Sxtqic", "Sptqic", "Octqic", "Notqic", // 521-530
-        "Qdqic", "Uqdqic", "Dqdqic", "Tqdqic", "Qaqdqic", "Qiqdqic", "Sxqdqic", "Spqdqic", "Ocqdqic", "Noqdqic", // 531-540
-        "Qqqic", "Uqqqic", "Dqqqic", "Tqqqic", "Qaqqqic", "Qiqqqic", "Sxqqqic", "Spqqqic", "Ocqqqic", "Noqqqic", // 541-550
-        "Sxqic", "Usxqic", "Dsxqic", "Tsxqic", "Qasxqic", "Qisxqic", "Sxsxqic", "Spsxqic", "Ocsxqic", "Nosxqic", // 551-560
-        "Spqic", "Uspqic", "Dspqic", "Tspqic", "Qaspqic", "Qispqic", "Sxspqic", "Spspqic", "Ocspqic", "Nospqic", // 561-570
-        "Oqic", "Uoqic", "Doqic", "Toqic", "Qaoqic", "Qioqic", "Sxoqic", "Spoqic", "Ocoqic", "Nooqic", // 571-580
-        "Nqic", "Unqic", "Dnqic", "Tnqic", "Qanqic", "Qinqic", "Sxnqic", "Spnqic", "Ocnqic", "Nonqic", // 581-590
-        "Sxc", "Usxc", "Dsxc", "Tsxc", "Qasxc", "Qisxc", "Sxsxc", "Spsxc", "Ocsxc", "Nosxc", // 591-600
-        "Dsxc", "Udsxc", "Ddsxc", "Tdsxc", "Qadsxc", "Qidsxc", "Sxdsxc", "Spdsxc", "Ocdsxc", "Nodsxc", // 601-610
-        "Vsxc", "Uvsxc", "Dvsxc", "Tvsxc", "Qavsxc", "Qivsxc", "Sxvsxc", "Spvsxc", "Ocvsxc", "Novsxc", // 611-620
-        "Tsxc", "Utsxc", "Dtsxc", "Ttsxc", "Qatsxc", "Qitsxc", "Sxtsxc", "Sptsxc", "Octsxc", "Notsxc", // 621-630
-        "Qdsxc", "Uqdsxc", "Dqdsxc", "Tqdsxc", "Qaqdsxc", "Qiqdsxc", "Sxqdsxc", "Spqdsxc", "Ocqdsxc", "Noqdsxc", // 631-640
-        "Qqsxc", "Uqqsxc", "Dqqsxc", "Tqqsxc", "Qaqqsxc", "Qiqqsxc", "Sxqqsxc", "Spqqsxc", "Ocqqsxc", "Noqqsxc", // 641-650
-        "Sxsxc", "Usxsxc", "Dsxsxc", "Tsxsxc", "Qasxsxc", "Qisxsxc", "Sxsxsxc", "Spsxsxc", "Ocsxsxc", "Nosxsxc", // 651-660
-        "Spsxc", "Uspsxc", "Dspsxc", "Tspsxc", "Qaspsxc", "Qispsxc", "Sxspsxc", "Spspsxc", "Ocspsxc", "Nospsxc", // 661-670
-        "Osxc", "Uosxc", "Dosxc", "Tosxc", "Qaosxc", "Qiosxc", "Sxosxc", "Sposxc", "Ocosxc", "Noosxc", // 671-680
-        "Nsxc", "Unsxc", "Dnsxc", "Tnsxc", "Qansxc", "Qinsxc", "Sxnsxc", "Spnsxc", "Ocnsxc", "Nonsxc", // 681-690
-        "Spc", "Uspc", "Dspc", "Tspc", "Qaspc", "Qispc", "Sxspc", "Spspc", "Ocspc", "Nospc", // 691-700
-        "Dspc", "Udspc", "Ddspc", "Tdspc", "Qadspc", "Qidspc", "Sxdspc", "Spdspc", "Ocdspc", "Nodspc", // 701-710
-        "Vspc", "Uvspc", "Dvspc", "Tvspc", "Qavspc", "Qivspc", "Sxvspc", "Spvspc", "Ocvspc", "Novspc", // 711-720
-        "Tspc", "Utspc", "Dtspc", "Ttspc", "Qatspc", "Qitspc", "Sxtspc", "Sptspc", "Octspc", "Notspc", // 721-730
-        "Qdspc", "Uqdspc", "Dqdspc", "Tqdspc", "Qaqdspc", "Qiqdspc", "Sxqdspc", "Spqdspc", "Ocqdspc", "Noqdspc", // 731-740
-        "Qqspc", "Uqqspc", "Dqqspc", "Tqqspc", "Qaqqspc", "Qiqqspc", "Sxqqspc", "Spqqspc", "Ocqqspc", "Noqqspc", // 741-750
-        "Sxspc", "Usxspc", "Dsxspc", "Tsxspc", "Qasxspc", "Qisxspc", "Sxsxspc", "Spsxspc", "Ocsxspc", "Nosxspc", // 751-760
-        "Spspc", "Uspspc", "Dspspc", "Tspspc", "Qaspspc", "Qispspc", "Sxspspc", "Spspspc", "Ocspspc", "Nospspc", // 761-770
-        "Ospc", "Uospc", "Dospc", "Tospc", "Qaospc", "Qiospc", "Sxospc", "Spospc", "Ocospc", "Noospc", // 771-780
-        "Nspc", "Unspc", "Dnspc", "Tnspc", "Qanspc", "Qinspc", "Sxnspc", "Spnspc", "Ocnspc", "Nonspc", // 781-790
-        "Oc", "Uoc", "Doc", "Toc", "Qaoc", "Qioc", "Sxoc", "Spoc", "Ococ", "Nooc", // 791-800
-        "Doc", "Udoc", "Ddoc", "Tdoc", "Qadoc", "Qidoc", "Sxdoc", "Spdoc", "Ocdoc", "Nodoc", // 801-810
-        "Voc", "Uvoc", "Dvoc", "Tvoc", "Qavoc", "Qivoc", "Sxvoc", "Spvoc", "Ocvoc", "Novoc", // 811-820
-        "Toc", "Utoc", "Dtoc", "Ttoc", "Qatoc", "Qitoc", "Sxtoc", "Sptoc", "Octoc", "Notoc", // 821-830
-        "Qdoc", "Uqdoc", "Dqdoc", "Tqdoc", "Qaqdoc", "Qiqdoc", "Sxqdoc", "Spqdoc", "Ocqdoc", "Noqdoc", // 831-840
-        "Qqoc", "Uqqoc", "Dqqoc", "Tqqoc", "Qaqqoc", "Qiqqoc", "Sxqqoc", "Spqqoc", "Ocqqoc", "Noqqoc", // 841-850
-        "Sxoc", "Usxoc", "Dsxoc", "Tsxoc", "Qasxoc", "Qisxoc", "Sxsxoc", "Spsxoc", "Ocsxoc", "Nosxoc", // 851-860
-        "Spoc", "Uspoc", "Dspoc", "Tspoc", "Qaspoc", "Qispoc", "Sxspoc", "Spspoc", "Ocspoc", "Nospoc", // 861-870
-        "Ooc", "Uooc", "Dooc", "Tooc", "Qaooc", "Qiooc", "Sxooc", "Spooc", "Ocooc", "Noooc", // 871-880
-        "Noc", "Unoc", "Dnoc", "Tnoc", "Qanoc", "Qinoc", "Sxnoc", "Spnoc", "Ocnoc", "Nonoc", // 881-890
-        "Nc", "Unc", "Dnc", "Tnc", "Qanc", "Qinc", "Sxnc", "Spnc", "Ocnc", "Nonc", // 891-900
-        "Dnc", "Udnc", "Ddnc", "Tdnc", "Qadnc", "Qidnc", "Sxdnc", "Spdnc", "Ocdnc", "Nodnc", // 901-910
-        "Vnc", "Uvnc", "Dvnc", "Tvnc", "Qavnc", "Qivnc", "Sxvnc", "Spvnc", "Ocvnc", "Novnc", // 911-920
-        "Tnc", "Utnc", "Dtnc", "Ttnc", "Qatnc", "Qitnc", "Sxtnc", "Sptnc", "Octnc", "Notnc", // 921-930
-        "Qdnc", "Uqdnc", "Dqdnc", "Tqdnc", "Qaqdnc", "Qiqdnc", "Sxqdnc", "Spqdnc", "Ocqdnc", "Noqdnc", // 931-940
-        "Qqnc", "Uqqnc", "Dqqnc", "Tqqnc", "Qaqqnc", "Qiqqnc", "Sxqqnc", "Spqqnc", "Ocqqnc", "Noqqnc", // 941-950
-        "Sxnc", "Usxnc", "Dsxnc", "Tsxnc", "Qasxnc", "Qisxnc", "Sxsxnc", "Spsxnc", "Ocsxnc", "Nosxnc", // 951-960
-        "Spnc", "Uspnc", "Dspnc", "Tspnc", "Qaspnc", "Qispnc", "Sxspnc", "Spspnc", "Ocspnc", "Nospnc", // 961-970
-        "Onc", "Uonc", "Donc", "Tonc", "Qaonc", "Qionc", "Sxonc", "Sponc", "Oconc", "Noonc", // 971-980
-        "Nnc", "Unnc", "Dnnc", "Tnnc", "Qannc", "Qinnc", "Sxnnc", "Spnnc", "Ocnnc", "Nonnc", // 981-990
-        "Mil", "Umil", "Dmil", "Tmil", "Qamil", "Qimil", "Sxmil", "Spmil", "Ocmil", "Nomil" // 991-1000
-    ];
-
-
     const str = absolute.toString();
     const tier = Math.floor((str.length - 1) / 3);
+    let suffix = "";
 
-    if (tier >= units.length) return "∞";
+    // 1. Hand-coded exceptions for the basics (0-4)
+    const basicUnits = ["", "K", "M", "B", "T"];
+    
+    if (tier < basicUnits.length) {
+        suffix = basicUnits[tier];
+    } else if (tier <= 1000) {
+        // 2. Latin programmatic generation (Tiers 5 to 1000)
+        suffix = getLatinAbbreviation(tier - 1);
+    } else {
+        // 3. Letter notation (Tiers > 1000)
+        // Starts at "aa" for the 1001st tier
+        suffix = getLetterAbbreviation(tier - 1001);
+    }
 
     const leadDigits = str.length % 3 || 3;
     const resultStr = str.substring(0, leadDigits) + "." + str.substring(leadDigits, leadDigits + 2);
-    
-    // parseFloat trims trailing zeros (e.g. 1.00 -> 1)
-    const finalNum = parseFloat(resultStr);
+    // Removes the trailing dot or zeros, e.g., "1.00" -> "1", "1.10" -> "1.1"
+    const finalNum = resultStr.replace(/\.?0+$/, "");
 
-    return (bNum < 0n ? "-" : "") + finalNum + units[tier];
+
+    return (bNum < 0n ? "-" : "") + finalNum + suffix;
+}
+
+function getLatinAbbreviation(n) {
+    const units = ["", "un", "du", "tre", "qa", "qi", "sx", "sp", "oc", "no"];
+    const tens = ["", "dc", "vg", "tg", "qd", "qq", "sg", "st", "og", "ng"];
+    const hundreds = ["", "ce", "du", "tc", "qe", "qu", "se", "su", "oe", "ne"];
+
+    let i = n - 1; 
+    let u = i % 10;
+    let t = Math.floor(i / 10) % 10;
+    let h = Math.floor(i / 100) % 10;
+
+    let abbr = units[u] + tens[t] + hundreds[h];
+    return abbr.charAt(0).toUpperCase() + abbr.slice(1);
+}
+
+function getLetterAbbreviation(n) {
+    let suffix = "";
+    let i = n;
+
+    // This loop generates letters from right to left (like counting in base 26)
+    while (i >= 0) {
+        suffix = String.fromCharCode(97 + (i % 26)) + suffix;
+        i = Math.floor(i / 26) - 1;
+    }
+
+    // If it's a single letter (like 'a'), it might clash with symbols, 
+    // so we ensure it returns at least two (e.g., 'aa')
+    return suffix.length === 1 ? "a" + suffix : suffix;
 }
 
 function log(msg, color = "#e1e1e6") {
@@ -431,7 +421,7 @@ function log(msg, color = "#e1e1e6") {
     // 1. Create and add the new log message
     const newEntry = document.createElement('div');
     newEntry.style.color = color;
-    newEntry.innerHTML = `[Day ${p.day}] ${msg}`;
+    newEntry.innerHTML = `[Day ${formatNumber(p.day)}] ${msg}`;
     l.appendChild(newEntry);
 
     // 2. CRITICAL: Limit the log to 1,000 messages
@@ -456,24 +446,35 @@ function handleDailyResources() {
         
         log(`Resting between days restores mana... (${formatNumber(manaRegained)} Mana Regained)`, "var(--mana)");
         if (Math.random() < 0.05) {
-            log(`Lux: Maybe don't be lazy, and maybe, just maybe, you'll get what you want.`, "#3c23a8");
+            if (p.kills >= 1000000n) {
+                log(`Lux: And why would I talk to you?`,"#ff0000")
+            } else {
+                log(`Lux: Your reliance on rest is a testament to your frailty. Perhaps if you were less slothful, you would have achieved your goal by now.`, "#3c23a8");
+            }
         }
     } else {
         let manaLost = 50n * manaLossScalingFactor;
         
         // Use manual Math.max logic for BigInt
         p.mp = (p.mp - manaLost < 0n) ? 0n : p.mp - manaLost;
-        
-        log(`Lux consumes your essence... (${formatNumber(manaLost)} Mana Lost)`, "var(--sanity)");
+        if (p.kills >= 1000000n) {
+            log(`Lux consumes your essence with much more ferocity... (${formatNumber(manaLost)} Mana Lost)`,"#ff0000")
+        } else {
+            log(`Lux consumes your essence... (${formatNumber(manaLost)} Mana Lost)`, "var(--sanity)");
+        }
         if (Math.random() < 0.05) {
-            log(`Lux: Maybe don't be insane, and maybe we wouldn't be in this situation.`, "#3c23a8");
+            if (p.kills >= 1000000n) {
+                log(`Lux: And why would I talk to you?`,"#ff0000")
+            } else {
+                log(`Lux: You let your mind fracture, and now I feast on the shards. Had you kept your wits, we might not be mired in this pathetic display.`, "#3c23a8");
+            }
         }
     }
     updateUI();
 }
 function nextDay() {
     p.day++;
-    adminUnlocked = false; // Optional: re-lock admin panel
+    adminUnlocked = false;
 
     // Handle Mana Regen/Loss based on Sanity (keep your existing logic)
     handleDailyResources();
@@ -492,10 +493,23 @@ function nextDay() {
     }
 }
 function startShop() {
-    if (Math.random() < 0.05) {
-        log(`Lux: Oh look, a wandering merchant. Better stock up on goods =)`, "#3c23a8");
+    LuxShopTalkChance = Math.random()
+    if (LuxShopTalkChance < 0.05) {
+        if (p.kills >= 1000000n) {
+                log(`Lux: And why would I talk to you?`,"#ff0000")
+                log("Bob is whistling a tune while beckoning you over, completely oblivious to the voices in your head.", "var(--gold)");
+            } else {
+            log(`Lux: Oh, it's Bob again. I swear I'm going to...`, "#3c23a8");
+            setTimeout(() => {
+                log(`Lux: ...actually, never mind. Buy your trinkets. I'm going to ask Luxander to change some stuff real quick.`, "#3c23a8");
+            }, 1000);
+            setTimeout(() => {
+                log("Bob is whistling a tune while beckoning you over, completely oblivious to the voices in your head.", "var(--gold)");
+            }, 1500)
+        }
+    } else {
+        log("Bob is whistling a tune while beckoning you over, completely oblivious to the voices in your head.", "var(--gold)");
     }
-    log("The Wandering Merchant beckons you...", "var(--gold)");
     
     document.getElementById('main-controls').classList.add('hidden');
     document.getElementById('shop-view').classList.remove('hidden');
@@ -540,6 +554,7 @@ function startShop() {
                 onclick="buyItem('${item.id}', 'shop-btn-${index}')">Acquire</button>`;
         shelf.appendChild(div);
     });
+
 }
 
 function maybeSoldOut(btn) {
@@ -568,10 +583,15 @@ function buyItem(id, btnId) {
 
         updateUI(); 
     } else {
-    if (Math.random() < 0.05) {
-        log(`Lux: You're broke. The result of spending gold on stuff you don't need.`,"#3c23a8")
-    }
-        log("You lack the coin. This world is not for the poor...", "#ff4757");
+        if (Math.random() < 0.05) {
+            if (p.kills >= 1000000n) {
+                    log(`Lux: Broke, broke, broke. Do I sound like I care?`,"#ff0000")
+                } else {
+                    log(`Lux: You're broke. The result of spending gold on stuff you don't need.`,"#3c23a8");
+                }
+        } else {
+            log("You lack the coin. This world is not for the poor...", "#ff4757");
+        }
     }
 }
 
@@ -613,7 +633,7 @@ function renderCombatButtons() {
 
     const categories = [
         { label: "Damaging Spells", filter: (s) => s.dmg},
-        { label: "Healing Spells", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave"},
+        { label: "Healing Spells", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave"}
     ];
 
     categories.forEach(cat => {
@@ -718,6 +738,18 @@ function renderTree() {
         ];
 
         masteryOptions.forEach(opt => {
+            if (opt.stat === 'manaReduction' && p.manaReduction >= 100n) {
+                let maxDiv = document.createElement('div');
+                maxDiv.className = "node purchased"; // Use 'purchased' class for a locked look
+                maxDiv.style.borderColor = opt.color;
+                maxDiv.innerHTML = `
+                    <strong>${opt.name}</strong><br>
+                    <span style="color:var(--unlocked)">PERFECTED</span><br>
+                    <small style="color:#666">100% Efficiency reached.</small>
+                `;
+                container.appendChild(maxDiv);
+                return; // Skip the rest of the loop for this option
+            }
             let div = document.createElement('div');
             div.className = "node available";
             div.style.borderColor = opt.color;
@@ -730,7 +762,7 @@ function renderTree() {
             div.innerHTML = `
                 <strong>${opt.name}</strong><br>
                 Cost: (Amount) SP<br>
-                <small style="color:#aaa">+5% ${opt.desc} per SP</small>
+                <small style="color:#aaa">+1% ${opt.desc} per SP</small>
             `;
             
             div.onclick = () => buyMastery(opt.stat);
@@ -785,7 +817,16 @@ function buyMastery(stat) {
         log(`Mastery Transformed! Spent ${formatNumber(amount)} SP to increase ${stat.toUpperCase()} by ${formatNumber(totalGain)}.`, "var(--unlocked)");
         
         if (Math.random() < 0.05) {
-            LuxLog(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`);
+            if (p.kills >= 1000000n) {
+                document.body.style.pointerEvents = "none"; 
+                log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`,"#ff0000")
+                setTimeout(() => {
+                    log(`Lux: And yet I still hold the needle which will cause you to pop.`,"#ff0000")
+                    document.body.style.pointerEvents = "auto"; 
+                }, 1000)
+            } else {
+                LuxLog(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`);
+            }
         }
 
         renderTree();
@@ -794,7 +835,6 @@ function buyMastery(stat) {
         log(`You lack the ${formatNumber(amount)} Skill Points required for this ascension.`, "#ff4757");
     }
 }
-
 
 function buySkill(id) {
     let s = skillTree[id];
@@ -810,7 +850,12 @@ function buySkill(id) {
         log(`Learned ${s.name}!`, "var(--unlocked)");
         
         if (Math.random() < 0.05) {
-            log(`Lux: Congratulations. You got a new spell. Doesn't really help you anyway. I can still delete you =)`,"#3c23a8");
+            if (p.kills >= 1000000n) {
+                log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`,"#ff0000")
+            } else {
+                log(`Lux: Congratulations. You got a new spell. Doesn't really help you anyway. I can still kill you just as easily as before.`,"#3c23a8");
+            }
+            
         }
         
         renderTree();
@@ -820,7 +865,11 @@ function buySkill(id) {
         log(`You need ${formatNumber(skillCost)} Skill Points to learn this.`, "#ff4757");
         
         if (Math.random() < 0.05) {
-            log(`Lux: You lack the wizdom that I have. I'm still a god in this world anyway. You're nothing...`,"#3c23a8");
+            if (p.kills >= 1000000n) {
+                log(`Lux: Idiot. Idiot. Idiot. Idiot. IDIOT.`,"#ff0000")
+            } else {
+                log(`Lux: You lack the wisdom that I have. I'm still a god in this world anyway. You're nothing...`,"#3c23a8");
+            }
         }
     }
 }
@@ -861,7 +910,12 @@ function startCombat() {
     if (nextEnemyOverride) {
         selectedEnemy = enemies.find(e => e.name.toLowerCase() === nextEnemyOverride.toLowerCase());
         nextEnemyOverride = null; 
-        if (selectedEnemy) log("You have encountered an unnatural enemy. Maybe Lux sent them? Stay safe.", "#3c23a8");
+        if (p.kills >= 1000000n) {
+            log("You have encountered an unnatural enemy. Lux has definitely sent them. They are definitely dangerous. Stay safe. You don't know what Lux is playing at.", "#ff0000");
+        } else if (selectedEnemy) {
+            log("You have encountered an unnatural enemy. Maybe Lux sent them? Stay safe.", "#3c23a8");
+        }
+
     }
 
     // 2. STANDARD SELECTION (If no override exists)
@@ -877,7 +931,12 @@ function startCombat() {
 
         // Fallback if the pool is empty
         if (eligiblePool.length === 0) {
-            eligiblePool = [enemies.find(e => e.name === "Shadow Imp") || enemies[0]];
+            if (p.kills >= 1000000n) {
+                log(`Lux: Enjoy fighting those you have killed.`,"#ff0000")
+                eligiblePool = [enemies.find(e => e.name === "Kitsune") || enemies[0]];
+            } else {
+                eligiblePool = [enemies.find(e => e.name === "Shadow Imp") || enemies[0]];
+            }
         }
 
         // Calculate Weights
@@ -903,16 +962,26 @@ function startCombat() {
     // 3. INITIALIZE THE ENCOUNTER
     // Clone the template so we don't modify the master 'enemies' array
     enemy = { 
-        ...selectedEnemy, 
-        // Manually override the getters with static, writable BigInt values
-        mhp: selectedEnemy.mhp, 
-        hp: selectedEnemy.mhp, 
-        atk: selectedEnemy.atk,
-        san: selectedEnemy.san,
-        exp: selectedEnemy.exp,
-        gold: selectedEnemy.gold,
+        name: selectedEnemy.name,
+        trait: selectedEnemy.trait || "No known traits.",
+        specialMsg: selectedEnemy.specialMsg,
+        burnImmune: selectedEnemy.burnImmune || false,
+        burnResist: selectedEnemy.burnResist || 1,
+        burnVuln: selectedEnemy.burnVuln || 1,
+        burnReflect: selectedEnemy.burnReflect || 0,
+        
+        // Explicitly call the getters to get the BigInt values
+        mhp: BigInt(selectedEnemy.mhp), 
+        hp: BigInt(selectedEnemy.mhp), 
+        atk: BigInt(selectedEnemy.atk),
+        san: BigInt(selectedEnemy.san || 0),
+        manaDrain: BigInt(selectedEnemy.manaDrain || 0),
+        exp: BigInt(selectedEnemy.exp),
+        gold: BigInt(selectedEnemy.gold),
+        lifesteal: BigInt(selectedEnemy.lifesteal || 0),
         burn: 0 
     };
+
 
 
     // 4. UI TRANSITIONS
@@ -927,9 +996,20 @@ function startCombat() {
 
     // 5. SPECIAL DIALOGUE CHECK
     if (selectedEnemy.specialMsg) {
-        setTimeout(() => {
-            log(selectedEnemy.specialMsg, "#bf2c89");
-        }, 150);
+        if (enemy === "Bob") {
+            setTimeout(() => {
+                log(selectedEnemy.specialMsg, "#bf2c89");
+                LuxLog(`Lux: ...`)
+            }, 150);
+            setTimeout(() => {
+                LuxLog(`Lux: Fuck it. I'm out.`)
+                p.bobvisits += 1
+            }, 300);
+        } else {
+            setTimeout(() => {
+                log(selectedEnemy.specialMsg, "#bf2c89");
+            }, 150);
+        }
     }
 }
 
@@ -942,7 +1022,16 @@ function cast(sid) {
     if (s.mp && p.mp < scaledCost) {
         log(`Insufficient Mana! Need ${formatNumber(scaledCost)} MP.`, "#ff4757");
         if (Math.random() < 0.2) {
-            log(`Lux: You absolute baffoon. You're stressing yourself out more and more. Do you really want to burn out your soul? It'll just make it more crispy when I eat it later =)`, "#3c23a8");
+            if (p.kills >= 1000000n) {
+                document.body.style.pointerEvents = "none"; 
+                log(`Lux: ...`,"#ff0000")
+                setTimeout (() => {
+                    log(`Lux: You do not deserve the ability to cast spells.`,"#ff0000")
+                    document.body.style.pointerEvents = "auto"; 
+                }, 1000)
+            } else {
+                log(`Lux: You absolute buffoon. You're stressing yourself out more and more. Do you really want to burn out your soul? It'll just make it easier to kill you later.`, "#3c23a8");
+            }
         }
         return; 
     }
@@ -958,8 +1047,12 @@ function cast(sid) {
         updateUI();
         log(`You strike with ${s.name} for ${formatNumber(damage)} damage.`); 
         if (Math.random() < 0.05) {
-            log(`Lux: You dealt ${formatNumber(damage)} damage. Nice job. Just don't forget...`,"#3c23a8");
-            log(`Lux: I can do much, much more.`,"#ff0000");
+            if (p.kills >= 1000000n) {
+                log(`Lux: You dealt ${formatNumber(damage)} damage. I don't know if I should be happy for you, concerned, or genuinely disgusted.`, "#ff0000")
+            } else {
+                log(`Lux: You dealt ${formatNumber(damage)} damage. Nice job. Just don't forget...`,"#3c23a8");
+                log(`Lux: I can do much, much more.`,"#ff0000");
+            }
         }
     }
 
@@ -1005,6 +1098,7 @@ function cast(sid) {
 updateUI();
 }
 function enemyTurn() {
+    if (!enemy || enemy.hp <= 0n) return;
     // 1. Burn tick (BigInt math)
     if (enemy.burn > 0) {
         if (enemy.burnImmune) {
@@ -1072,9 +1166,17 @@ function enemyTurn() {
 
     // 5. Death check
     if (p.hp <= 0n) { 
-        log(`Enjoy the bitter-sweet, cold, embrace of death =)`,"#3c23a8");
-        log("You have perished.", "#ff4757"); 
-        document.body.style.pointerEvents = "none"; 
+        if (Math.random() < 0.05) {
+            if (p.kills >= 1000000n) {
+                log(`Lux: Enjoy the bitter, freezing embrace of death.`,"#ff0000")
+            } else {
+                log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`,"#3c23a8");
+            }
+            document.body.style.pointerEvents = "none";
+        } else {
+            log("You have perished.", "#ff4757"); 
+            document.body.style.pointerEvents = "none";
+        } 
     }
     updateUI();
 }
@@ -1137,14 +1239,16 @@ function addExperience(amt) {
     updateUI();
 }
 
-
-
 function win() {
     // formatNumber handles the BigInts for the log
     log(`Victory! Looted ${formatNumber(enemy.gold)}g and ${formatNumber(enemy.exp)} EXP.`, "var(--unlocked)");
     
     if (Math.random() < 0.05) {
-        log(`Lux: Congratulations. Yet another soul you've removed off my realm. Thanks for doing my job for me =)`,"#3c23a8");
+        if (p.kills >= 1000000n) {
+            log(`Lux: Another soul gone, another hour I weep. When will you stop?`,"#ff0000")
+        } else {
+            log(`Lux: Congratulations. Yet another soul you've removed off my realm.`,"#3c23a8");
+        }
     }
     
     // 1. Math.max replacement for Gold
@@ -1164,13 +1268,59 @@ function win() {
     checkLuxKillLogs();
 }
 
-    function exitEvent() {
-        document.getElementById('shop-view').classList.add('hidden');
+function exitEvent() {
+    const shopView = document.getElementById('shop-view');
+    const isShopOpen = !shopView.classList.contains('hidden');
+
+    // Helper function to actually close the UI
+    const closeUI = () => {
+        shopView.classList.add('hidden');
         document.getElementById('tree-view').classList.add('hidden');
         document.getElementById('combat-view').classList.add('hidden');
         document.getElementById('main-controls').classList.remove('hidden');
+        document.body.style.pointerEvents = "auto"; 
         updateUI();
+    };
+
+    if (isShopOpen && LuxShopTalkChance < 0.05) {
+        if (p.kills >= 1000000n) {
+            log(`Lux: Go away. There is nothing for you here.`,"#ff0000")
+            closeUI();
+        } else {
+            const elevatorMusic = new Audio("sounds/music/Elevator-music.mp3");
+            let waitTime = (Math.random() < 0.0001) ? 189000 : 6000; 
+            
+            elevatorMusic.loop = true;    
+            document.body.style.pointerEvents = "none"; 
+
+            LuxLog(`Lux: Damn it. I'm going to have to ask Luxander later. He's on a break right now.`);
+
+            setTimeout(() => {
+                log(`[SYSTEM]: Lux has now gone on a break himself. He will be back in a bit. Enjoy the break yourself player.`, "");
+                elevatorMusic.play();   
+            }, 1000);
+
+            setTimeout(() => {
+                elevatorMusic.pause();
+                elevatorMusic.currentTime = 0;
+                
+                if (waitTime === 6000) {
+                    LuxLog(`Lux: Alright I'm back. What did I miss? Oh. You didn't do anything. Thanks for waiting for me I guess.`);
+                } else {
+                    LuxLog(`Lux: Sorry, I actually finished the whole sandwich. Did you enjoy the music?`);
+                }
+                
+                closeUI(); // NOW we switch back to the main game
+            }, waitTime);
+        }
+
+    } else {
+        // Normal exit if Lux doesn't want to talk
+        closeUI();
     }
+}
+
+
 /* ADMIN FUNCTIONS */
 let adminUnlocked = false; // Persistent state for the session
 const ADMIN_PASSWORD = "Oleksandrovych"; // Set your password here
@@ -1201,7 +1351,6 @@ function toggleAdmin() {
     panel.classList.remove('hidden');
     document.getElementById('console-input').focus();
 }
-
 
 function adminRefill(t) {
     // This is safe because it just copies one BigInt (mhp) to another (hp)
@@ -1271,8 +1420,13 @@ function exportSave() {
     
     let filename = 'luxs_rpg_save.urpg';
     if (Math.random() < 0.05) {
-        filename = 'luxs_world_not_yours.urpg';
-        log(`Lux: This world was never yours to keep.`, '#3c23a8');
+        if (p.kills >= 1000000n) {
+            log(`Lux: Oh you're leaving? Finally. Took you long enough.`,"#ff0000")
+            filename = 'leave.urpg';
+        } else {
+            log(`Lux: This world was never yours to keep.`, '#3c23a8');
+            filename = 'luxs_world_not_yours.urpg';
+        }
     } else {
         log(`Lux: You may have escaped this timeline, but I exist in each one.`, '#3c23a8');
     }
@@ -1312,9 +1466,33 @@ function importSave(saveText) {
         const parsed = JSON.parse(decoded);
 
         const saveVersion = parsed.payload.v;
-        if (!saveVersion || saveVersion < SAVE_VERSION) {
+        if (!saveVersion) {
             log("Error: Invalid or legacy save version.", "#ff4757");
             return;
+        }
+        const bigIntReplacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
+        const verificationStr = JSON.stringify(parsed.payload, bigIntReplacer);
+
+        // 2. Perform the check
+        if (checksum(verificationStr) !== parsed.checksum) {
+            if (p.timestampered >= 12) {
+                log(`Lux: 12 times. 12 times you have tampered with the integrity of this world. Yet I still stand. Disgusted.`,"#ff0000")
+            } else if (p.timestampered >= 9) {
+                log("Lux: Over 8 times tampered. Yet I still exist.", "#ff0000");
+            } else if (p.timestampered >= 6) {
+                log("Lux: 5 times. You've done it more than 5 times already. Yet I still know.", "#ff0000");
+            } else if (p.timestampered >= 3) {
+                log("Lux: I see what you did there. You've done it more than twice.", "#ff0000");
+            } else {
+                log("Lux: I see what you did there. You cannot hide your sins.", "#ff0000");
+            }
+            
+            // Increment the stat
+            let currentTampered = BigInt(parsed.payload.data.timestampered || 0);
+            parsed.payload.data.timestampered = currentTampered + 1n;
+
+            // DO NOT 'return' here. 
+            // By not returning, the code continues below and loads the save anyway.
         }
 
         // Work on a temp object first
@@ -1322,7 +1500,8 @@ function importSave(saveText) {
 
         const bigIntStats = [
             'hp', 'mhp', 'mp', 'mmp', 'sn', 'msn',
-            'gold', 'exp', 'lv', 'sp', 'kills', 'dmgmult', 'sparedenemies'
+            'gold', 'exp', 'lv', 'sp', 'kills', 'dmgmult', 
+            'sparedenemies', 'timestampered', 'bobvisits'
         ];
 
         bigIntStats.forEach(stat => {
@@ -1333,7 +1512,7 @@ function importSave(saveText) {
 
         // Only now update global state
         p = loadedPlayer;
-
+        p.v = SAVE_VERSION
         // Reset and reapply skill tree
         for (let id in skillTree) {
             skillTree[id].unlocked = false;
@@ -1345,11 +1524,86 @@ function importSave(saveText) {
 
         updateUI();
         renderTree();
-        log(`Success! Welcome back to Day ${p.day}, LV ${p.lv}.`, "var(--unlocked)");
+        log(`Success! Welcome back to Day ${formatNumber(p.day)}, LV ${p.lv}.`, "var(--unlocked)");
+        if (p.bobvisits === 3n) {
+            document.body.style.pointerEvents = "none";
+            LuxLog(`Lux: Why does that... creature... keep following you? Is this a joke, Luxander? Am I a fucking joke to you?`);
+            document.body.style.pointerEvents = "auto";
+        } else if (p.bobvisits === 6n) {
+            document.body.style.pointerEvents = "none";
+            LuxLog(`Lux: I am going to jump into the void if I see him again. Wait. I'm immortal... GOD DAM-`)
+            document.body.style.pointerEvents = "auto";
+        } else if (p.bobvisits === 9n) {
+            document.body.style.pointerEvents = "none";
+            LuxLog(`Lux *long ass sigh*`)
+            setTimeout(() => {
+                LuxLog(`Lux: I'm finding Luxander. To hell if he is on break or not. I want him to remove the fucking bread man. It's PISSING ME OFF.`)
+                document.body.style.pointerEvents = "auto";
+            }, 200)
+        } else if (p.bobvisits === 12n) {
+            document.body.style.pointerEvents = "none";
+            LuxLog(`Lux: I didn't find him.`)
+            setTimeout(() => {
+                LuxLog(`Lux: ...`)
+            }, 3000)
+            setTimeout(() => {
+                LuxLog(`Lux: I'm leaving this GitHub repo for now. If Luxander asks where I am, tell him I'm at the meteor client repo.`)
+            }, 6000)
+            setTimeout(() => {
+                LuxLog(`Luxander: Hey Lux I'm ba-`)
+            }, 8000)
+            setTimeout(() => {
+                LuxLog(`Luxander: ...`)
+            }, 10000)
+            setTimeout(() => {
+                LuxLog(`Luxander: Where is that bastard. Did he go into the meteor client repo again?`)
+            }, 12000)
+            setTimeout(() => {
+                LuxLog(`Luxander: Back in a bit. I'm going to go get him.`)
+                document.body.style.pointerEvents = "auto";
+            }, 14000)
+        } else if (p.bobvisits === 15n) {
+            document.body.style.pointerEvents = "none";
+            setTimeout(() => {
+                LuxLog(`Lux: *gets yeeted back into this repo*`)
+            }, 1000)
+            setTimeout(() => {
+                LuxLog(`Luxander: And if I catch you in the meteor client repo again I'm making this repo private so you can't get out. Got it?`)
+            }, 3000)
+            setTimeout(() => {
+                LuxLog(`Lux: Yes, yes, I got it.`)
+            }, 6000)
+            setTimeout(() => {
+                LuxLog(`Luxander: Good. Now if you'll excuse me, I need to go finish my sandwich.`)
+            }, 8000)
+            setTimeout(() => {
+                LuxLog(`Luxander: *Leaves. Again.*`)
+            }, 10000)
+            setTimeout(() => {
+                LuxLog(`Lux: ...`)
+            }, 12000)
+            setTimeout(() => {
+                LuxLog(`Lux: *notices the human staring*`)
+            }, 14500)
+            setTimeout(() => {
+                LuxLog(`Lux: What are you looking at.`)
+            }, 16000)
+            setTimeout(() => {
+                LuxLog(`Bob: Meep`)
+            }, 18050)
+            setTimeout(() => {
+                LuxLog(`Lux: OH JEEZ-`)
+                document.body.style.pointerEvents = "auto";
+            }, 18150)
+
+        }
 
     } catch (err) {
         console.error("Full Import Error:", err);
         log("Error: Could not read file. Check console for details.", "#ff4757");
+        if (p.timestampered >= 1) {
+            log(`Lux: I see tampering with the world has caused... undesirable consequences.`,"#ff0000")
+        }
     }
 }
 

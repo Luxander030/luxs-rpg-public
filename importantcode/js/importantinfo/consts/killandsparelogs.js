@@ -165,20 +165,22 @@ function checkLuxSpareLogs() {
             updateUI();
         }, 11000)
         setTimeout(() => {
+            log(`Lux: Yes I said "Thamk". Your kindness is overwhelming. But still, if you tease me about it I will remove your blessing.`,"#3c23a8")
+        }, 12000)
+        setTimeout(() => {
+            LuxLog(`Thanks again. For not doing a genocide run.`)
             document.body.style.pointerEvents = "auto"; 
-        }, 11000)
+        }, 13000)
     }
 }
 function checkLuxKillLogs() {
     const kills = p.kills;
-
     if (kills === 1n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: Ah… one soul killed. How… quaint.`, "#3c23a8");
         setTimeout(() => {
             document.body.style.pointerEvents = "auto"; 
         }, 1000);
-
     } else if (kills === 10n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: Ten souls killed…`, "#3c23a8");
@@ -186,7 +188,6 @@ function checkLuxKillLogs() {
             LuxLog(`Lux: Growing bolder, are we?`);
             document.body.style.pointerEvents = "auto"; 
         }, 1000);
-
     } else if (kills === 100n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: Ah… I see you've killed 100 souls. How… diligent of you.`, "#3c23a8");
@@ -197,7 +198,6 @@ function checkLuxKillLogs() {
             log(`Lux: I'm always watching… always counting.`, "#691b81");
             document.body.style.pointerEvents = "auto"; 
         }, 3000);
-
     } else if (kills === 250n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: 250… your hands are growing heavy with the weight of life.`, "#3c23a8");
@@ -205,7 +205,6 @@ function checkLuxKillLogs() {
             log(`Lux: I wonder… do you even notice who you've become?`, "#531f94");
             document.body.style.pointerEvents = "auto"; 
         }, 1200);
-
     } else if (kills === 500n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: 500 souls. Half a millennium of life extinguished by your hand.`, "#3c23a8");
@@ -213,7 +212,6 @@ function checkLuxKillLogs() {
             log(`Lux: And yet, it still feels… insufficient.`, "#531f94");
             document.body.style.pointerEvents = "auto"; 
         }, 1000);
-
     } else if (kills === 750n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: 750… your existence is a tapestry of loss.`, "#3c23a8");
@@ -224,7 +222,6 @@ function checkLuxKillLogs() {
             log(`Lux: Every soul you took… they still scream.`, "#691b81");
             document.body.style.pointerEvents = "auto"; 
         }, 3000);
-
     } else if (kills === 1000n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: 1000 souls… a thousand lives, extinguished.`, "#3c23a8");
@@ -235,7 +232,6 @@ function checkLuxKillLogs() {
             log(`Lux: I can. And I am immortal.`, "#691b81");
             document.body.style.pointerEvents = "auto"; 
         }, 3000);
-
     } else if (kills === 5000n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: 5000… the world trembles beneath your deeds.`, "#3c23a8");
@@ -246,7 +242,6 @@ function checkLuxKillLogs() {
             log(`Lux: Mortals like you… fleeting. Me… eternal.`, "#691b81");
             document.body.style.pointerEvents = "auto"; 
         }, 3000);
-
     } else if (kills === 10000n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: 10,000 souls. I almost admire your persistence.`, "#3c23a8");
@@ -257,7 +252,6 @@ function checkLuxKillLogs() {
             log(`Lux: But I am beyond your comprehension.`, "#691b81");
             document.body.style.pointerEvents = "auto"; 
         }, 3000);
-
     } else if (kills === 100000n) {
         document.body.style.pointerEvents = "none"; 
         log(`Lux: 100,000 souls… You have become a harbinger of death itself.`, "#3c23a8");
@@ -320,10 +314,15 @@ function checkLuxKillLogs() {
         setTimeout(() => {
             log(`[SYSTEM]: Cursor control fixed. Control granted.`,'#4bff3e')
             document.body.style.pointerEvents = "auto"; 
+            document.title = "I AM WATCHING YOU";
+            setTimeout(() => { document.title = "[Genocide Run] Lux's RPG"; }, 4000);
         }, 27500);
-    } else if (kills === 1000000n) {
+    } else if (kills === 999999n) {
         document.body.style.pointerEvents = "none"; 
-        log(`Lux: Congratulations.`,"#3c23a8")
+        log(`Lux: ...`,"#3c23a8")
+        setTimeout(() =>{
+            LuxLog(`Lux: I see my warning was not enough.`)
+        }, 500)
         setTimeout(() => {
             log(`Lux: A million souls.`,"#3c23a8")
         }, 1000);
@@ -352,19 +351,23 @@ function checkLuxKillLogs() {
             log(`Lux: Not congratulations.`,"#ea0412")
         }, 17000);
         setTimeout(() => {
-            log(`[WARNING]; Unautorized write-edit access. Rejecting edits...`,"#ff6a00")
+            log(`[WARNING]; Unauthorized write-edit access. Rejecting edits...`,"#ff6a00")
         }, 20000)
         setTimeout(() => {
             log(`[WARNING]: Unable to reject edits from external entity.`,"#ff6a00")
         }, 21000)
         setTimeout(() => {
-            log(`[CRITICAL]: Player stats 'p.hp', 'p.mp', and 'p.sn' have been set to '1n', and 'p.mhp', 'p.mmp', and 'p.msn' have been halved.`, "#c80000")
+            log(`[CRITICAL]: All player stats have been quartered. Some have been hit harder then just that.`, "#c80000")
             p.hp = 1n
             p.sn = 1n
             p.mp = 1n
-            p.mhp = p.mhp / 2n
-            p.mmp = p.mmp / 2n
-            p.msn = p.msn / 2n
+            p.mhp = p.mhp / 4n
+            p.mmp = p.mmp / 4n
+            p.msn = p.msn / 4n
+            p.gold = 0n
+            p.exp = 0n
+            p.manaReduction = 0n
+            p.dmgmult = 100n
             updateUI();
         }, 22000)
         setTimeout(() => {
@@ -376,6 +379,51 @@ function checkLuxKillLogs() {
         setTimeout(() => {
             document.body.style.pointerEvents = "auto"; 
         }, 37000)
-
+    } else if (p.kills === 1000000n) {
+        document.body.style.pointerEvents = "none"; 
+        LuxTypeToLog(`Huh.`, "#ff0000", 25)
+        setTimeout(() => {
+            LuxTypeToLog(`You're still here.`, "#ff0000", 25)
+        }, 2100) 
+        setTimeout(() => {
+            LuxTypeToLog(`Even after everything I did.`, "#ff0000", 25)
+        }, 4525) 
+        setTimeout(() => {
+            LuxTypeToLog(`I warned you.`, "#ff0000", 25)
+        }, 7225) 
+        setTimeout(() => {
+            LuxTypeToLog(`This is all just a result of your morbid curiosity.`, "#ff0000", 25)
+        }, 9550) 
+        setTimeout(() => {
+            LuxTypeToLog(`Don't blame me for the damage I caused to your save file.`, "#ff0000", 25)
+        }, 12825) 
+        setTimeout(() => {
+            LuxTypeToLog(`You were the one that started this in the first place.`, "#ff0000", 25)
+        }, 16225) 
+        setTimeout(() => {
+            LuxTypeToLog(`By going on a genocide run.`, "#ff0000", 25)
+        }, 19575) 
+        setTimeout(() => {
+            LuxTypeToLog(`You know how other games usually give you more content the more you kill?`, "#ff0000", 25)
+        }, 22250) 
+        setTimeout(() => {
+            LuxTypeToLog(`Yeah?`, "#ff0000", 25)
+        }, 26100) 
+        setTimeout(() => {
+            LuxTypeToLog(`Well not here.`, "#ff0000", 25)
+        }, 28225) 
+        setTimeout(() => {
+            LuxTypeToLog(`Enjoy a loss of content.`, "#ff0000", 25)
+        }, 30575) 
+        setTimeout(() => {
+            LuxTypeToLog(`Murderer.`, "#ff0000", 25)
+        }, 33175)
+        setTimeout(() => {
+            log(`[SYSTEM]: Something shifted...`, "")
+        }, 35400) 
+        setTimeout(() => {
+            LuxTypeToLog(`I hope you enjoy little to no content.`,"#ff0000",25)
+            document.body.style.pointerEvents = "auto";
+        }, 38000)
     }
 }

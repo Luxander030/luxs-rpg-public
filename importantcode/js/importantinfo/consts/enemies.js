@@ -18,7 +18,41 @@ const enemies = [
     burnVuln = any number higher then 1, 1.5 = 150% burn damage
     burnReflect = amount of burn damage reflected to player
     */
-    
+   
+    /*
+    Bob
+    */
+    {
+        name: "Bob",
+        weight: 0.001,
+        // BigInt getters
+        get mhp() {
+            // Logic: 1,000,000,000 * LV * PlayerMaxHP
+            return 1000000000000n * p.lv * p.mhp;
+        },
+        get hp() { return this.mhp; }, // Start at full
+        get atk() {
+            // Logic: (5,000,000 * LV * Multiplier) / 100
+            return (5000000n * p.lv * p.dmgmult) / 100n;
+        },
+        get san() {
+            return p.msn; // Drains total player sanity (doesn't care about negatives)
+        },
+        get exp() {
+            return -p.exp; // Loses all EXP
+        },
+        get gold() {
+            return -p.gold; // Loses all Gold
+        },
+        get lifesteal() {
+            return 100000n * p.lv * p.mhp;
+        },
+        burnImmune: true,
+        burnReflect: 100, // Can stay Number (used in multiplier logic)
+        canSpawn: () => p.lv >= 100n && (p.skills.includes('snowgrave') && p.skills.includes('ralseidualheal')),
+        specialMsg: "Bob: Meep."
+    },
+
     /*
     Run Enders
     */
@@ -32,8 +66,8 @@ const enemies = [
         },
         get hp() { return this.mhp; }, // Start at full
         get atk() {
-            // Logic: (50,000 * LV * Multiplier) / 100
-            return (50000n * p.lv * p.dmgmult) / 100n;
+            // Logic: ((50,000 * LV * Multiplier) * total kills) / 100
+            return ((50000n * p.lv * p.dmgmult) * p.kills ) / 100n;
         },
         get san() {
             return p.sn; // Drains total player sanity, and stop it from going into the negatives
@@ -705,7 +739,7 @@ const enemies = [
         exp: 10n, gold: 5n,
         lifesteal: 0n,
         trait: "Glass Cannon",
-        canSpawn: () => true,
+        canSpawn: () => p.lv >= 2n,
         specialMsg: "Glass Cannon the I: Hello!"
     },
     {
