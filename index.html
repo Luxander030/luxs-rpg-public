@@ -5,28 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="images/favicon/favicon.png">
     <title>Lux's RPG</title>
-    <link rel="stylesheet" href="importantcode/css/maincss.css">
-    <link rel="stylesheet" href="importantcode/css/statsidebarcss.css">
-    <link rel="stylesheet" href="importantcode/css/shopcss.css">
-    <link rel="stylesheet" href="importantcode/css/skilltreecss.css">
-    <link rel="stylesheet" href="importantcode/css/progressbarscss.css">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <link rel="stylesheet" href="css/maincss.css">
+    <link rel="stylesheet" href="css/statsidebarcss.css">
+    <link rel="stylesheet" href="css/shopcss.css">
+    <link rel="stylesheet" href="css/skilltreecss.css">
+    <link rel="stylesheet" href="css/progressbarscss.css">
+    <link 
+        rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" 
+        integrity="sha512-c42qTSw/wPZ3/5LBzD+Bw5f7bSF2oxou6wEb+I/lqeaKV5FDIfMvvRp772y4jcJLKuGUOpbJMdg/BTl50fJYAw==" 
+        crossorigin="anonymous"
+    >
 </head>
 <body>
 <div class="version">
-    Version: 8.2.0
+    Version: 9.0.0
 </div>
 <div class="save-controls">
-    <button class="export-btn" onclick="exportSave()">Export .urpg</button>
-
+    <button class="export-btn" onclick="exportSave(); playSaveSFX();">Export .urpg</button>
     <label for="import-input" class="import-btn" style="cursor:pointer; display:inline-block;">Import .urpg</label>
     <input type="file" id="import-input" accept=".urpg" onchange="handleImportFile(event)">
 </div>
 <div id="tooltip" style="position: fixed; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border: 1px solid var(--mana); border-radius: 8px; font-size: 13px; z-index: 10000; pointer-events: none; line-height: 1.4;"></div>
-
 <div id="game-wrapper">
-
     <div id="game-container">
-        
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h2 style="margin:0">Day <span id="day-txt">1</span></h2>
             <div style="font-size: 1.1em;">
@@ -34,7 +37,6 @@
                 SP: <span id="sp-txt" style="color:var(--unlocked)">0</span>
             </div>
         </div>
-
         <div class="stats-row">
             <div id="hp-box" class="stat-box" style="border-color:var(--hp)">Life: <span id="hp-val">100/100</span><div class="progress-bg"><div id="hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div></div></div>
             <div id="mp-box" class="stat-box" style="border-color:var(--mana)">Mana: <span id="mp-val">50/50</span><div class="progress-bg"><div id="mp-bar" class="progress-fill" style="background:var(--mana); width:100%"></div></div></div>
@@ -44,19 +46,16 @@
                 <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:var(--exp); width:0%"></div></div>
             </div>
         </div>
-
-        <div id="log">Welcome to your standard RPG.</div>
-
+        <div id="log">Welcome to your standard RPG. <strong style="color:red">Check the top right corner for save exporting and importing.</strong></div>
         <div id="shop-view" class="hidden">
             <h3>Wandering Merchant</h3>
             <div id="shop-shelf" class="shop-grid"></div>
-            <button style="width:100%" onclick="exitEvent()">Continue</button>
+            <button style="width:100%" onclick="exitEvent(); playMenuButtonClickSFX();">Continue</button>
         </div>
-
         <div id="tree-view" class="hidden">
             <h3>Spell Tree</h3>
             <div class="tree-grid" id="tree-nodes"></div>
-            <button style="width:100%; margin-top:20px;" onclick="exitEvent()">Close Spell Tree</button>
+            <button style="width:100%; margin-top:20px;" onclick="exitEvent(); playMenuButtonClickSFX();">Close Spell Tree</button>
         </div>
         <div id="combat-view" class="hidden">
             <div style="background:#1e1e24; padding:25px; border-radius:15px; margin-bottom:20px; border: 1px solid #2f3542; text-align:center;">
@@ -75,15 +74,17 @@
             </div>
             <div class="controls" id="combat-btns"></div>
         </div>
-
         <div id="main-controls" class="controls">
-            <button onclick="nextDay()">Explore Onward</button>
-            <button onclick="openTree()">Study Spells</button>
+            <button onclick="nextDay(); playMenuButtonClickSFX();">Explore Onward</button>
+            <button onclick="openTree(); playMenuButtonClickSFX();">Study Spells</button>
         </div>
-
     </div> 
     <div id="stat-sidebar">
-        <div class="stats-scroll-container">
+        <div class="sidebar-tabs" style="display: flex; gap: 5px; margin-bottom: 15px;">
+            <button onclick="showTab('stats'); playMenuButtonClickSFX();" style="flex: 1; cursor: pointer;">Stats</button>
+            <button onclick="showTab('inventory'); playMenuButtonClickSFX();" style="flex: 1; cursor: pointer;">Inventory</button>
+        </div>
+        <div id="stats-content" class="stats-scroll-container">
             <h3 style="margin-top:0; color:var(--mana); border-bottom: 2px solid var(--mana); padding-bottom: 10px;">Character Stats</h3>
             <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Max Life:</span> <b id="side-mhp">100</b></div>
             <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Life:</span> <b id="side-hp">100</b></div>
@@ -101,30 +102,91 @@
             <div class="stat-entry"><span style="color:var(--exp)" class="stat-label custom-color">Skill Points Available:</span> <b id="side-sp">0</b></div>
             <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
             <div class="stat-entry"><span style="color:var(--gold)"class="stat-label custom-color">Current Gold:</span> <b id="side-gold">50</b></div>
+            <div class="stat-entry"><span style="color:var(--gold)"class="stat-label custom-color">Total Gold:</span> <b id="side-totalgold">50</b></div>
             <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
+            <div class="stat-entry"><span style="color:#0dc700" class="stat-label custom-color">Total Spares:</span> <b id="side-spares">0</b></div>
             <div class="stat-entry"><span style="color:#ff0000" class="stat-label custom-color">Total Kills:</span> <b id="side-kills">0</b></div>
+            <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
             <div class="stat-entry"><span style="color:#ff0000" class="stat-label custom-color">Damage multiplier:</span> <b id="side-dmgmult">+0%</b></div>
         </div>
+        <div id="inventory-content" class="stats-scroll-container" style="display: none;">
+            <h3 style="margin-top:0; color:var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 10px;">Inventory</h3>
+            <div id="inventory-list">
+                <p style="color: #ccc; font-style: italic;">Your inventory is empty.</p>
+            </div>
+        </div>
     </div>
-
 </div>
 <div id="debugging-panel" class="hidden">
     <img src="images/Funfriend.gif" class="admin-icon" alt="Lux">
     <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Console</h3>
     <div id="console-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
-        FUNFRIEND: HELLO LUX. GOOD TO SEE YOU AGAIN.
+        Funfriend: Hello Lux (or Luxander, I have no clue who it is because it is the same password for both of you).
     </div>
     <input type="text" id="console-input" placeholder="Enter command..." 
-           style="width:100%; background:#000; border:1px solid var(--mana); color:white; padding:10px; box-sizing:border-box; font-family:'Fira Code', monospace;">
+            style="width:100%; background:#000; border:1px solid var(--mana); color:white; padding:10px; box-sizing:border-box; font-family:'Fira Code', monospace;">
     <p style="font-size:10px; color:#666; margin-top:5px;">Press ESC to close.</p>
 </div>
 <div class="ghost-trigger" onclick="toggleAdmin()"></div>
+
+<button id="codes-button" onclick="playMenuButtonClickSFX()">
+    Enter Codes
+</button>
+
+<div id="codes-panel" class="hidden">
+    <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Game Codes</h3>
+    <div id="code-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
+        Funfriend: bleh :3
+    </div>
+    <div style="display: flex; gap: 5px;">
+        <input type="text" id="codes-input" placeholder="Enter codes..." 
+                style="flex-grow: 1; background:#000; border:1px solid var(--mana); color:white; padding:10px; font-family:'Fira Code', monospace;">
+        <button id="submit-code" style="background: #2ed573; color: #000; border: none; padding: 0 15px; cursor: pointer; font-family: 'Fira Code', monospace; font-weight: bold;">
+            Enter
+        </button>
+    </div>
+    <p style="font-size:10px; color:#666; margin-top:5px;">Press ESC to close.</p>
+</div>
 </body>
-<script src="importantcode/js/maincode.js"></script>
-<script src="importantcode/js/importantinfo/consts/killandsparelogs.js"></script>
-<script src="importantcode/js/importantinfo/consts/enemies.js"></script>
-<script src="importantcode/js/importantinfo/consts/shop.js"></script>
-<script src="importantcode/js/importantinfo/consts/dailyevents.js"></script>
-<script src="importantcode/js/importantinfo/consts/spells.js"></script>
-<script src="importantcode/js/importantinfo/playerinfo.js"></script>
+<script src="js/maincode.js"></script>
+<script src="js/other/bob.js"></script>
+<script src="js/other/consts/killandsparelogs.js"></script>
+<script src="js/other/consts/enemies.js"></script>
+<script src="js/other/consts/shop.js"></script>
+<script src="js/other/consts/dailyevents.js"></script>
+<script src="js/other/consts/spells.js"></script>
+<script src="js/other/playerinfo.js"></script>
+<script src="js/other/save_export_and_import_logic.js"></script>
+<script src="js/other/debugging.js"></script>
+<script src="js/other/combat.js"></script>
+<script src="js/other/consts/items.js"></script>
+<script src="js/other/consts/audio.js"></script>
+<script src="js/other/BigIntMath.js"></script>
+<script src="js/other/sub-Combat1.js"></script>
+<script src="js/cheat_codes.js"></script>
+<script src="js/other/gameCodes.js"></script>
+<script src="js/other/voices.js"></script>
+<script 
+    src="https://cdnjs.cloudflare.com/ajax/libs/argon2-browser/1.18.0/argon2-bundled.min.js" 
+    integrity="sha512-Alrh8vbmKDc5xiq7I/y8LTDwy9nw1nT9S/yR73HMMoWrpX4S1kizNPdWM896c/CDIGILNwAiaih627A94kRhYQ==" 
+    crossorigin="anonymous" 
+    referrerpolicy="no-referrer">
+</script>
+<script>
+    window.addEventListener('load', () => {
+    updateUI();
+    const completedGenocideRun = localStorage.getItem('completedGenocideRun');
+    if (completedGenocideRun === 'true') {
+        p.kills = 1000000n;
+        p.flags.genocideRouteTimesCompleted = true;
+        document.body.style.pointerEvents = "none";
+        LuxTypeToLogPissed(`Did you really think you could just refresh the page and erase your past?`,"#ff0000", 25)
+        setTimeout(() => {
+            document.body.style.pointerEvents = "auto";
+        }, 3325)
+    } else {
+        // for code testing
+    }
+});
+</script>
 </html>

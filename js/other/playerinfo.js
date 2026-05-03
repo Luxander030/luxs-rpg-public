@@ -1,0 +1,177 @@
+let p = {
+    v: 9,
+    hp: 100n,
+    mhp: 100n,
+    mp: 50n,
+    mmp: 50n,
+    sn: 100n,
+    msn: 100n,
+    gold: 50n,
+    totalGold: 50n,
+    exp: 0n,
+    lv: 1n,
+    sp: 0n,
+    day: 1n,
+    skills: ['strike', 'heal'], // Put heal as when it was just strike players were dying VERY QUICKLY
+    manaReduction: 0n,  // Mana Reduction (0 is 0% reduction and base)
+    kills: 0n,
+    codesUsed: [],
+    uniqueEnemyKills: {
+        // Normal enemies
+        shadowImp: 0n,
+        armoredBeetle: 0n,
+        drowElf: 0n,
+        elf: 0n,
+        stoneGolem: 0n,
+        ironGolem: 0n,
+        // Glass Cannons
+        glassCannon1: 0n,
+        glassCannon2: 0n,
+        glassCannon3: 0n,
+        glassCannon4: 0n,
+        glassCannon5: 0n,
+        // Sanity Drain Enemies
+        voidStalker: 0n,
+        gloomWeaver: 0n,
+        // Lifesteal enemies
+        bloodBat: 0n,
+        vampire: 0n,
+        vampireLord: 0n,
+        vampireKing: 0n,
+        // Elementals
+        fireElemental: 0n,
+        airElemental: 0n,
+        waterElemental: 0n,
+        earthElemental: 0n,
+        iceElemental: 0n,
+        // Mini-bosses
+        diamondGolem: 0n,
+        ironPlatedDiamondGolem: 0n,
+        manaDrainingWisp: 0n,
+        // FPE
+        missCircle: 0n,
+        missBloomie: 0n,
+        missThavel: 0n,
+        // Bosses
+        fieryWillOWisp: 0n,
+        willOWisp: 0n,
+        duriel: 0n,
+        obsidianGolem: 0n,
+        // World Bosses
+        azmodan: 0n,
+        playerMirror: 0n,
+        // Lux
+        kitsune: 0n,
+        lux: 0n,
+        bob: 0n
+    },
+    spares: 0n,
+    dmgmult: 100n,
+    inventory: { // Anything with "null" is a locked slot
+        slot1: "Apple",
+        slot2: "empty",
+        slot3: "empty",
+        slot4: "empty",
+        slot5: "empty",
+        slot610Unlocked: false,
+        slot6: "null",
+        slot7: "null",
+        slot8: "null",
+        slot9: "null",
+        slot10: "null",
+        slot1120Unlocked: false,
+        slot11: "null",
+        slot12: "null",
+        slot13: "null",
+        slot14: "null",
+        slot15: "null",
+        slot16: "null",
+        slot17: "null",
+        slot18: "null",
+        slot19: "null",
+        slot20: "null",
+    },
+    achievements: {
+        reached100Days: {
+            completed: false,
+            description: "Unk",
+            hint: "Just keep pressing explore onwards."
+        },
+        gotten1Mgold: {
+            completed: false,
+            description: "CAPITALISM!!!",
+            hint: "Get 1M gold. It's not that difficult."
+        },
+        gottenFullManaReduction: {
+            completed: false,
+            description: "Wow. Cheapshot.",
+            hint: "Get Mana Reduction to 100%"
+        },
+        usedLuxLemon: false, // enjoy the sourness :3
+        usedLuxTriangle: false, // pointy thing
+        usedLuxSandwich: false, // SANDWICH
+        reachedNegativeSanity: false, // I have no clue how you could get this but oh well
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        template: false,
+        // put more later, I have no clue what to add
+    },
+    flags: {
+        hasUsedPacifistRedemption: false,
+        pacifistRouteTimesCompleted: false,
+        genocideRouteTimesCompleted: false,
+        timesTampered: 0,
+        bobVisits: 0n,
+        bobFlags: {
+            Visits3: false,
+            Visits6: false,
+            Visits9: false,
+            Visits12: false,
+            Visits15: false,
+            Visits18: false,
+            Visits21: false,
+            Visits24: false,
+            Visits27: false,
+            Visits30: false,
+            Visits33: false,
+            Visits36: false,
+            Visits39: false,
+            Visits41: false,
+            Visits44: false,
+            Visits47: false,
+            Visits50: false,
+            Visits53: false,
+            Visits56: false,
+            Visits59: false,
+            Visits62: false,
+            Visits65: false,
+            Visits68: false,
+            Visits71: false,
+            Visits74: false,
+            Visits77: false,
+            Visits80: false,
+            Visits83: false,
+            Visits86: false,
+            Visits89: false,
+            Visits92: false,
+            Visits95: false,
+            Visits98: false,
+            Visits101: false,
+            Visits104: false,
+            Visits107: false,
+            Visits110: false,
+            Visits113: false,
+            Visits116: false
+        }
+    }
+};
