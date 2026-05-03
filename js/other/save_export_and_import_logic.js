@@ -183,7 +183,7 @@ function exportSave() {
     }
 }
 
-checkGenocideRun(); {
+function checkGenocideRun() {
     p.kills = 1000000n
     document.body.style.pointerEvents = "none";
     log(`Lux: ${formatNumber(p.day)} days survived. An LV of ${formatNumber(p.lv)}. Yet you still don't know what LV means, do you? Do I need to dumb it down so you understand?`, "#ff0000")
