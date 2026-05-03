@@ -249,7 +249,9 @@ function cast(sid) {
     if (s.dmg) { 
         let damage = BigInt(s.dmg);
         enemy.hp -= damage;
-        if (sid === 'iceshock') {
+        if (sid === 'fireball') {
+            playFireballSFX();
+        } else if (sid === 'iceshock') {
             playIceshockSFX();
         } else {
             if (s.dmg >= enemy.mhp) {
