@@ -140,7 +140,9 @@ function startCombat() {
     updateUI(); 
     log(`Engaged in combat with: ${enemy.name}`, "#ff4757");
     document.getElementById('e-name').innerText = enemy.name;
-    playLuxTheme();
+    if (enemy.name === "Lux") {
+        playLuxTheme();
+    }
     // 5. SPECIAL DIALOGUE CHECK
     if (selectedEnemy.specialMsg) {
         if (enemy.name === "Bob") {
@@ -166,9 +168,7 @@ function playLuxTheme() {
         currentBossBGM.src = ""; // Force clear the source
         currentBossBGM = null;
     }
-
-    if (enemy.name === "Lux") {
-        let track = "sfx/combat/theme_music/lux/lux_normal.wav"; 
+    let track = "sfx/combat/theme_music/lux/lux_normal.wav"; 
         if (p.kills >= 1000000n && Math.random() < 0.1) {
             track = "sfx/combat/theme_music/lux/Geno/lux_enforcer.mp3"; // "Fundemental Paper Education: Mister Barrel Song Halls of the Enforcer (Fan Song)" by FrostFM
         } else if (p.kills >= 1000000n) {
@@ -201,7 +201,6 @@ function playLuxTheme() {
                 track = "sfx/combat/theme_music/lux/lux_normal.wav";
             }
         }
-    }
 
     currentBossBGM = new Audio(track);
     currentBossBGM.loop = true;
