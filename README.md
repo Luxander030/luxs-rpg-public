@@ -1,5 +1,5 @@
 # Lux's RPG
-This is a game where you have to survive as long as you can.
+This is a game where you have to survive as long as you can.\
 Thanks to Toby Fox (and "The Sounds Resource") for the SFX in my game. I am grateful.
 
 
