@@ -29,7 +29,7 @@ function processCode() {
         p.sp += 1000n
         p.gold += 1000000000000n
         p.codesUsed.push('luxanderVentingTicket')
-        LuxLog(`Luxander: You could have gotten this code of two ways. Looking through 'cheat_codes.js,' or doing something else. If you found it looking through 'cheat_codes.js,' thanks for listening to my ranting. It means a lot.`)
+        LuxLog(`Luxander: You could have gotten this code one of two ways. Looking through 'cheat_codes.js,' or doing something else. If you found it looking through 'cheat_codes.js,' thanks for listening to my ranting. It means a lot.`)
         updateUI();
     } 
     else if (val === 'Lucky' && !p.codesUsed.includes('lucky')) {
