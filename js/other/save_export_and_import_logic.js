@@ -95,10 +95,9 @@ function importSave(saveText) {
         } else {
             log(`Success! Welcome back to Day ${p.day.toString()}.`, "var(--unlocked)");
         }
-        
         updateUI();
         renderTree();
-
+        bob();
     } catch (err) {
         console.error("Full Import Error:", err);
         log("Error: Could not read file. Check console for details.", "#ff4757");
@@ -183,7 +182,7 @@ function exportSave() {
     }
 }
 
-function checkGenocideRun() {
+function triggerGenocideDialogue() {
     p.kills = 1000000n
     document.body.style.pointerEvents = "none";
     log(`Lux: ${formatNumber(p.day)} days survived. An LV of ${formatNumber(p.lv)}. Yet you still don't know what LV means, do you? Do I need to dumb it down so you understand?`, "#ff0000")

@@ -6,7 +6,7 @@ function timeoutFunction(text, color, delay) {
 function bob() {
     if (p.flags.bobVisits === 3n && p.flags.bobFlags.Visits3 === false) {
         disablePageClicks();
-        LuxLog(`Lux: Why does that... creature... keep following you? Is this a joke, Luxander? Am I a fucking joke to you?`);
+        LuxTypeToLog(`Why does that... creature... keep following you? Is this a joke, Luxander? Am I a fucking joke to you?`, 50)
         enablePageClicks();
         p.flags.bobFlags.Visits3 = true
     } else if (p.flags.bobVisits === 6n && p.flags.bobFlags.Visits6 === false) {
