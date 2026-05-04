@@ -1,6 +1,6 @@
 let adminUnlocked = false; 
-const hashed_pass = "$argon2id$v=19$m=262144,t=10,p=4$ZTg0MjgyZDIyZTJlMGRkOTA3YTRmNTIyMzhlZDY3MGM$MrcCqFhVVICVWQENVLBd7jHToEhZTXIcIYR6elWURglvrYHU2Uq8ly1LznHGKrqe+iukRrktnQww7kKyla9wFg";
-// const hashed_pass = "$argon2id$v=19$m=4096,t=1,p=1$NTQ4YmIwYmFlZjM1YjY1Njc2NTkzMDNhZDM4YmVjNjU$kuqAf64Xq+oxdgZW6MdJQp5nzSL1ShalSJiXOaPA3PI"; 
+const hashed_pass = "$argon2id$v=19$m=262144,t=10,p=4$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$SHi1xoiUjJ/m2NRy5uu70MATcv/1ik1QReaAB6M8nZELfvf3HExiean0x6+MFVWbATp9ij6age/1TmUaMYbjbA";
+// const hashed_pass = "$argon2id$v=19$m=4096,t=1,p=1$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$yEnlUm0zD+Tneqa/wFzdTw"; 
 
 // Listen for the "Enter" key on the console input
 document.getElementById('console-input').addEventListener('keypress', function (e) {
