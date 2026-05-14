@@ -1,6 +1,6 @@
 let adminUnlocked = false; 
-const hashed_pass = "$argon2id$v=19$m=262144,t=10,p=4$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$SHi1xoiUjJ/m2NRy5uu70MATcv/1ik1QReaAB6M8nZELfvf3HExiean0x6+MFVWbATp9ij6age/1TmUaMYbjbA";
-// const hashed_pass = "$argon2id$v=19$m=4096,t=1,p=1$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$yEnlUm0zD+Tneqa/wFzdTw"; 
+// const hashed_pass = "$argon2id$v=19$m=262144,t=10,p=4$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$SHi1xoiUjJ/m2NRy5uu70MATcv/1ik1QReaAB6M8nZELfvf3HExiean0x6+MFVWbATp9ij6age/1TmUaMYbjbA";
+const hashed_pass = "$argon2id$v=19$m=4096,t=1,p=1$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$yEnlUm0zD+Tneqa/wFzdTw"; 
 
 // Listen for the "Enter" key on the console input
 document.getElementById('console-input').addEventListener('keypress', function (e) {
@@ -20,6 +20,107 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+const consoleInput = document.getElementById('console-input');
+consoleInput.addEventListener('input', () => {
+    const val = consoleInput.value.trim();
+    removeSuggestions();
+
+    if (val.startsWith('/effect ')) {
+        const search = val.slice(8);
+        const effects = ['frozen', 'stunned', 'poison', 'burning', 'fished', 'vulnerable', 'resistant', 'weakened'];
+        const suggestions = search
+            ? effects.filter(e => e.toLowerCase().startsWith(search.toLowerCase()))
+            : effects.slice(0, 3); // Show first 3 if nothing typed yet
+
+        if (suggestions.length === 0) return;
+
+        const dropdown = document.createElement('div');
+        dropdown.id = 'suggestion-dropdown';
+        dropdown.style.cssText = `
+            position: absolute;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            z-index: 9999;
+            max-height: 150px;
+            overflow-y: auto;
+        `;
+
+        suggestions.forEach(effect => {
+            const item = document.createElement('div');
+            item.textContent = effect;
+            item.style.cssText = `padding: 4px 8px; cursor: pointer; color: white;`;
+            item.addEventListener('mouseenter', () => item.style.background = '#333');
+            item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+            item.addEventListener('click', () => {
+                consoleInput.value = `/effect ${effect} `;
+                removeSuggestions();
+                consoleInput.focus();
+            });
+            dropdown.appendChild(item);
+        });
+
+        const rect = consoleInput.getBoundingClientRect();
+        dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+        dropdown.style.left = `${rect.left + window.scrollX}px`;
+        dropdown.style.width = `${rect.width}px`;
+        document.body.appendChild(dropdown);
+    }
+
+    if (val.startsWith('/give ')) {
+        const search = val.slice(6);
+        const allSuggestions = search
+            ? inventoryItems.filter(i => i.id.toLowerCase().startsWith(search.toLowerCase())).map(i => i.id)
+            : inventoryItems.slice(0, 3).map(i => i.id); // Show first 3 if nothing typed yet
+
+        if (allSuggestions.length === 0) return;
+
+        const dropdown = document.createElement('div');
+        dropdown.id = 'suggestion-dropdown';
+        dropdown.style.cssText = `
+            position: absolute;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            z-index: 9999;
+            max-height: 150px;
+            overflow-y: auto;
+        `;
+
+        allSuggestions.forEach(id => {
+            const item = document.createElement('div');
+            item.textContent = id;
+            item.style.cssText = `padding: 4px 8px; cursor: pointer; color: white;`;
+            item.addEventListener('mouseenter', () => item.style.background = '#333');
+            item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+            item.addEventListener('click', () => {
+                consoleInput.value = `/give ${id}`;
+                removeSuggestions();
+                consoleInput.focus();
+            });
+            dropdown.appendChild(item);
+        });
+
+        const rect = consoleInput.getBoundingClientRect();
+        dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+        dropdown.style.left = `${rect.left + window.scrollX}px`;
+        dropdown.style.width = `${rect.width}px`;
+        document.body.appendChild(dropdown);
+    }
+});
+
+function removeSuggestions() {
+    const existing = document.getElementById('suggestion-dropdown');
+    if (existing) existing.remove();
+}
+
+function cmdClearName() {
+    localStorage.removeItem("luxsRPGplayerName")
+    log(`Name cleared`, "var(--funfriend)")
+}
+
+const cmdRegistry = {
+    'clearname': cmdClearName
+};
+
 function handleCommand(cmd) {
     const args = cmd.split(" ");
     const command = args[0].toLowerCase();
@@ -29,7 +130,52 @@ function handleCommand(cmd) {
     const output = document.getElementById('console-output');
     let response = "";
     let successColor = "var(--funfriend)";
+
+    // let cmd = command.substr(1);
+    // if (cmd in cmdRegistry) {
+    //     const filtered = Object.keys(cmdRegistry).filter(c => c.startsWith(cmd));
+
+    //     cmdRegistry[cmd]();
+    // } else
+
     switch (command) {
+        case '/clearname':
+            cmdClearName();
+            break;
+        case '/effect':
+            let effectVal;
+            try { effectVal = BigInt(args[2] || 0); } catch(e) { effectVal = null; }
+            if (!enemy) {
+                response = "Funfriend: No active enemy to apply effect to.";
+                successColor = "#ff4757";
+                break;
+            }
+            const effect = args[1]?.toLowerCase();
+            const validEffects = ['frozen', 'stunned', 'poison', 'burning', 'fished', 'vulnerable', 'resistant', 'weakened', 'solari'];
+            if (!validEffects.includes(effect)) {
+                response = `Funfriend: Unknown effect. Valid effects: [${validEffects.join(', ')}]`;
+                successColor = "#ff4757";
+                break;
+            }
+            if (effectVal === null) {
+                response = "Funfriend: Please provide a value. Usage: /effect <effect> <amount>";
+                successColor = "#ff4757";
+                break;
+            }
+            enemy[effect] += effectVal;
+            response = `Funfriend: Applied ${formatNumber(effectVal)} ${effect} to ${enemy.name}.`;
+            break;
+        case '/test':
+            enemy.frozen += 10n
+            enemy.stunned += 10n
+            enemy.poison += 100n
+            enemy.burning += 10n
+            enemy.fished += 100n
+            enemy.solari += 10n
+            enemy.vulnerable += 10n
+            enemy.resistant += 10n
+            enemy.weakened += 10n
+            break;
         case '/give':
             const search = args[1]; // The ID or partial text they typed
             if (!search) {
@@ -75,6 +221,7 @@ function handleCommand(cmd) {
             p.inventory.slot18 = "empty"
             p.inventory.slot19 = "empty"
             p.inventory.slot20 = "empty"
+            p.flags.storageUnlocked = true
             response = "Funfriend: All inventory slots unlocked."
             break;
         case '/setgenocide':
@@ -218,7 +365,9 @@ function handleCommand(cmd) {
                 break;
             }
             if (subCommand === 'set') {
+                let temp = amount - p.gold
                 p.gold = amount;
+                p.totalGold += temp
                 response = `Funfriend: Total Gold set to ${formatNumber(p.gold)}g.`;
             } 
             else if (subCommand === 'add') {
@@ -228,6 +377,34 @@ function handleCommand(cmd) {
             } 
             else {
                 response = "Usage: /gold <set|add> <amount>";
+            }
+            break;
+        case '/gems':
+            // args[0] is "/gems"
+            // args[1] is "set" or "add"
+            // args[2] is the number
+            const GemsSubCommand = args[1]?.toLowerCase();
+            // Use your helper logic to get the number from the 3rd word (args[2])
+            let GemsAmount;
+            try { 
+                GemsAmount = BigInt(args[2] || 0); 
+            } catch(e) { 
+                GemsAmount = null; 
+            }
+            if (GemsAmount === null) {
+                response = "Please provide a valid number. Usage: /gems <set|add> <amount>";
+                break;
+            }
+            if (GemsSubCommand === 'set') {
+                p.gems = GemsAmount;
+                response = `Funfriend: Total gems set to ${formatNumber(p.gems)}.`;
+            } 
+            else if (GemsSubCommand === 'add') {
+                p.gems += GemsAmount;
+                response = `Funfriend: Added ${formatNumber(GemsAmount)} gems. Total is now ${formatNumber(p.gems)}.`;
+            } 
+            else {
+                response = "Usage: /gems <set|add> <amount>";
             }
             break;
         case '/sp':

@@ -18,7 +18,7 @@ Basic information:
 - Sanity: Do you want to be insane or not?
     - Importance: If it reaches 0, you lose mana at the start of each day (Mana Lost scales with the number of days survived)
     - How to upgrade it:
-        - Use the "Eldritch Orb" item from the shop
+        - Use the "Pure Insight" item from the shop
         - Level up
 - Mana Reduction: Wait, what was this one again?
     - Importance:

@@ -1,5 +1,161 @@
 let LuxShopTalkChance = null;
 let currentBossBGM = null;
+const name_code = "$argon2id$v=19$m=65536,t=3,p=4$NDc3ZjQ1YjZiOTdkYmJkMzVhMGQwNGI2NDk5YzY5NDU$n9hkkCz/n5vG3EnMdgAjmTrNutlFYOnHaPv3I9gzkig";
+
+function nameSelection() {
+    let filterBypassed = false;
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'name-selection-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+    `;
+
+    // Create box
+    const box = document.createElement('div');
+    box.style.cssText = `
+        background: #1a1a1a;
+        border: 1px solid #444;
+        padding: 32px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        min-width: 300px;
+    `;
+
+    // Title
+    const title = document.createElement('h2');
+    title.textContent = 'What is your name?';
+    title.style.cssText = `color: white; margin: 0; font-size: 1.4rem;`;
+
+    // Input
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 32;
+    input.placeholder = 'Enter your name...';
+    input.style.cssText = `
+        background: #2a2a2a;
+        border: 1px solid #555;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        outline: none;
+    `;
+
+    // Bypass indicator (hidden by default)
+    const bypassIndicator = document.createElement('p');
+    bypassIndicator.style.cssText = `color: #2ed573; margin: 0; font-size: 0.85rem; display: none;`;
+    bypassIndicator.textContent = '✓ Filter bypassed.';
+
+    // Error message (hidden by default)
+    const error = document.createElement('p');
+    error.style.cssText = `color: #ff4757; margin: 0; font-size: 0.9rem; display: none;`;
+    error.textContent = 'That name is not allowed. Please try a different name.';
+
+    // Confirm button
+    const btn = document.createElement('button');
+    btn.textContent = 'Confirm';
+    btn.style.cssText = `
+        background: #2ed573;
+        color: #000;
+        border: none;
+        padding: 8px 24px;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 100%;
+    `;
+    btn.addEventListener('mouseenter', () => btn.style.background = '#26b560');
+    btn.addEventListener('mouseleave', () => btn.style.background = '#2ed573');
+
+    // Confirm logic
+    async function confirmName() {
+        const name = input.value.trim();
+
+        if (!name) {
+            error.textContent = 'Please enter a name.';
+            error.style.display = 'block';
+            return;
+        }
+
+        // Check if the input matches the bypass code
+        try {
+            await argon2.verify({
+                pass: name,
+                encoded: name_code
+            });
+            // Code matched — bypass filter and ask again
+            filterBypassed = true;
+            bypassIndicator.style.display = 'block';
+            error.style.display = 'none';
+            input.value = '';
+            input.focus();
+            return;
+        } catch (e) {
+            // log(`${e}`)
+            // if not the code, continue normally
+        }
+
+        if (!filterBypassed) {
+            const nameLower = name.toLowerCase();
+            const blocked = filteredWords.some(entry => {
+                const w = entry.word.toLowerCase();
+                if (entry.mode === "strict") {
+                    return nameLower === w;
+                } else if (entry.mode === "loose") {
+                    return nameLower.includes(w);
+                }
+                return false;
+            });
+
+            if (blocked) {
+                error.textContent = 'That name is not allowed. Please try a different name.';
+                error.style.display = 'block';
+                input.value = '';
+                input.focus();
+                return;
+            }
+        }
+
+        // Name passed
+        p.name = name;
+        localStorage.setItem("luxsRPGplayerName", name);
+        overlay.remove();
+        document.body.style.pointerEvents = 'auto';
+        updateUI();
+    }
+
+    btn.addEventListener('click', confirmName);
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') confirmName();
+    });
+
+    box.appendChild(title);
+    box.appendChild(input);
+    box.appendChild(bypassIndicator);
+    box.appendChild(error);
+    box.appendChild(btn);
+    overlay.appendChild(box);
+    document.body.style.pointerEvents = 'auto';
+    document.body.appendChild(overlay);
+
+    // Focus input immediately
+    setTimeout(() => input.focus(), 50);
+}
 
 function checkSpaceAndAddItem(itemToAdd) {
     for (let i = 1; i <= 20; i++) { // change the last number in this if I ever increase inventory size
@@ -69,10 +225,16 @@ function updateUI() {
     document.getElementById('sn-val').innerText = `${formatNumber(p.sn)}/${formatNumber(p.msn)}`;
     document.getElementById('sn-bar').style.width = snPerc + "%"
     // 2. LV and EXP Progress Bar
-    // Math.pow doesn't work with BigInt. Use a loop or scale it. (I hate the fact that any Math. fucntion doesn't work with BigInt)
+    // Math.pow doesn't work with BigInt. Use a loop or scale it. (I hate the fact that any Math. fucntion doesn't work with BigInt; had to make a replacement library)
     // Example: 1.2^x is roughly (12^x / 10^x). 
     // For simplicity, if Level isn't huge, convert to Number for the exponent math:
-    let nextLevelExp = BigInt(Math.floor(100 * Math.pow(1.2, Number(p.lv) - 1)));
+    let nextLevelExp = 0n;
+    try {
+        let expRequired = 100 * Math.pow(1.2, Number(p.lv) - 1);
+        nextLevelExp = expRequired >= Number.MAX_SAFE_INTEGER ? BigInt(Number.MAX_SAFE_INTEGER) : BigInt(Math.floor(expRequired));
+    } catch(e) {
+        log(`EXP Error: ${e} | p.lv value: ${p.lv}`, "#ff4757");
+    }
     document.getElementById('lv-txt').innerText = formatNumber(p.lv);
     document.getElementById('exp-val').innerText = `${formatNumber(p.exp)}/${formatNumber(nextLevelExp)}`;
     document.getElementById('exp-bar').style.width = Math.min(100, getPercent(p.exp, nextLevelExp)) + "%";
@@ -106,9 +268,11 @@ function updateUI() {
     if (enemy) {
         document.getElementById('e-hp-txt').innerText = `HP: ${formatNumber(enemy.hp)} / ${formatNumber(enemy.mhp)}`;
         document.getElementById('e-hp-bar').style.width = Math.max(0, Math.min(100, getPercent(enemy.hp, enemy.mhp))) + "%";
-        document.getElementById('e-name').innerText = enemy.name + (enemy.burn > 0n ? " (Burning)" : "");
+        document.getElementById('e-name-text').innerText = enemy.name;
+        renderStatusIcons();
         document.getElementById('e-traits').innerText = enemy.trait || "No known traits.";
     }
+
 }
 
 function showTab(tabName) {
@@ -289,7 +453,7 @@ function log(msg, color = "#e1e1e6") {
 
 function handleDailyResources() {
     let manaLossScalingFactor = p.day; 
-    let manaRegainedScalingFactor = p.lv;
+    let manaRegainedScalingFactor = BigInt(p.lv);
     if (p.sn > 0n) {
         let manaRegained = 100n * manaRegainedScalingFactor;
         p.mp = BigMath.min(p.mp + manaRegained, p.mmp);
@@ -359,14 +523,14 @@ function startShop() {
     const shelf = document.getElementById('shop-shelf'); 
     shelf.innerHTML = "";
     // 1. Determine item count (Convert BigInt Level to Number for small logic)
-    let currentLv = p.lv;
+    let currentLv = BigInt(p.lv);
     let spares = p.spares;
     // Geno Scaling: Based on LV (since Pacifists stay LV 1)
     let genoCount = 
-        currentLv <= 5  ? 5  :
-        currentLv <= 10 ? 9  :
-        currentLv <= 15 ? 13 :
-        currentLv <= 20 ? 17 : 20;
+        currentLv <= 5n  ? 5  :
+        currentLv <= 10n ? 9  :
+        currentLv <= 15n ? 13 :
+        currentLv <= 20n ? 17 : 20;
     // Pacifist Scaling: Based on Spares (since Genos have 0 spares)
     let pacifistCount = 
         spares <= 100n ? 5  :
@@ -381,6 +545,10 @@ function startShop() {
         if ((item.id === 'manastabilizer' || item.id === 'manastabilizer2') && p.manaReduction >= 100n) return false;
         if (p.inventory.slot610Unlocked === true && item.id === 'slot610unlocker') return false;
         if (p.inventory.slot1120Unlocked === true && item.id === 'slot1120unlocker') return false;
+        if (p.flags.storageUnlocked === true && item.id === 'storageUnit') return false;
+        if (p.flags.storageUnlocked === false && item.id === 'storageUnitUpgrade1') return false;
+        if (p.flags.storageUnlocked === false && item.id === 'storageUnitUpgrade2') return false;
+        if (p.flags.storageUnlocked === false && item.id === 'storageUnitUpgrade3') return false;
         return true;
     });
     let items = [];
@@ -511,7 +679,7 @@ function renderTree() {
         }
     }); 
     if (p.skills.includes('strike')) skillTree.strike.unlocked = true;
-    const ignoredNames = ["Chara's Knife", "Nox Nocturnal (Beam)", "Nox Nocturnal (Explosion)", "Nox Nocturnal (Siphon)"];
+    const ignoredNames = ["Chara's Knife", "Nox Nocturnal (Beam)", "Nox Nocturnal (Explosion)", "Nox Nocturnal (Siphon)", "Frying Pan"];
     const allUnlocked = Object.keys(skillTree).every(id => {
         // Check if the current name is in our list of ignored names
         if (ignoredNames.includes(skillTree[id].name)) return true; 
@@ -564,7 +732,7 @@ function renderTree() {
     } else {
         for (let id in skillTree) {
             let s = skillTree[id];
-            if (s.name === "Chara's Knife" || s.name === "Nox Nocturnal (Beam)" || s.name === "Nox Nocturnal (Explosion)" || s.name === "Nox Nocturnal (Siphon)") {
+            if (s.name === "Chara's Knife" || s.name === "Nox Nocturnal (Beam)" || s.name === "Nox Nocturnal (Explosion)" || s.name === "Nox Nocturnal (Siphon)" || s.name === "Frying Pan") {
                 continue;
             }
             let isParentUnlocked = !s.parent || skillTree[s.parent].unlocked;
@@ -717,7 +885,7 @@ function exitEvent() {
                     document.body.style.pointerEvents = "auto";
                 } else {
                     log(`Lux: Sorry, I actually finished the whole sandwich. Did you enjoy the music, or get a sandwich? I hope you <i>did</i> get a sandwich, as we're back to playing. Even if you didn't, I got you one.`, "var(--lux)");
-                    if (p.inventory.slot1 === "empty" || p.inventory.slot2 === "empty" || p.inventory.slot3 === "empty" || p.inventory.slot4 === "empty" || p.inventory.slot5 === "empty" || p.inventory.slot6 === "empty" || p.inventory.slot7 === "empty" || p.inventory.slot8 === "empty" || p.inventory.slot9 === "empty" || p.inventory.slot10 === "empty") { // Do. Not. Fucking. Ask. Why. This. Is. Like. This.
+                    if (p.inventory.slot1 === "empty" || p.inventory.slot2 === "empty" || p.inventory.slot3 === "empty" || p.inventory.slot4 === "empty" || p.inventory.slot5 === "empty" || p.inventory.slot6 === "empty" || p.inventory.slot7 === "empty" || p.inventory.slot8 === "empty" || p.inventory.slot9 === "empty" || p.inventory.slot10 === "empty" || p.inventory.slot11 === "empty" || p.inventory.slot12 === "empty" || p.inventory.slot13 === "empty" || p.inventory.slot14 === "empty" || p.inventory.slot15 === "empty" || p.inventory.slot16 === "empty" || p.inventory.slot17 === "empty" || p.inventory.slot18 === "empty" || p.inventory.slot19 === "empty" || p.inventory.slot20 === "empty") { // Do. Not. Fucking. Ask. Why. This. Is. Like. This.
                         tryAddItem("Lux's Sandwich")
                     } else {
                         let hpRegained = 150n * p.spares

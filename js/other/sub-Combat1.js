@@ -107,57 +107,107 @@ function enemyItemDrop() {
         } else if (enemy.name === "Glass Cannon the V") {
             checkSpaceAndAddItem("Glass Shard")
         } else if (enemy.name === "Gloom Weaver") {
-            
+            checkSpaceAndAddItem("Black Shard")
         } else if (enemy.name === "Void Stalker") {
-
+            checkSpaceAndAddItem("Black Shard")
         } else if (enemy.name === "Blood Bat") {
-        
+            checkSpaceAndAddItem("Blood Bat Eye")
         } else if (enemy.name === "Vampire") {
-            
+            checkSpaceAndAddItem("Vampire Tooth")
         } else if (enemy.name === "Vampire Lord") {
-
+            checkSpaceAndAddItem("Vampire Tooth")
         } else if (enemy.name === "Vampire King") {
-
+            checkSpaceAndAddItem("Vampire Tooth")
         } else if (enemy.name === "Fire Elemental") {
-        
+            checkSpaceAndAddItem("Ash")
         } else if (enemy.name === "Air Elemental") {
-    
+            // Air would just be insane junk at this fucking point.
         } else if (enemy.name === "Water Elemental") {
-            
+            checkSpaceAndAddItem("Bottle O' Water")
         } else if (enemy.name === "Earth Elemental") {
-            
+            checkSpaceAndAddItem("Rock")
         } else if (enemy.name === "Ice Elemental") {
-    
+            // Ice would also just be useless junk... just with a timer
         } else if (enemy.name === "Diamond Golem") {
-    
+            checkSpaceAndAddItem("Diamond")
         } else if (enemy.name === "Iron-Plated Diamond Golem") {
-            
+            checkSpaceAndAddItem("Diamond")
         } else if (enemy.name === "Mana Draining Wisp") {
-            
+            checkSpaceAndAddItem("The Lovers (6)")
         } else if (enemy.name === "Miss Circle") {
-            
+            checkSpaceAndAddItem("Miss Circle's Oreo Pack")
         } else if (enemy.name === "Miss Bloomie") {
 
         } else if (enemy.name === "Miss Thavel") {
             
         } else if (enemy.name === "Obsidian Golem") {
-        
+            checkSpaceAndAddItem("Diamond")
         } else if (enemy.name === "Duriel") {
-            
+            checkSpaceAndAddItem("The Devil (15)")
         } else if (enemy.name === "Will o' Wisp") {
-            
+            checkSpaceAndAddItem("The Lovers (6)")
         } else if (enemy.name === "Fiery Will o' Wisp") {
-            
+            checkSpaceAndAddItem("The Lovers (6)")
         } else if (enemy.name === "Azmodan") {
-            
+            checkSpaceAndAddItem("The Devil (15)")
         } else if (enemy.name === "The Player's Mirror") {
-    
+            checkSpaceAndAddItem("(Spectral Card) Cryptid")
         } else if (enemy.name === "Kitsune") {
-            
+            checkSpaceAndAddItem("(Spectral Card) Soul")
         } else if (enemy.name === "Lux") {
-            
+            checkSpaceAndAddItem("(Spectral Card) Black Hole")
         } else if (enemy.name === "Bob") {
-            
+            if (Math.random() < 0.5) {
+                checkSpaceAndAddItem("Bob's Bread")
+            } else {
+                checkSpaceAndAddItem("Bob's Cardboard Box")
+            }
         }
     }
+    // At the end of enemyItemDrop()
+    const gemChances = {
+        // Normal enemies
+        "Shadow Imp": 0.05, "Armored Beetle": 0.05, "Stone Golem": 0.07, "Iron Golem": 0.07,
+        "Gloom Weaver": 0.07, "Void Stalker": 0.07, "Elf": 0.05, "Drow Elf": 0.05,
+        "Blood Bat": 0.05, "Vampire": 0.08, "Vampire Lord": 0.10, "Vampire King": 0.12,
+        // Glass Cannons
+        "Glass Cannon the I": 0.03, "Glass Cannon the II": 0.03,
+        "Glass Cannon the III": 0.03, "Glass Cannon the IV": 0.03, "Glass Cannon the V": 0.03,
+        // Elementals
+        "Fire Elemental": 0.10, "Air Elemental": 0.10, "Water Elemental": 0.10,
+        "Earth Elemental": 0.10, "Ice Elemental": 0.10,
+        // Mini-bosses
+        "Diamond Golem": 0.15, "Iron-Plated Diamond Golem": 0.15, "Mana Draining Wisp": 0.15,
+        // Teachers
+        "Miss Circle": 0.20, "Miss Bloomie": 0.20, "Miss Thavel": 0.20,
+        // Bosses
+        "Obsidian Golem": 0.25, "Duriel": 0.25, "Will o' Wisp": 0.25,
+        "Fiery Will O' Wisp": 0.30, "Azmodan": 0.35,
+        // World bosses / special
+        "The Player's Mirror": 0.40, "Kitsune": 0.75,
+        "Gem Golem": 1.0, // Guarenteed gem from Gem Golem (it's made from gems for fucks sake)
+        "Lux": 1.0,   // Guaranteed gem from Lux
+        "Bob": 1.0,   // Guaranteed gem from Bob
+        "Gerald": 0,  // Gerald gives nothing. He's a rock.
+    };
+
+    const gemChance = gemChances[enemy.name] ?? 0.10; // Default 10% for anything not listed
+    const gemAmt = enemy.name === "Lux" ? 10n :
+                enemy.name === "Bob" ? 5n :
+                enemy.name === "Azmodan" || enemy.name === "The Player's Mirror" ? 3n :
+                ["Miss Circle", "Miss Bloomie", "Miss Thavel", "Fiery Will O' Wisp"].includes(enemy.name) ? 2n : 1n;
+    let gemCurrentChance = Math.random()
+    if (gemCurrentChance < gemChance) {
+        p.gems = (p.gems ?? 0n) + gemAmt;
+        if (gemAmt > 1n) {
+            log(`While looting the enemy corpse, you found ${formatNumber(gemAmt)} gems!`, "var(--epicItem)");
+        } else {
+            log(`While looting the enemy corpse, you found a gem!`, "var(--epicItem)");
+        }
+    } else if (p.kills % 5n === 0n && gemCurrentChance > gemChance) {
+        p.gems = (p.gems ?? 0n) + 1n;
+        log(`While looting the enemy corpse, you found a gem!`, "var(--epicItem)");
+    }
+
+
 }

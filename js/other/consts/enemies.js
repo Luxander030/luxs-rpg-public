@@ -1,6 +1,16 @@
 let selectedEnemy = null; // Stores the name of the forced enemy
 let nextEnemyOverride = null;
 let enemy = null;
+/*
+Enemy ideas (7 Sins):
+- Sloth: 1 ATK (again), but same HP as Lux
+- Wrath: More damage the higher your p.kills stat is
+- Greed: Drains gold (and deals damage equal to half your p.totalgold stat
+- Gluttony: Removes all your consumables on battle start (Only those considered "edible")
+- Envy: Deals more damage depending on the more unique spells you have
+- Pride: You cannot deal more then 5% of Pride's Max HP (also mirrors your stats and multiplies it by 2)
+- Lust: Drains 50-75% of your current sanity each hit (and also makes you deal 50% less damage)
+*/
 const enemies = [
     /*
     
@@ -59,6 +69,36 @@ const enemies = [
         canSpawn: () => p.lv >= 100n && (p.skills.includes('snowgrave') && p.skills.includes('ralseidualheal')),
         specialMsg: "Bob: Meep."
     },
+    {
+        name: "Gerald",
+        weight: 0.00001,
+        // BigInt getters
+        get mhp() {
+            return 1n;
+        },
+        get hp() {
+            return 1n;
+        },
+        get atk() {
+            return -1n;
+        },
+        get san() {
+            return 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n;
+        },
+        get exp() {
+            return 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n;
+        },
+        get gold() {
+            return 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n;
+        },
+        burnImmune: true,
+        freezeImmune: true,
+        immortal: true,
+        trait: "A Rock; Lux & Luxander's Adopted Son.",
+        burnReflect: 100,
+        canSpawn: () => p.lv >= 100n && (p.skills.includes('fryingPan') && p.skills.includes('ralseidualheal')),
+        specialMsg: "Gerald: *rock noises*"
+    },
 
     /*
     ###########################################################################################
@@ -106,13 +146,13 @@ const enemies = [
             } else if (p.sparedenemies >= 100000n) {
                 return LuxLog(`Lux: Over 100,000 lives spared. I must say, you are... quite kind. And that will be your downfall.`)
             } else if (p.dmgmult >= 5000n) {
-                LuxLog(`Lux: Finally. Someone truly worthy of seeing my strength in battle.`)
-            } else if (p.gold >= 1000000n * p.lv) {
-                LuxLog(`Lux: Greed, greed, and more greed. Yet you still need more.`)
+                return LuxLog(`Lux: Finally. Someone truly worthy of seeing my strength in battle.`)
+            } else if (p.gold >= 100000000n * p.lv) {
+                return LuxLog(`Lux: Greed, greed, and more greed. Yet you still need more.`)
             } else if (p.hp < p.mhp) {
-                LuxLog(`Lux: I see you are harmed. Don't think that will make me hurt you less.`)
+                return LuxLog(`Lux: I see you are harmed. Don't think that will make me hurt you less.`)
             } else {
-                LuxLog(`Lux: Hello there. I've been watching you. ${formatNumber(p.kills)} creatures killed. ${formatNumber(p.sparedenemies)} creatures spared. I wonder... how are you going to do in this fight?`)
+                return LuxLog(`Lux: Hello there. I've been watching you. ${formatNumber(p.kills)} creatures killed. ${formatNumber(p.sparedenemies)} creatures spared. I wonder... how are you going to do in this fight?`)
             }
         }
     },
@@ -236,13 +276,20 @@ const enemies = [
             return p.gold
         },
         get lifesteal() {
-            return (p.dmgmult * p.lv);
+            return p.lv;
         },
         get burnImmune() {
             if (p.skills.includes("fireball")) {
-                return true
+                return true;
             } else {
-                return false
+                return false;
+            }
+        },
+        get freezeImmune() {
+            if (p.skills.includes("iceshock")) {
+                return true;
+            } else {
+                return false;
             }
         },
         canSpawn: () => true, // Can always spawn; no requirements needed
@@ -260,6 +307,35 @@ const enemies = [
 
     {
         name: "Obsidian Golem",
+        weight: 10,
+        get mhp() {
+            // Logic: 1.5 is 3/2. Dividing by 1.5 is multiplying by 2 and dividing by 3.
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 1500n + (scaledLV * 100n);
+        },
+        get hp() { return this.mhp; },
+        get atk() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 160n + (scaledLV * 160n);
+        },
+        get san() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 20n + (scaledLV * 20n);
+        },
+        get exp() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 800n + (scaledLV * 800n);
+        },
+        get gold() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 640n + (scaledLV * 640n);
+        },
+        lifesteal: 0n,
+        canSpawn: () => p.lv >= 20n,
+        trait: "Boss"
+    },
+    {
+        name: "Gem Golem",
         weight: 10,
         get mhp() {
             // Logic: 1.5 is 3/2. Dividing by 1.5 is multiplying by 2 and dividing by 3.
@@ -750,6 +826,7 @@ const enemies = [
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
             return scaledLV * 5n; 
         },
+        burnVuln: 1.5,
         canSpawn: () => p.skills.includes('fireball'),
         trait: "Regenerates a small amount of HP per turn"
     },
@@ -781,6 +858,7 @@ const enemies = [
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
             return scaledLV * 15n;
         },
+        burnVuln: 1.5,
         canSpawn: () => p.skills.includes('fireball') && p.lv >= 30n,
         trait: "Regenerates a moderate amount of HP per turn",
         specialMsg: "Vampire: Don't worry, it won't hurt."
@@ -813,6 +891,7 @@ const enemies = [
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
             return 90n + (scaledLV * 45n);
         },
+        burnVuln: 1.5,
         canSpawn: () => p.skills.includes('fireball') && p.lv >= 40n,
         trait: "Regenerates a large amount of HP per turn",
         specialMsg: "Vampire Lord: Okay it might hurt a little bit..."
@@ -845,6 +924,7 @@ const enemies = [
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
             return scaledLV * 90n;
         },
+        burnVuln: 1.5,
         canSpawn: () => p.skills.includes('fireball') && p.lv >= 50n,
         trait: "Regenerates a very large amount of HP per turn",
         specialMsg: "Vampire King: There is only one entity I fear. That entity being Lux."
@@ -963,7 +1043,7 @@ const enemies = [
         lifesteal: 0n,
         trait: "Glass Cannon",
         // BigInt comparison (2n)
-        canSpawn: () => p.skills.includes('fireball') || p.lv >= 2n,
+        canSpawn: () => p.skills.includes('fireball') && p.lv >= 2n,
         specialMsg: "Glass Cannon the III: Did you kill Glass Cannon the II yet? He owes me 20 gold from yesterday."
     },
     {

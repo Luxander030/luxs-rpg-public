@@ -182,22 +182,29 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            // Logic: 100 * 1.5^(lv-1)
-            let gain = 100n;
-            for(let i = 1n; i < p.lv; i++) gain = (gain * 150n) / 100n;
-            
-            p.gold += gain; 
-            p.totalGold += gain;
-            
-            if (Math.random() < 0.05) {
-                // BigInt comparison: 10000n
-                if (p.gold < 10000n) {
-                    log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"var(--lux)");
-                } else {
-                    log(`Lux: You know... I never get why humans are so... greedy in the first place. Their lives are short anyway. Why would they need that much gold?`,"var(--lux)");
+            if (Math.random() < 0.01) {
+                let gain = p.lv * 5n
+                p.gems += gain
+                log(`Instead of gold, you found a hidden cache of gems! You found ${formatNumber(gain)} gems in the cache.`, "var(--epicItem)")
+                return;
+            } else {
+                // Logic: 100 * 1.5^(lv-1)
+                let gain = 100n;
+                for(let i = 1n; i < p.lv; i++) gain = (gain * 150n) / 100n;
+                
+                p.gold += gain; 
+                p.totalGold += gain;
+                
+                if (Math.random() < 0.05) {
+                    // BigInt comparison: 10000n
+                    if (p.gold < 10000n) {
+                        log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"var(--lux)");
+                    } else {
+                        log(`Lux: You know... I never get why humans are so... greedy in the first place. Their lives are short anyway. Why would they need that much gold?`,"var(--lux)");
+                    }
                 }
+                return `Found a hidden cache of ${formatNumber(gain)} gold!`; 
             }
-            return `Found a hidden cache of ${formatNumber(gain)} gold!`; 
         } 
     },
     { 
@@ -210,24 +217,30 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            // Logic: 200 * 1.75^(lv-1)
-            let gain = 200n;
-            for(let i = 1n; i < p.lv; i++) gain = (gain * 175n) / 100n;
-            
-            p.gold += gain; 
-            p.totalGold += gain;
-            
-            if (Math.random() < 0.05) {
-                if (p.gold < 10000n) {
-                    log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"var(--lux)");
-                } else {
-                    log(`Lux: You know... I never get why humans are so... greedy in the first place. Their lives are short anyway. Why would they need that much gold?`,"var(--lux)");
+            if (Math.random() < 0.01) {
+                let gain = p.lv * 7n
+                p.gems += gain
+                log(`Instead of gold, you found a hidden cache of gems! You found ${formatNumber(gain)} gems in the cache.`, "var(--epicItem)")
+                return;
+            } else {
+                // Logic: 200 * 1.75^(lv-1)
+                let gain = 200n;
+                for(let i = 1n; i < p.lv; i++) gain = (gain * 175n) / 100n;
+                
+                p.gold += gain; 
+                p.totalGold += gain;
+                
+                if (Math.random() < 0.05) {
+                    if (p.gold < 10000n) {
+                        log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"var(--lux)");
+                    } else {
+                        log(`Lux: You know... I never get why humans are so... greedy in the first place. Their lives are short anyway. Why would they need that much gold?`,"var(--lux)");
+                    }
                 }
+                return `Found a hidden cache of ${formatNumber(gain)} gold!`;
             }
-            return `Found a hidden cache of ${formatNumber(gain)} gold!`; 
         } 
     },
-
     { 
         id: 'spscroll', 
         name: 'Knowledge Scroll', 
@@ -385,7 +398,7 @@ const masterShop = [
             playDmgMultBuySFX();
             p.dmgmult += 20n; // +20%
             if (Math.random() < 0.2) {
-                log(`Lux: Still needing the ability to harm worse. I wonder... do you even notice whatt you've become?`, "var(--lux)");
+                log(`Lux: Still needing the ability to harm worse. I wonder... do you even notice what you've become?`, "var(--lux)");
             }
             return `Damage Multiplier increased! Total Damage increased by an additional 20%.`;
         } 
@@ -463,6 +476,80 @@ const masterShop = [
             }
         } 
     },
+    {
+        id: 'storageUnit',
+        name: 'Storage Unit',
+        weight: 5,
+        get cost() {
+            let c = 2000n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (p.flags.storageUnlocked === true) {
+                p.hp = p.mhp;
+                log(`You already have a storage unit. Fully healed instead.`, "var(--unlocked)");
+                return;
+            }
+            p.flags.storageUnlocked = true;
+            if (Math.random() < 0.05) {
+                LuxLog(`Lux: You bought a storage unit. How... practical.`);
+            }
+            return `Storage Unit unlocked! You can now store up to 200 items.`;
+        }
+    },
+    {
+        id: 'storageUnitUpgrade1',
+        name: 'Storage Unit Upgrade',
+        weight: 5,
+        get cost() {
+            let c = 500n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            p.inventory.storage.push(...new Array(50).fill("empty"))
+            if (Math.random() < 0.05) {
+                LuxLog(`Lux: You bought more storage. How... practical.`);
+            }
+            return `Storage Unit upgraded! You can now store 50 more items.`;
+        }
+    },
+    {
+        id: 'storageUnitUpgrade2',
+        name: 'Storage Unit Upgrade +',
+        weight: 5,
+        get cost() {
+            let c = 1000n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            p.inventory.storage.push(...new Array(100).fill("empty"))
+            if (Math.random() < 0.05) {
+                LuxLog(`Lux: You bought more storage. How... practical.`);
+            }
+            return `Storage Unit upgraded! You can now store 100 more items.`;
+        }
+    },
+    {
+        id: 'storageUnitUpgrade3',
+        name: 'Storage Unit Upgrade ++',
+        weight: 5,
+        get cost() {
+            let c = 2000n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            p.inventory.storage.push(...new Array(200).fill("empty"))
+            if (Math.random() < 0.05) {
+                LuxLog(`Lux: You bought more storage. How... practical.`);
+            }
+            return `Storage Unit upgraded! You can now store 200 more items.`;
+        }
+    },
+
     { 
         id: 'abbieapple', 
         name: 'Abbie\'s Apple', 
@@ -477,7 +564,7 @@ const masterShop = [
                 updateInventoryUI();
                 return `Bought item "Abbie's Apple." It is now in your inventory.`;
             } else {
-                return `Your inventory is currenty full.`; 
+                return `Your inventory is currently full.`; 
             }
             
         } 
@@ -496,9 +583,522 @@ const masterShop = [
                 updateInventoryUI();
                 return `Bought item "Apple." It is now in your inventory.`;
             } else {
-                return `Your inventory is currenty full.`; 
+                return `Your inventory is currently full.`; 
             }
             
         } 
     },
+    { 
+        id: 'fryingPan', 
+        name: 'Frying Pan', 
+        weight: 0.1,
+        get cost() { 
+            let c = 1000n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 150n) / 100n;
+            return c;
+        }, 
+        run: () => { 
+            if (tryAddItem("Frying Pan")) {
+                updateInventoryUI();
+                return `Bought item "Frying Pan." It is now in your inventory.`;
+            } else {
+                return `Your inventory is currently full.`; 
+            }
+            
+        } 
+    },
+    
+    // ============================================================
+    // CARD SHOP ITEMS
+    // ============================================================
+    
+    {
+        id: 'tarot_fool',
+        name: 'The Fool (0)',
+        weight: 20,
+        get cost() {
+            let c = 50n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Fool (0)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Fool (0)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_magician',
+        name: 'The Magician (1)',
+        weight: 18,
+        get cost() {
+            let c = 75n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Magician (1)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Magician (1)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_highpriestess',
+        name: 'The High Priestess (2)',
+        weight: 15,
+        get cost() {
+            let c = 100n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The High Priestess (2)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The High Priestess (2)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_empress',
+        name: 'The Empress (3)',
+        weight: 18,
+        get cost() {
+            let c = 75n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Empress (3)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Empress (3)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_emperor',
+        name: 'The Emperor (4)',
+        weight: 15,
+        get cost() {
+            let c = 150n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Emperor (4)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Emperor (4)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_hierophant',
+        name: 'The Hierophant (5)',
+        weight: 15,
+        get cost() {
+            let c = 150n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Hierophant (5)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Hierophant (5)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_lovers',
+        name: 'The Lovers (6)',
+        weight: 18,
+        get cost() {
+            let c = 100n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Lovers (6)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Lovers (6)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_chariot',
+        name: 'The Chariot (7)',
+        weight: 15,
+        get cost() {
+            let c = 150n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Chariot (7)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Chariot (7)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_justice',
+        name: 'Justice (8)',
+        weight: 15,
+        get cost() {
+            let c = 150n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Justice (8)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "Justice (8)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_hermit',
+        name: 'The Hermit (9)',
+        weight: 18,
+        get cost() {
+            let c = 100n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Hermit (9)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Hermit (9)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_wheeloffortune',
+        name: 'The Wheel of Fortune (10)',
+        weight: 12,
+        get cost() {
+            let c = 200n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Wheel of Fortune (10)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Wheel of Fortune (10)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_strength',
+        name: 'Strength (11)',
+        weight: 15,
+        get cost() {
+            let c = 150n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Strength (11)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "Strength (11)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_hangedman',
+        name: 'The Hanged Man (12)',
+        weight: 18,
+        get cost() {
+            let c = 100n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Hanged Man (12)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Hanged Man (12)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_death',
+        name: 'Death (13)',
+        weight: 12,
+        get cost() {
+            let c = 200n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 120n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Death (13)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "Death (13)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_temperance',
+        name: 'Temperance (14)',
+        weight: 18,
+        get cost() {
+            let c = 100n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Temperance (14)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "Temperance (14)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_devil',
+        name: 'The Devil (15)',
+        weight: 10,
+        get cost() {
+            let c = 250n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 120n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Devil (15)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Devil (15)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_tower',
+        name: 'The Tower (16)',
+        weight: 12,
+        get cost() {
+            let c = 200n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Tower (16)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Tower (16)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_star',
+        name: 'The Star (17)',
+        weight: 18,
+        get cost() {
+            let c = 100n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Star (17)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Star (17)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_moon',
+        name: 'The Moon (18)',
+        weight: 12,
+        get cost() {
+            let c = 200n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Moon (18)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Moon (18)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_sun',
+        name: 'The Sun (19)',
+        weight: 12,
+        get cost() {
+            let c = 200n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The Sun (19)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The Sun (19)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_judgement',
+        name: 'Judgement (20)',
+        weight: 8,
+        get cost() {
+            let c = 350n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 120n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Judgement (20)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "Judgement (20)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'tarot_world',
+        name: 'The World (21)',
+        weight: 5,
+        get cost() {
+            let c = 500n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 125n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("The World (21)")) {
+                updateInventoryUI();
+                return `Bought Tarot Card "The World (21)."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+
+    // ============================================================
+    // CONSUMABLE SHOP ITEMS
+    // ============================================================
+    {
+        id: 'bloodstone',
+        name: 'Blood Stone',
+        weight: 30,
+        get cost() {
+            let c = 80n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Blood Stone")) {
+                updateInventoryUI();
+                return `Bought item "Blood Stone."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'bloodstonemed',
+        name: 'Medium Blood Stone',
+        weight: 20,
+        get cost() {
+            let c = 150n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Medium Blood Stone")) {
+                updateInventoryUI();
+                return `Bought item "Medium Blood Stone."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'bloodstonelarge',
+        name: 'Large Blood Stone',
+        weight: 10,
+        get cost() {
+            let c = 250n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 120n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Large Blood Stone")) {
+                updateInventoryUI();
+                return `Bought item "Large Blood Stone."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'martyrsbook',
+        name: "Martyr's Book",
+        weight: 20,
+        get cost() {
+            let c = 200n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Martyr's Book")) {
+                updateInventoryUI();
+                return `Bought item "Martyr's Book."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'glasshourglass',
+        name: 'Glass Hourglass',
+        weight: 15,
+        get cost() {
+            let c = 300n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 120n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Glass Hourglass")) {
+                updateInventoryUI();
+                return `Bought item "Glass Hourglass."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+
+    // ============================================================
+    // WEAPON SHOP ITEMS
+    // ============================================================
+    {
+        id: 'stonesword',
+        name: 'Stone Sword',
+        weight: 20,
+        get cost() {
+            let c = 100n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Stone Sword")) {
+                updateInventoryUI();
+                return `Bought weapon "Stone Sword."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'ironsword',
+        name: 'Iron Sword',
+        weight: 15,
+        get cost() {
+            let c = 200n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Iron Sword")) {
+                updateInventoryUI();
+                return `Bought weapon "Iron Sword."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    {
+        id: 'diamondsword',
+        name: 'Diamond Sword',
+        weight: 8,
+        get cost() {
+            let c = 400n;
+            for(let i = 1n; i < p.lv; i++) c = (c * 125n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Diamond Sword")) {
+                updateInventoryUI();
+                return `Bought weapon "Diamond Sword."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+
 ]

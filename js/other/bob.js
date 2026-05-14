@@ -4,17 +4,17 @@ function timeoutFunction(text, color, delay) {
     }, delay)
 }
 function bob() {
-    if (p.flags.bobVisits === 3n && p.flags.bobFlags.Visits3 === false) {
+    if (p.flags.bobVisits >= 3n && p.flags.bobFlags.Visits3 === false) {
         disablePageClicks();
         LuxTypeToLog(`Why does that... creature... keep following you? Is this a joke, Luxander? Am I a fucking joke to you?`, 50)
         enablePageClicks();
         p.flags.bobFlags.Visits3 = true
-    } else if (p.flags.bobVisits === 6n && p.flags.bobFlags.Visits6 === false) {
+    } else if (p.flags.bobVisits >= 6n && p.flags.bobFlags.Visits6 === false) {
         disablePageClicks();
         LuxLog(`Lux: I am going to jump into the void if I see him again. Wait. I'm immortal... GOD DAM-`)
         enablePageClicks();
         p.flags.bobFlags.Visits6 = true
-    } else if (p.flags.bobVisits === 9n && p.flags.bobFlags.Visits9 === false) {
+    } else if (p.flags.bobVisits >= 9n && p.flags.bobFlags.Visits9 === false) {
         disablePageClicks();
         LuxLog(`Lux *long ass sigh*`)
         timeoutFunction(`Lux: I'm finding Luxander. To hell if he is on break or not. I want him to remove the fucking bread man. It's PISSING ME OFF.`, "var(--lux)", 3000)
@@ -22,7 +22,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits9 = true
         }, 3000)
-    } else if (p.flags.bobVisits === 12n && p.flags.bobFlags.Visits12 === false) {
+    } else if (p.flags.bobVisits >= 12n && p.flags.bobFlags.Visits12 === false) {
         disablePageClicks();
         LuxLog(`Lux: I didn't find him.`)
         timeoutFunction(`Lux: ...`, "var(--lux)", 3000)
@@ -37,7 +37,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits12 = true
         }, 14000)
-    } else if (p.flags.bobVisits === 15n && p.flags.bobFlags.Visits15 === false) {
+    } else if (p.flags.bobVisits >= 15n && p.flags.bobFlags.Visits15 === false) {
         disablePageClicks();
         setTimeout(() => {
             const scream = new Audio("sfx/scream.mp3");
@@ -73,7 +73,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits15 = true
         }, 18150)
-    } else if (p.flags.bobVisits === 18n && p.flags.bobFlags.Visits18 === false) {
+    } else if (p.flags.bobVisits >= 18n && p.flags.bobFlags.Visits18 === false) {
         disablePageClicks();
         setTimeout(() => {
             LuxLog(`Lux: Hear me out.`)
@@ -86,7 +86,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits18 = true
         }, 6000)
-    } else if (p.flags.bobVisits === 21n && p.flags.bobFlags.Visits21 === false) {
+    } else if (p.flags.bobVisits >= 21n && p.flags.bobFlags.Visits21 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: Question is, which repo to go into?`)
@@ -114,7 +114,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits21 = true
         }, 16000)
-    } else if (p.flags.bobVisits === 24n && p.flags.bobFlags.Visits24 === false) {
+    } else if (p.flags.bobVisits >= 24n && p.flags.bobFlags.Visits24 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Luxander: I'm too tired for this scheiße`)
@@ -142,7 +142,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits24 = true
         }, 17000)
-    } else if (p.flags.bobVisits === 27n && p.flags.bobFlags.Visits27 === false) {
+    } else if (p.flags.bobVisits >= 27n && p.flags.bobFlags.Visits27 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Luxander: <i>*comes back*</i>`)
@@ -165,7 +165,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits27 = true
         }, 12000)
-    } else if (p.flags.bobVisits === 30n && p.flags.bobFlags.Visits30 === false) {
+    } else if (p.flags.bobVisits >= 30n && p.flags.bobFlags.Visits30 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Luxander: <i>*comes back*</i>`)
@@ -194,7 +194,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits30 = true
         }, 12600)
-    } else if (p.flags.bobVisits === 33n && p.flags.bobFlags.Visits33 === false) {
+    } else if (p.flags.bobVisits >= 33n && p.flags.bobFlags.Visits33 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: Well.`)
@@ -225,7 +225,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits33 = true
         }, 17000)
-    } else if (p.flags.bobVisits === 36n && p.flags.bobFlags.Visits36 === false) {
+    } else if (p.flags.bobVisits >= 36n && p.flags.bobFlags.Visits36 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: ...`)
@@ -247,7 +247,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits36 = true
         }, 11000)
-    } else if (p.flags.bobVisits === 39n && p.flags.bobFlags.Visits39 === false) {
+    } else if (p.flags.bobVisits >= 39n && p.flags.bobFlags.Visits39 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: <i>*looking through functions*</i>`)
@@ -272,7 +272,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits39 = true
         }, 13000)
-    } else if (p.flags.bobVisits === 41n && p.flags.bobFlags.Visits41 === false) {
+    } else if (p.flags.bobVisits >= 41n && p.flags.bobFlags.Visits41 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Luxander <i>*running towards Lux*</i>: I swear if you are looking through functions!`)
@@ -295,7 +295,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits41 = true
         }, 11000)
-    } else if (p.flags.bobVisits === 44n && p.flags.bobFlags.Visits44 === false) {
+    } else if (p.flags.bobVisits >= 44n && p.flags.bobFlags.Visits44 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: I heard that there was a repo called "Raspberry Pie". I'm going to go there to get a pie.`)
@@ -316,7 +316,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits44 = true
         }, 11000)
-    } else if (p.flags.bobVisits === 47n && p.flags.bobFlags.Visits47 === false) {
+    } else if (p.flags.bobVisits >= 47n && p.flags.bobFlags.Visits47 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: <i>*comes back holding a ".py" file*</i>`)
@@ -340,7 +340,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits47 = true
         }, 13000)
-    } else if (p.flags.bobVisits === 50n && p.flags.bobFlags.Visits50 === false) {
+    } else if (p.flags.bobVisits >= 50n && p.flags.bobFlags.Visits50 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: It still has raspberry. Sort of.`)
@@ -364,7 +364,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits50 = true
         }, 13000)
-    } else if (p.flags.bobVisits === 53n && p.flags.bobFlags.Visits53 === false) {
+    } else if (p.flags.bobVisits >= 53n && p.flags.bobFlags.Visits53 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: Hey have you seen the gba file I was using for Pokemon Emerald? I don't want to lose it as I can only rip it from the cartrige once, and you know I love Pokemon Emerald.`)
@@ -397,7 +397,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits53 = true
         }, 20000)
-    } else if (p.flags.bobVisits === 56n && p.flags.bobFlags.Visits56 === false) {
+    } else if (p.flags.bobVisits >= 56n && p.flags.bobFlags.Visits56 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: <i>*sprinting back*</i>`)
@@ -430,7 +430,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits56 = true
         }, 19000)
-    } else if (p.flags.bobVisits === 59n && p.flags.bobFlags.Visits59 === false) {
+    } else if (p.flags.bobVisits >= 59n && p.flags.bobFlags.Visits59 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Flowey: In this world, it's kill or be killed.`, "var(--flowey)")
@@ -454,7 +454,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits59 = true
         }, 31500)
-    } else if (p.flags.bobVisits === 62n && p.flags.bobFlags.Visits62 === false) {
+    } else if (p.flags.bobVisits >= 62n && p.flags.bobFlags.Visits62 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: Hey Flowey.`)
@@ -481,7 +481,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits62 = true
         }, 17500)
-    } else if (p.flags.bobVisits === 65n && p.flags.bobFlags.Visits65 === false) {
+    } else if (p.flags.bobVisits >= 65n && p.flags.bobFlags.Visits65 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Lux: Hey Flowey.`)
@@ -505,7 +505,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits65 = true
         }, 13500)
-    } else if (p.flags.bobVisits === 68n && p.flags.bobFlags.Visits68 === false) {
+    } else if (p.flags.bobVisits >= 68n && p.flags.bobFlags.Visits68 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Berdly: <i>*appears out of fuck nowhere*</i>`, "var(--berdly)")
@@ -544,7 +544,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits68 = true
         }, 21500)
-    } else if (p.flags.bobVisits === 71n && p.flags.bobFlags.Visits71 === false) {
+    } else if (p.flags.bobVisits >= 71n && p.flags.bobFlags.Visits71 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Berdly: Why could I see that?`, "var(--berdly)")
@@ -578,7 +578,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits71 = true
         }, 21000)
-    } else if (p.flags.bobVisits === 74n && p.flags.bobFlags.Visits74 === false) {
+    } else if (p.flags.bobVisits >= 74n && p.flags.bobFlags.Visits74 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`<i>*somewhere in the background*</i>`)
@@ -609,7 +609,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits74 = true
         }, 18000)
-    } else if (p.flags.bobVisits === 77n && p.flags.bobFlags.Visits77 === false) {
+    } else if (p.flags.bobVisits >= 77n && p.flags.bobFlags.Visits77 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Noelle: <i>*appears out of fuck nowhere*</i>`, "var(--noelle)")
@@ -649,7 +649,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits77 = true
         }, 21500)
-    } else if (p.flags.bobVisits === 80n && p.flags.bobFlags.Visits80 === false) {
+    } else if (p.flags.bobVisits >= 80n && p.flags.bobFlags.Visits80 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Berdly: Why was I censored when Luxander wasn't?!`, "var(--berdly)")
@@ -678,7 +678,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits80 = true
         }, 10000)
-    } else if (p.flags.bobVisits === 83n && p.flags.bobFlags.Visits83 === false) {
+    } else if (p.flags.bobVisits >= 83n && p.flags.bobFlags.Visits83 === false) {
         disablePageClicks();
         setTimeout(()=> {
             LuxLog(`Luxander: Hey Lux do you remember the file location for the bin?`)
@@ -715,7 +715,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits83 = true
         }, 17000)
-    } else if (p.flags.bobVisits === 86n && p.flags.bobFlags.Visits86 === false) {
+    } else if (p.flags.bobVisits >= 86n && p.flags.bobFlags.Visits86 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Ralsei: Violence is bad, words are better!`, "var(--ralsei)")
@@ -743,7 +743,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits86 = true
         }, 12500)
-    } else if (p.flags.bobVisits === 89n && p.flags.bobFlags.Visits89 === false) {
+    } else if (p.flags.bobVisits >= 89n && p.flags.bobFlags.Visits89 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Ralsei: <i>*grabs onto Lux's arm*</i>`, "var(--ralsei)")
@@ -771,7 +771,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits89 = true
         }, 9000)
-    } else if (p.flags.bobVisits === 92n && p.flags.bobFlags.Visits92 === false) {
+    } else if (p.flags.bobVisits >= 92n && p.flags.bobFlags.Visits92 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Ralsei: It's wizard time motherfuckers, FIREBALL!`, "var(--ralsei)")
@@ -813,7 +813,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits92 = true
         }, 17000)
-    } else if (p.flags.bobVisits === 95n && p.flags.bobFlags.Visits95 === false) {
+    } else if (p.flags.bobVisits >= 95n && p.flags.bobFlags.Visits95 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Berdly: Okay, this is unfair. Why does Ralsei get to swear, and damage something while I get puished for just tal-`, "var(--berdly)")
@@ -838,7 +838,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits95 = true
         }, 11000)
-    } else if (p.flags.bobVisits === 98n && p.flags.bobFlags.Visits98 === false) {
+    } else if (p.flags.bobVisits >= 98n && p.flags.bobFlags.Visits98 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`<span style="font-family: 'Comic Sans MS', 'Comic Sans', cursive;">sans: heya</span>`, "var(--sans)")
@@ -850,7 +850,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits98 = true
         }, 3500)
-    } else if (p.flags.bobVisits === 101n && p.flags.bobFlags.Visits101 === false) {
+    } else if (p.flags.bobVisits >= 101n && p.flags.bobFlags.Visits101 === false) {
         disablePageClicks();
         setTimeout(()=> {
             log(`Arcane Acid: Hewwo!`, "var(--arcaneacid)")
@@ -894,7 +894,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits101 = true
         }, 21000)
-    } else if (p.flags.bobVisits === 104n && p.flags.bobFlags.Visits104 === false) {
+    } else if (p.flags.bobVisits >= 104n && p.flags.bobFlags.Visits104 === false) {
         disablePageClicks();
         setTimeout(() => {
             LuxLog(`Luxander: ...`)
@@ -913,7 +913,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits104 = true
         }, 9000)
-    } else if (p.flags.bobVisits === 107n && p.flags.bobFlags.Visits107 === false) {
+    } else if (p.flags.bobVisits >= 107n && p.flags.bobFlags.Visits107 === false) {
         disablePageClicks();
         setTimeout(() => {
             LuxLog(`Lux: I'm pretty sure it was somewhere in this repo. Probably somewhere under "~/luxs-rpg/recovery".`)
@@ -935,7 +935,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits107 = true
         }, 14000)
-    } else if (p.flags.bobVisits === 110n && p.flags.bobFlags.Visits110 === false) {
+    } else if (p.flags.bobVisits >= 110n && p.flags.bobFlags.Visits110 === false) {
         disablePageClicks();
         setTimeout(() => {
             LuxLog(`Luxander: Lux, look after them and make sure they don't do anything stupid. I need to get reprogram the voice module.`)
@@ -957,7 +957,7 @@ function bob() {
             enablePageClicks();
             p.flags.bobFlags.Visits110 = true
         }, 12000)
-    } else if (p.flags.bobVisits === 113n && p.flags.bobFlags.Visits113 === false) {
+    } else if (p.flags.bobVisits >= 113n && p.flags.bobFlags.Visits113 === false) {
         disablePageClicks();
         log(`Ralsei: Who wants Oreos?`, "var(--ralsei)")
         setTimeout (() => {
@@ -968,7 +968,7 @@ function bob() {
             p.flags.bobFlags.Visits113 = true;
             enablePageClicks();
         }, 1500)
-    } else if (p.flags.bobVisits === 116n && p.flags.bobFlags.Visits116 === false) {
+    } else if (p.flags.bobVisits >= 116n && p.flags.bobFlags.Visits116 === false) {
         disablePageClicks();
         LuxLog(`Lux: Why does this repo have to be so chaotic?`)
         timeoutFunction(`Ralsei: Don't ask me.`, "var(--ralsei)", 1000)
@@ -979,7 +979,7 @@ function bob() {
         timeoutFunction(`Luxander: So what did you want to do, Lux?`, "var(--lux)", 10000)
         timeoutFunction(`Lux: We got a genocidal kid here.`, "var(--lux)", 12000)
         timeoutFunction(`Luxander: <i>*notices Chara*</i>`, "var(--lux)", 14000)
-        timeoutFunction(`Luxander: What the fuck are you doing here,`, "var(--lux)", 16000)
+        timeoutFunction(`Luxander: What the fuck are you doing here.`, "var(--lux)", 16000)
         setTimeout(() => {
             p.flags.bobFlags.Visits116 = true
         }, 16000)

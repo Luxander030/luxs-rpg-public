@@ -33,7 +33,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h2 style="margin:0">Day <span id="day-txt">1</span></h2>
             <div style="font-size: 1.1em;">
-                Gold: <span id="gold-txt" style="color:var(--gold)">50</span> | 
+                Gold: <span id="gold-txt" style="color:var(--gold)">150</span> | 
                 SP: <span id="sp-txt" style="color:var(--unlocked)">0</span>
             </div>
         </div>
@@ -59,7 +59,10 @@
         </div>
         <div id="combat-view" class="hidden">
             <div style="background:#1e1e24; padding:25px; border-radius:15px; margin-bottom:20px; border: 1px solid #2f3542; text-align:center;">
-                <h3 id="e-name" style="margin:0; text-transform:uppercase; letter-spacing:2px;">Target</h3>
+                <h3 id="e-name" style="margin:0; text-transform:uppercase; letter-spacing:2px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <span id="e-name-text">Target</span>
+                    <span id="e-status-icons"></span>
+                </h3>
                 <div class="progress-bg" style="width:100%; max-width:400px; height:24px; margin:15px auto;">
                     <div id="e-hp-bar" class="progress-fill" style="background:var(--hp); width:100%"></div>
                     <div id="e-hp-txt" class="hp-label">HP: -- / --</div>
@@ -133,6 +136,14 @@
     Enter Codes
 </button>
 
+<button id="lootboxes-button" onclick="playMenuButtonClickSFX(); openLootBoxUI();">
+    Loot Boxes
+</button>
+
+<button id="storage-button" onclick="playMenuButtonClickSFX(); openStorage();">
+    Storage
+</button>
+
 <div id="codes-panel" class="hidden">
     <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Game Codes</h3>
     <div id="code-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
@@ -148,6 +159,7 @@
     <p style="font-size:10px; color:#666; margin-top:5px;">Press ESC to close.</p>
 </div>
 </body>
+<script src="js/cheat_codes.js"></script>
 <script src="js/maincode.js"></script>
 <script src="js/other/bob.js"></script>
 <script src="js/other/consts/killandsparelogs.js"></script>
@@ -163,9 +175,11 @@
 <script src="js/other/consts/audio.js"></script>
 <script src="js/other/BigIntMath.js"></script>
 <script src="js/other/sub-Combat1.js"></script>
-<script src="js/cheat_codes.js"></script>
 <script src="js/other/gameCodes.js"></script>
 <script src="js/other/voices.js"></script>
+<script src="js/other/consts/status_effects.js"></script>
+<script src="js/other/consts/filter.js"></script>
+<script src="js/other/lootboxes.js"></script>
 <script 
     src="https://cdnjs.cloudflare.com/ajax/libs/argon2-browser/1.18.0/argon2-bundled.min.js" 
     integrity="sha512-Alrh8vbmKDc5xiq7I/y8LTDwy9nw1nT9S/yR73HMMoWrpX4S1kizNPdWM896c/CDIGILNwAiaih627A94kRhYQ==" 
@@ -175,6 +189,12 @@
 <script>
     window.addEventListener('load', () => {
     updateUI();
+    const savedName = localStorage.getItem("luxsRPGplayerName");
+    if (savedName) {
+        p.name = savedName;
+    } else {
+        nameSelection();
+    }
     const completedGenocideRun = localStorage.getItem('completedGenocideRun');
     if (completedGenocideRun === 'true') {
         p.kills = 1000000n;
@@ -186,6 +206,7 @@
         }, 3325)
     } else {
         // for code testing
+        
     }
 });
 </script>

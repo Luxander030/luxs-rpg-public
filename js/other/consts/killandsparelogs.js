@@ -503,7 +503,7 @@ function checkLuxKillLogs() {
         setTimeout(() => {
             LuxTypeToLogPissed(`As I won't forget it.`, "#ff0000", 25)
             localStorage.setItem('completedGenocideRun', true)
-            p.flags.genocideroutetimescompleted = true
+            p.flags.genocideRoutetimescompleted = true
         }, 75950);
         setTimeout(() => {
             LuxTypeToLogPissed(`No matter how many times you reset.`, "#ff0000", 25)

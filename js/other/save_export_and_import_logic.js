@@ -93,7 +93,7 @@ function importSave(saveText) {
         if (completedGenocideRun === 'true') {
             triggerGenocideDialogue();
         } else {
-            log(`Success! Welcome back to Day ${p.day.toString()}.`, "var(--unlocked)");
+            log(`Success! Welcome back to Day ${formatNumber(p.day)}.`, "var(--unlocked)");
         }
         updateUI();
         renderTree();

@@ -1,3 +1,63 @@
+function renderStatusIcons() {
+    const zone = document.getElementById('e-status-icons');
+    if (!zone) return;
+    zone.innerHTML = "";
+    if (!enemy) return;
+    // Create a self-contained tooltip
+    let tip = document.getElementById('status-tooltip');
+    if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'status-tooltip';
+        tip.style = `
+            position: fixed;
+            background: #1e1e24;
+            border: 1px solid #2f3542;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-size: 0.85em;
+            max-width: 200px;
+            pointer-events: none;
+            display: none;
+            z-index: 9999;
+        `;
+        document.body.appendChild(tip);
+    }
+    const updateTipPos = (e) => {
+        let x = e.clientX + 15;
+        let y = e.clientY + 15;
+        if (x + 215 > window.innerWidth) x = e.clientX - 215;
+        if (y + tip.offsetHeight > window.innerHeight) y = window.innerHeight - tip.offsetHeight - 10;
+        tip.style.left = x + 'px';
+        tip.style.top = y + 'px';
+    };
+    statusEffects.forEach(effect => {
+        const value = enemy[effect.name.toLowerCase()];
+        if (!value || value <= 0n) return;
+        const img = document.createElement('img');
+        img.src = effect.icon;
+        img.style = "width:24px; height:24px; image-rendering:pixelated; cursor:pointer;";
+        const turnsLabel = effect.name === "Poison" ? "Stacks" : "Turns";
+        img.onmouseenter = (e) => {
+            let html = `<strong>${effect.name}</strong><br>`;
+            html += `<hr style="border:0;border-top:1px solid #444;margin:5px 0">`;
+            html += `<small>${effect.description}</small>`;
+            html += `<hr style="border:0;border-top:1px solid #444;margin:5px 0">`;
+            html += `<em style="color:#a4b0be;font-size:0.85em;">${effect.flavor}</em>`;
+            html += `<hr style="border:0;border-top:1px solid #444;margin:5px 0">`;
+            html += `<small>${turnsLabel}: ${formatNumber(value)}</small>`;
+            tip.innerHTML = html;
+            tip.style.display = 'block';
+            updateTipPos(e);
+        };
+        img.onmousemove = (e) => updateTipPos(e);
+        img.onmouseleave = () => {
+            tip.style.display = 'none';
+        };
+        zone.appendChild(img);
+    });
+}
+
 function renderCombatButtons() {
     const zone = document.getElementById('combat-btns');
     const searchInput = document.getElementById('action-search');
@@ -5,8 +65,9 @@ function renderCombatButtons() {
     if (!zone) return; 
     zone.innerHTML = ""; 
     const categories = [
-        { label: "Damaging Spells", filter: (s) => s.dmg},
-        { label: "Healing Spells", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave" && !s.dmg}
+        { label: "Damaging Spells", filter: (s) => s.dmg && !s.weaponRequired},
+        { label: "Healing Spells", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave" && !s.dmg},
+        { label: "Weapon Skills", filter: (s) => s.weaponRequired && s.weaponRequired === p.inventory.equippedWeapon}
     ];
     categories.forEach(cat => {
         const matchingSkills = p.skills.filter(sid => {
@@ -116,22 +177,32 @@ function startCombat() {
     // clone the template so we don't modify the master 'enemies' array (don't want that to break again)
     enemy = { 
         name: selectedEnemy.name,
+        immortal: selectedEnemy.immortal || false,
         trait: selectedEnemy.trait || "No known traits.",
         specialMsg: selectedEnemy.specialMsg,
+        freezeImmune: selectedEnemy.freezeImmune || false,
         burnImmune: selectedEnemy.burnImmune || false,
         burnResist: selectedEnemy.burnResist || 1,
         burnVuln: selectedEnemy.burnVuln || 1,
         burnReflect: selectedEnemy.burnReflect || 0,
         // Explicitly call the getters to get the BigInt values (broke a couple versions ago for absolutely no reason)
-        mhp: BigInt(selectedEnemy.mhp), 
-        hp: BigInt(selectedEnemy.mhp), 
+        mhp: selectedEnemy.immortal ? 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n : BigInt(selectedEnemy.mhp),
+        hp: selectedEnemy.immortal ? 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n : BigInt(selectedEnemy.mhp),
         atk: BigInt(selectedEnemy.atk),
         san: BigInt(selectedEnemy.san || 0),
         manaDrain: BigInt(selectedEnemy.manaDrain || 0),
         exp: BigInt(selectedEnemy.exp),
         gold: BigInt(selectedEnemy.gold),
         lifesteal: BigInt(selectedEnemy.lifesteal || 0),
-        burn: 0 
+        solari: 0n,
+        fished: 0n,
+        burning: 0n,
+        frozen: 0n,
+        stunned: 0n,
+        poison: 0n,
+        weakened: 0n,
+        vulnerable: 0n,
+        resistant: 0n
     };
     // 4. UI transitions
     document.getElementById('main-controls').classList.add('hidden');
@@ -139,12 +210,15 @@ function startCombat() {
     renderCombatButtons(); 
     updateUI(); 
     log(`Engaged in combat with: ${enemy.name}`, "#ff4757");
-    document.getElementById('e-name').innerText = enemy.name;
+    document.getElementById('e-name-text').innerText = enemy.name;
     if (enemy.name === "Lux") {
         playLuxTheme();
     }
     // 5. SPECIAL DIALOGUE CHECK
     if (selectedEnemy.specialMsg) {
+        if (enemy.name === "Gerald") {
+            LuxLog(`Lux: MY BOY!`)
+        }
         if (enemy.name === "Bob") {
             setTimeout(() => {
                 log(selectedEnemy.specialMsg, "#bf2c89");
@@ -182,13 +256,13 @@ function playLuxTheme() {
             } else if (solari < 0.3) {
                 track = "sfx/combat/theme_music/lux/lux_secret3.mp3"; // "Knife Dance (Extended Synth Metal Mix)" by 'AJDiSpirito' & 'FARADAY CAGE'      
             } else if (solari < 0.4) {
-                track = "sfx/combat/theme_music/lux/lux_secret4.mp3"; // to put (possibly "Перемога?" Or maybe another song.)
+                track = "sfx/combat/theme_music/lux/lux_secret4.mp3"; // to put (possibly "Перемога"? Or maybe another song.)
             } else if (solari < 0.5) {
                 track = "sfx/combat/theme_music/lux/lux_secret5.mp3"; // to put (just for fun, maybe add "Megalovania")
             } else if (solari < 0.6) {
-                track = "sfx/combat/theme_music/lux/lux_secret6.mp3"; // to put
+                track = "sfx/combat/theme_music/lux/lux_secret6.mp3"; // to put (Wither Storm theme song [fuck yeah])
             } else if (solari < 0.7) {
-                track = "sfx/combat/theme_music/lux/lux_secret7.mp3"; // to put
+                track = "sfx/combat/theme_music/lux/lux_secret7.mp3"; // to put (Enter Pony by Kalu4ii Plays)
             } else if (solari < 0.8) {
                 track = "sfx/combat/theme_music/lux/lux_secret8.mp3"; // to put
             } else if (solari < 0.9) {
@@ -212,11 +286,21 @@ function playLuxTheme() {
 
 function cast(sid) {
     document.body.style.pointerEvents = "none";
+    if (enemy.immortal && enemy.hp <= 0n) enemy.hp = enemy.mhp;
     if (!enemy.hp || enemy.hp <= 0n) {
         win();
-        updateUI;
+        updateUI();
         return;
     }
+    // if (p.statusEffects.stunned) {
+    //     log(`You are stunned! (${p.statusEffects.stunned} turns left until unstunned)`)
+    //     p.statusEffects.stunned -= 1n;
+    //     setTimeout(() => {
+    //         enemyTurn();
+    //         updateUI();
+    //     }, 800)
+    //     return;
+    // }
     let s = skillTree[sid];
     // getScaledMana now returns a BigInt
     let scaledCost = getScaledMana(s.mp);
@@ -245,28 +329,56 @@ function cast(sid) {
     if (s.mp) p.mp -= scaledCost;
     updateUI();
     // 3. Damage Logic
-    if (s.dmg) { 
-        let damage = BigInt(s.dmg);
+    if (s.dmg) {
+        let damage = s.dmg // Base Damage
+        let pretendDamage = s.dmg
+        if (p.inventory.equippedWeapon === "stoneSword" && s.name === "Strike") {
+            damage += 25n * p.lv
+            pretendDamage += 25n * p.lv
+        } else if (p.inventory.equippedWeapon === "ironSword" && s.name === "Strike") {
+            damage += 50n * p.lv
+            pretendDamage += 50n * p.lv
+        } else if (p.inventory.equippedWeapon === "diamondSword" && s.name === "Strike") {
+            damage += 100n * p.lv
+            pretendDamage += 100n * p.lv
+        }
+        if (s.fryingPan) damage *= 1000n
+        if (s.fryingPan) pretendDamage *= 1000n
+        if (enemy.immortal) damage = 0n
+        damage = enemy.frozen > 0n ? (damage * 3n) / 2n : damage; // Frozen Buff
+        pretendDamage = enemy.frozen > 0n ? (pretendDamage * 3n) / 2n : pretendDamage; // Frozen Buff (pretend)
+        damage = enemy.vulnerable > 0n ? (damage * 2n) : damage; // Vulnerable Buff
+        pretendDamage = enemy.vulnerable > 0n ? (pretendDamage * 2n) : pretendDamage; // Vulnerable Buff (pretend)
+        const didCrit = enemy.vulnerable > 0n && Math.random() < critChance;
+        if (didCrit) damage = (damage * 3n);
+        if (didCrit) pretendDamage = (pretendDamage * 3n);
+        damage = enemy.resistant > 0n ? (damage / 2n) : damage; // Resistant debuff
+        pretendDamage = enemy.resistant > 0n ? (pretendDamage / 2n) : pretendDamage; // Resistant debuff (pretend)
         enemy.hp -= damage;
-        if (sid === 'fireball') {
-            playFireballSFX();
-        } else if (sid === 'iceshock') {
+        // log(`Debug: enemy.hp after damage: ${formatNumber(enemy.hp)}`);
+        if (sid === 'iceshock') {
             playIceshockSFX();
         } else {
-            if (s.dmg >= enemy.mhp) {
+            if (damage >= enemy.mhp || pretendDamage >= enemy.mhp) {
                 playPlayerAtkHitHeavySFX();
             } else {
                 playPlayerAtkHitSFX();
             }
         }
         updateUI();
-        log(`You strike with ${s.name} for ${formatNumber(damage)} damage.`);
+        if (enemy.immortal) {
+            log(`Your attack does not affect ${enemy.name}... (${formatNumber(pretendDamage)} dmg prevented)`, "var(--playerATK)")
+        } else if (enemy.frozen) {
+            log(`${p.name} strikes with ${s.name} for <span class="hp-warn">${formatNumber(damage)} damage</span> against frozen ${enemy.name}!`, "var(--freezeDMG)")
+        } else {
+            log(`${p.name} strikes with ${s.name} for <span class="hp-warn">${formatNumber(damage)} damage</span>.`, "var(--playerATK)");
+        }
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
                 if (s.dmg >= enemy.mhp) {
                     log(`Lux: Was that really necessary?`, "#ff0000")
                 } else {
-                    log(`Lux: You dealt ${formatNumber(damage)} damage. I don't know if I should be happy for you, concerned, or genuinely disgusted.`, "#ff0000")
+                    log(`Lux doesn't seem like talking.`, "#ff0000")
                 }
             } else {
                 log(`Lux: You dealt ${formatNumber(damage)} damage. Nice job. Just don't forget...`,"var(--lux)");
@@ -279,23 +391,51 @@ function cast(sid) {
             return;
         }
     }
-    // 4. Status Effects (Duration can stay as Number)
+    if (s.fryingPan) {
+        if (Math.random() < 10.1) {
+            const fryingPanDropPool = ["Health Vial", "Mana Well", "Clarity Tonic", "Apple", "Abbie's Apple", "Lux's Lemon", "Bottle O' Water", "Lux's Sandwich", "Bob's Bread"];
+            const item = fryingPanDropPool[Math.floor(Math.random() * fryingPanDropPool.length)];
+            if (checkSpaceAndAddItem(item)) {
+                log(`The Frying Pan sizzles... and produced a "${item}"!`, "var(--mythicItem)");
+            } else {
+                log(`The Frying Pan sizzles... but your inventory is full.`, "var(--mythicItem)");
+            }
+        }
+    }
+
+    // 4. Status Effects
+    if (s.poison) {
+        if (enemy.poisonImmune) {
+            log(`${enemy.name} is immune to poison!`, "var(--poisonDMG)");
+        } else {
+            enemy.poison += s.poison
+            log(`${enemy.name} is poisoned for ${formatNumber(s.poison)} stacks!`, "var(--poisonDMG)");
+        }
+    }
     if (s.burn) {
         if (enemy.burnImmune) {
-            log(`${enemy.name} is immune to burn!`, "var(--gold)");
+            log(`${enemy.name} is immune to burn!`, "var(--burnDMG)");
         } else {
-            enemy.burn = Number(s.burn); 
-            log(`${enemy.name} is set ablaze for ${s.burn} turns!`, "var(--gold)");
+            enemy.burning += s.burn
+            log(`${enemy.name} is set ablaze for ${formatNumber(s.burn)} turns!`, "var(--burnDMG)");
+        }
+    }
+    if (s.freeze) {
+        if (enemy.freezeImmune) {
+            log(`${enemy.name} is immune to freezing!`, "var(--freezeDMG)")
+        } else {
+            log(`${enemy.name} is frozen for ${formatNumber(s.freeze)} turns!`, "var(--freezeDMG)")
+            enemy.frozen += s.freeze
         }
     }
     // 5. Healing / Sanity
     if (s.heal) {
         let healAmt = BigInt(s.heal);
-        p.hp = BigMath.min(p.hp + healAmt, p.mhp);
+        let totalHealAmt = BigMath.min(p.hp + healAmt, p.mhp)
+        p.hp = totalHealAmt
         updateUI();
-        const healSFX = new Audio("sfx/player_sfx/player_heal.wav");
-        healSFX.currentTime = 0;
-        healSFX.play().catch(e => console.log("Audio playback prevented:", e));
+        playHealSFX();
+        log(`${p.name} healed for <span class="hp-warn">${formatNumber(s.heal)} HP</span>`, "var(--playerATK)")
     }
     if (s.san) {
         if (s.san < 0n) {
@@ -307,83 +447,175 @@ function cast(sid) {
             p.sn = BigMath.min(p.sn + sanAmt, p.msn);
             updateUI();
         }
-    }
-    // 6. Passive Mana Regen
-    if (p.sn > 0n) {
-        p.mp = BigMath.min(p.mp + 5n, p.mmp);
-        updateUI();
-    }
-    // 7. Win/Turn Logic
-    if (enemy.hp <= 0n) {
-        win(); 
-        updateUI();
-        return;
-    } else {
-        enemyTurn();
+        if (s.an < 0n) {
+            log(`Lost <span class="san-warn">${formatNumber(s.san)} Sanity</span>`, "var(--playerATK)")
+        } else {
+            log(`Regained <span class="san-warn">${formatNumber(s.san)} Sanity</span>`, "var(--playerATK)")
+        }
     }
     updateUI();
     setTimeout(() => {
+        // 6. Passive Mana Regen
+        if (p.sn > 0n) {
+            let sclaedAmount = 5n * p.mp
+            p.mp = BigMath.min(p.mp + sclaedAmount, p.mmp);
+            updateUI();
+        }
+        // 7. Win/Turn Logic
+        if (enemy.hp <= 0n) {
+            win(); 
+            updateUI();
+            return;
+        } else {
+            enemyTurn();
+        }
         document.body.style.pointerEvents = "auto";
-    }, 500)
+    }, 800)
 }
 
 function enemyTurn() {
     if (!enemy || enemy.hp <= 0n) return;
-    // 1. Burn tick (BigInt math)
-    if (enemy.burn > 0) {
-        if (enemy.burnImmune) {
-            enemy.burn = 0;
-        } else {
-            // Ensure multipliers are treated as BigInt 'units' (100 = 1.0)
-            // 1. Calculate Base (4n at LV 2)
-            let baseBurnDMG = BigInt(p.lv) * 2n;
-            // 2. Scale all multipliers by 100 (treating 100 as 1.0)
-            let res = BigInt(Math.floor((enemy.burnResist || 1) * 100));
-            let vuln = BigInt(Math.floor((enemy.burnVuln || 1) * 100));
-            let pDmg = p.dmgmult;
-            // 3. Divide by (100 * 100 * 100) to reset the scale
-            let finalBurnDMG = (baseBurnDMG * res * vuln * pDmg) / 1000000n;
-            // 4. Ensure it doesn't drop to 0 if you want a minimum tick
-            if (finalBurnDMG === 0n && baseBurnDMG > 0n) finalBurnDMG = 1n;
-            enemy.hp -= finalBurnDMG;
-            enemy.burn--;
-            log(`${enemy.name} is burning! (-${finalBurnDMG} HP)`, "var(--gold)");
-            if (enemy.burnReflect && enemy.burnReflect > 0) {
-                let reflectMult = BigInt(Math.floor(enemy.burnReflect * 100));
-                let reflectDMG = (finalBurnDMG * reflectMult) / 100n;
-                p.hp -= reflectDMG;
-                log(`${enemy.name} reflects ${formatNumber(reflectDMG)} burn damage back to you!`, "var(--hp)");
+    if (enemy.immortal && enemy.hp <= 0n) enemy.hp = enemy.mhp;
+    if (enemy.immortal) {
+        enemy.fished = 0n
+    } else {
+        if (enemy.fished > 0n) {
+            let rollChance = Math.random()
+            if (rollChance < 0.1) {
+                enemy.fished += 2n
+                log(`The fish increases its influence...`, "var(--fish)")
+                updateUI();
+            } else if (rollChance < 0.2) {
+                p.hp = p.hp / 2n
+                log(`The fish deals damage to YOU`, "var(--fish)")
+                updateUI();
+            } else if (rollChance < 0.3) {
+                enemy.hp = enemy.hp / 2n
+                log(`The fish deals damage to the ENEMY`, "var(--fish)")
+            } else if (rollChance < 0.4) {
+
+            } else if (rollChance < 0.5) {
+                enemy.stunned += 10n
+                log(`The fish stuns the ENEMY`, "var(--fish)")
+                updateUI();
+            } else if (rollChance < 0.6) {
+                enemy.burn += 10n
+                log(`The fish burns the ENEMY`, "var(--fish)")
+                updateUI();
+            } else if (rollChance < 0.7) {
+                let FishScaledAmount = 100n * p.lv * (enemy.poison || 1n)
+                enemy.poison += FishScaledAmount
+                log(`The fish poisons the ENEMY`, "var(--fish)")
+                updateUI();
+            } else if (rollChance < 0.8) {
+                enemy.frozen += 10n
+                log(`The fish freezes the ENEMY`, "var(--fish)")
+                updateUI();
+            } else if (rollChance < 0.9) {
+                let FishGold = 100n * p.totalGold
+                p.gold += FishGold
+                p.totalGold += FishGold
+                log(`The fish gives ${p.name} gold.`, "var(--fish)")
+                updateUI();
+            } else if (rollChance < 1) {
+                log(`The fish does nothing... it rests...`, "var(--fish)")
+            } else {
+                console.log("Error: 'Math.random' returned a value higher then 1 (somehow). Pleasecontact   the creators of the 'Math.random' function to fix this shit.")
+                log(`Funfriend: Error: 'Math.random' returned a value higher then 1 (somehow).  Pleasecontact the creators of the 'Math.random' function to fix this shit.`, "va (--funfriend)")
+                log(`The fish is... confused?`, "var(--fish)")
             }
         }
     }
+    if (enemy.immortal) {
+        enemy.poison = 0n
+    } else {
+        if (enemy.poison > 1n) {
+            let stacksUsed = enemy.poison / 2n
+            let preTotalPoisonDamage = stacksUsed * p.lv
+            if ((enemy.poison - stacksUsed) === 1n) {
+                enemy.poison = 0n
+            } else {
+                enemy.poison -= stacksUsed
+            }
+            let totalPoisonDamage = (preTotalPoisonDamage * p.dmgmult) / 100n
+            enemy.hp -= totalPoisonDamage
+            log(`${enemy.name} is poisoned! (-${formatNumber(totalPoisonDamage)} HP, -${formatNumber(stacksUsed)} poison stacks)`, "var(--poisonDMG)")
+        }
+    }
+    // Burn tick (BigInt math)
+    if (enemy.immortal) {
+        enemy.burning = 0n
+    } else {
+        if (enemy.burning > 0n) {
+            if (enemy.burnImmune) {
+                enemy.burning = 0n;
+            } else {
+                // Ensure multipliers are treated as BigInt 'units' (100 = 1.0)
+                // 1. Calculate Base (4n at LV 2)
+                let baseBurnDMG = BigInt(p.lv) * 2n;
+                // 2. Scale all multipliers by 100 (treating 100 as 1.0)
+                let res = BigInt(Math.floor((enemy.burnResist || 1) * 100));
+                let vuln = BigInt(Math.floor((enemy.burnVuln || 1) * 100));
+                let pDmg = p.dmgmult;
+                // 3. Divide by (100 * 100 * 100) to reset the scale
+                let finalBurnDMG = (baseBurnDMG * res * vuln * pDmg) / 1000000n;
+                // 4. Ensure it doesn't drop to 0 if you want a minimum tick
+                if (finalBurnDMG === 0n && baseBurnDMG > 0n) finalBurnDMG = 1n;
+                enemy.hp -= finalBurnDMG;
+                enemy.burning -= 1n;
+                log(`${enemy.name} is burning! (-${finalBurnDMG} HP)`, "var(--burnDMG)");
+                // log(`Burn Debug: baseBurnDMG=${baseBurnDMG}, res=${res}, vuln=${vuln}, pDmg=${pDmg}, final=${finalBurnDMG}`, "#888888");
+                if (enemy.burnReflect && enemy.burnReflect > 0) {
+                    let reflectMult = BigInt(Math.floor(enemy.burnReflect * 100));
+                    let reflectDMG = (finalBurnDMG * reflectMult) / 100n;
+                    p.hp -= reflectDMG;
+                    log(`${enemy.name} reflects ${formatNumber(reflectDMG)} burn damage back to ${p.name}!`, "var(--burnDMG)");
+                }
+            }
+        }
+    }
+    if (enemy.immortal && enemy.hp <= 0n) enemy.hp = enemy.mhp;
     if (enemy.hp <= 0n) return win();
+    if (enemy.stunned >= 1n) {
+        log(`${enemy.name} is stunned!`)
+        enemy.stunned -= 1n;
+        return;
+    }
     // 2. Lifesteal (Math.min replacement)
     if (enemy.lifesteal && BigInt(enemy.lifesteal) > 0n) {
-        let heal = BigInt(enemy.lifesteal);
+        let heal = enemy.lifesteal;
         enemy.hp = BigMath.min(enemy.hp + heal, enemy.mhp);
         log(`${enemy.name} drains your life and heals ${formatNumber(heal)} HP`, "var(--hp)");
     }
     // 3. Attack
-    p.hp -= enemy.atk;
+    let enemyDamage = enemy.atk
+    enemyDamage = enemy.weakened > 0n ? (enemyDamage / 2n) : enemyDamage;
+    p.hp -= enemyDamage
     // 4. Sanity / Mana Drain
-    const sDrain = BigInt(enemy.san || 0);
-    const mDrain = BigInt(enemy.manaDrain || 0);
-    if (sDrain > 0n && mDrain > 0n) {
+    const sDrain = (enemy.san || 0n)
+    const mDrain = (enemy.manaDrain || 0n);
+    if (sDrain > 0n && enemy.name === "Gerald") {
+        p.sn = p.sn + sDrain
+        log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
+    } else if (sDrain > 0n && mDrain > 0n) {
         p.sn = BigMath.max(p.sn - sDrain, 0n);
         p.mp = BigMath.max(p.mp - mDrain, 0n);
-        log(`${enemy.name} strikes for ${formatNumber(BigInt(enemy.atk))} HP, <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`);
+        log(`${enemy.name} strikes for <span class="hp-warn"> ${formatNumber(BigInt(enemy.atk))} HP</span>, <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
     } else if (sDrain > 0n) {
         p.sn = BigMath.max(p.sn - sDrain, 0n);
-        log(`${enemy.name} strikes for ${formatNumber(BigInt(enemy.atk))} HP and <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span>!`);
+        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(BigInt(enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span>!`, "var(--enemyATK)");
     } else if (mDrain > 0n) {
         p.mp = BigMath.max(p.mp - mDrain, 0n);
-        log(`${enemy.name} strikes for ${formatNumber(BigInt(enemy.atk))} HP and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--mana)");
+        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(BigInt(enemy.atk))} HP</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
     } else {
-        log(`${enemy.name} strikes for ${formatNumber(BigInt(enemy.atk))} HP.`);
+        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(BigInt(enemy.atk))} HP</span>.`, "var(--enemyATK)");
     }
-    const hurtSFX = new Audio("sfx/player_sfx/player_hurt.wav");
-    hurtSFX.currentTime = 0;
-    hurtSFX.play().catch(e => console.log("Audio playback prevented:", e));
+    enemy.vulnerable -= 1n;
+    enemy.resistant -= 1n;
+    enemy.weakened -= 1n;
+    enemy.fished -= 1n;
+    enemy.solari -= 1n;
+    playHurtSFX();
     // 5. Death check
     if (p.hp <= 0n) { 
         if (Math.random() < 0.05) {
@@ -401,7 +633,7 @@ function enemyTurn() {
             currentBossBGM.pause();
             currentBossBGM = null;
         } else {
-            log("You have perished.", "#ff4757"); 
+            log(`${p.name}. You have perished.`, "#ff4757"); 
             document.body.style.pointerEvents = "none";
             currentBossBGM.pause();
             currentBossBGM = null;
@@ -446,12 +678,18 @@ function addExperience(amt) {
         p.sp += levelsGained;
         // Bulk Stat Growth
         for (let i = 0; i < Number(levelsGained); i++) { // this is shitting me. With about ~1k jumps, it works instantly. With about ~10k jumps, it just freezes. I fucking hate this.
+            // TODO: MAKE THIS SHIT MORE EFFICIENT WITH BIGINT AND HUGE ASS JUMPS
+            // note: I give up D:
             p.mhp += (p.mhp * 20n) / 100n || 1n;
             p.mmp += (p.mmp * 20n) / 100n || 1n;
             p.msn += (p.msn * 20n) / 100n || 1n;
         }
         p.hp = p.mhp; p.mp = p.mmp; p.sn = p.msn;
-        log(`Leveled up to LV ${p.lv}! (+${levelsGained} levels)`, "var(--unlocked)");
+        if (levelsGained === 1n) {
+            log(`Leveled up to LV ${p.lv}! (+${levelsGained} level)`, "var(--unlocked)");
+        } else {
+            log(`Leveled up to LV ${p.lv}! (+${levelsGained} levels)`, "var(--unlocked)");
+        }
         if (p.kills >= 1000000n) {
             const levelUpSFXD = new Audio("sfx/player_sfx/player_lv_up/player_lv_up_distorted.mp3");
             levelUpSFXD.currentTime = 0;
@@ -463,6 +701,26 @@ function addExperience(amt) {
         }
     }
     updateUI();
+}
+
+function getExpToLevel(targetLevel) {
+    const target = BigInt(targetLevel);
+
+    const getReq = (lv) => {
+        let req = 100n;
+        for (let i = 1n; i < lv; i++) req = (req * 120n) / 100n;
+        return req;
+    };
+
+    let total = 0n;
+    for (let lv = p.lv; lv < target; lv++) {
+        total += getReq(lv);
+    }
+
+    // Subtract the EXP you've already accumulated on the current level bar
+    total -= p.exp;
+
+    return total < 0n ? 0n : total;
 }
 
 function win() {
@@ -555,11 +813,54 @@ function spareEnemy() {
         }
 
         // Leave combat without gaining EXP
-        enemy = null;
         p.spares += 1n
         exitEvent();
         updateUI();
         checkLuxSpareLogs();
+        const gemChances = {
+            // Normal enemies
+            "Shadow Imp": 0.05, "Armored Beetle": 0.05, "Stone Golem": 0.07, "Iron Golem": 0.07,
+            "Gloom Weaver": 0.07, "Void Stalker": 0.07, "Elf": 0.05, "Drow Elf": 0.05,
+            "Blood Bat": 0.05, "Vampire": 0.08, "Vampire Lord": 0.10, "Vampire King": 0.12,
+            // Glass Cannons
+            "Glass Cannon the I": 0.03, "Glass Cannon the II": 0.03,
+            "Glass Cannon the III": 0.03, "Glass Cannon the IV": 0.03, "Glass Cannon the V": 0.03,
+            // Elementals
+            "Fire Elemental": 0.10, "Air Elemental": 0.10, "Water Elemental": 0.10,
+            "Earth Elemental": 0.10, "Ice Elemental": 0.10,
+            // Mini-bosses
+            "Diamond Golem": 0.15, "Iron-Plated Diamond Golem": 0.15, "Mana Draining Wisp": 0.15,
+            // Teachers
+            "Miss Circle": 0.20, "Miss Bloomie": 0.20, "Miss Thavel": 0.20,
+            // Bosses
+            "Obsidian Golem": 0.25, "Duriel": 0.25, "Will o' Wisp": 0.25,
+            "Fiery Will O' Wisp": 0.30, "Azmodan": 0.35,
+            // World bosses / special
+            "The Player's Mirror": 0.40, "Kitsune": 0.75,
+            "Gem Golem": 1.0, // Guarenteed gem from Gem Golem (it's made from gems for fucks sake)
+            "Lux": 1.0,   // Guaranteed gem from Lux
+            "Bob": 1.0,   // Guaranteed gem from Bob
+            "Gerald": 0,  // Gerald gives nothing. He's a rock.
+        };
+
+        const gemChance = gemChances[enemy.name] ?? 0.10; // Default 10% for anything not listed
+        const gemAmt = enemy.name === "Lux" ? 10n :
+                    enemy.name === "Bob" ? 5n :
+                    enemy.name === "Azmodan" || enemy.name === "The Player's Mirror" ? 3n :
+                    ["Miss Circle", "Miss Bloomie", "Miss Thavel", "Fiery Will O' Wisp"].includes(enemy.name) ? 2n : 1n;
+        let gemCurrentChance = Math.random()
+        if (gemCurrentChance < gemChance) {
+            p.gems = (p.gems ?? 0n) + gemAmt;
+            if (gemAmt > 1n) {
+                log(`Because you spared ${enemy.name}, they gave you ${formatNumber(gemAmt)} gems!`, "var(--epicItem)");
+            } else {
+                log(`Because you spared ${enemy.name}, they gave you a gem!`, "var(--epicItem)");
+            }
+        } else if (p.spares % 5n === 0n && gemCurrentChance > gemChance) {
+            p.gems = (p.gems ?? 0n) + 1n;
+            log(`Because you spared ${enemy.name}, they gave you a gem!`, "var(--epicItem)");
+        }
+        enemy = null;
     } else {
         log(`${enemy.name} is still too aggressive to be spared! (Needs < 50% HP)`, "#ff4757");
         

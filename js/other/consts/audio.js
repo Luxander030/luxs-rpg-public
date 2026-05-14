@@ -52,12 +52,6 @@ function playIceshockSFX() {
     iceshockSFX.play().catch(e => console.log("Audio playback prevented:", e));
 }
 
-const fireballSFX = new Audio("sfx/player_sfx/player_attack/player_fireball.mp3");
-function playFireballSFX() {
-    fireballSFX.currentTime = 0;
-    fireballSFX.play().catch(e => console.log("Audio playback prevented:", e));
-}
-
 const combatStartSFX = new Audio("sfx/combat/combat_start.wav");
 function playCombatStartSFX() {
     combatStartSFX.currentTime = 0;

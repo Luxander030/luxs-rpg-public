@@ -42,6 +42,10 @@ const skillTree = {
             let base = ((p.lv - 1n) * 30n) + 90n;
             return (base * p.dmgmult) / 100n;
         },
+        get freeze() {
+            let base = p.lv * 5n
+            return base
+        }
     },
     thunderbolt: {
         name: "Thunderbolt", 
@@ -55,7 +59,7 @@ const skillTree = {
             return (base * p.dmgmult) / 100n;
         },
         get burn() {
-            if (Math.random() < 0.2) {
+            if (Math.random() < 0.5) {
                 return p.lv * 3n
             } else {
                 return 0n
@@ -99,10 +103,25 @@ const skillTree = {
            return (base * p.dmgmult) / 100n;
         }
     },
+    poisonSpray: {
+        name: "Poison Spray", 
+        cost: 6n, 
+        parent: 'eldritchblast', 
+        unlocked: false, 
+        mp: 500n, 
+        get dmg() {
+           let base = (p.lv * 10n);
+           return (base * p.dmgmult) / 100n;
+        },
+        get poison() {
+            let base = (p.lv * 400n)
+            return base * p.lv
+        }
+    },
     snowgrave: {
         name: "Snowgrave", 
         cost: 7n, 
-        parent: 'eldritchblast', 
+        parent: 'poisonSpray', 
         unlocked: false, 
         mp: 20000n, 
         get dmg() { 
@@ -111,6 +130,10 @@ const skillTree = {
         },
         get san() {
             return -(p.sn / 2n);
+        },
+        get freeze() {
+            let base = ((p.lv * 600n) + 600n) * p.kills;
+            return (base * p.dmgmult) / 100n
         }
     },
 
@@ -163,7 +186,7 @@ const skillTree = {
         unlocked: false, 
         mp: 500n, 
         get heal() { 
-            return BigMath.max((((p.lv * 5n) + 5n) - p.kills), 0n); 
+            return BigMath.max((((p.lv * 50n) + 300n) - p.kills), 0n); 
         },
     },
     ralseidualheal: {
@@ -174,10 +197,10 @@ const skillTree = {
         mp: 1000n, 
         get heal() { 
             // 5.5 replaced with (* 55 / 10)
-            return BigMath.max(((p.lv * 550n) - p.kills), 0n); 
+            return BigMath.max((((p.lv * 550n) + 550n) - p.kills), 0n); 
         },
         get san() {
-            return BigMath.max(((p.lv * 550n) - p.kills), 0n);
+            return BigMath.max((((p.lv * 550n) + 550n) - p.kills), 0n);
         }
     },
     
@@ -191,6 +214,7 @@ const skillTree = {
 
     charaKnife: {
         name: "Chara's Knife",
+        weaponRequired: "charaKnife",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -203,6 +227,7 @@ const skillTree = {
     },
     noxNocturnalBeam: {
         name: "Nox Nocturnal (Beam)",
+        weaponRequired: "noxNocturnal",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -220,6 +245,7 @@ const skillTree = {
     },
     noxNocturnalExplosion: {
         name: "Nox Nocturnal (Explosion)",
+        weaponRequired: "noxNocturnal",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -242,6 +268,7 @@ const skillTree = {
     },
     noxNocturnalSiphon: {
         name: "Nox Nocturnal (Siphon)",
+        weaponRequired: "noxNocturnal",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -260,6 +287,20 @@ const skillTree = {
             let base = 60n
             let scaledAmount = base * ((p.lv || 1n) * p.dmgmult) / 100n
             return -scaledAmount
+        },
+    },
+    fryingPan: {
+        name: "Frying Pan",
+        weaponRequired: "fryingPan",
+        fryingPan: 1n,
+        cost: 0n,
+        parent: null,
+        unlocked: false,
+        mp: 0n,
+        get dmg() {
+            let base = 6000n
+            let scaledAmount = base * ((p.lv || 1n) * p.dmgmult) / 100n
+            return scaledAmount
         },
     },
 };

@@ -1,7 +1,10 @@
 :root { 
     --lux: #3c23a8;
+    --alex: #000000;
     --funfriend: #baffff;
     --bob: #ffb700;
+    --gerald: #909090;
+    --fish: #78b9b2;
     --bg: #0a0a0c;
     --panel: #16161a;
     --text: #e1e1e6;
@@ -11,6 +14,15 @@
     --exp: #2bff00;
     --gold: #eccc68;
     --unlocked: #2ed573;
+
+    /* Damage Colors */
+    --playerATK: #a2ff96;
+    --enemyATK: #ff9696;
+    --burnDMG: #ff8000;
+    --poisonDMG: #6600b4;
+    --freezeDMG: #baffff;
+
+    /* Items */
     --commonItem: #a4b0be;
     --uncommonItem: #22d615;
     --rareItem: #00d2d3;
@@ -30,7 +42,7 @@
     --susie: #b300ce;
     --berdly: #0026ff;
     --noelle: #a9ffbf;
-    --circle: #6b6b6b;
+    --circle: #652d00;
     --bloomie: #2bff00;
     --thavel: #fff0a5;
     --abbie: #ad0000;
@@ -79,7 +91,7 @@ body {
 
 #log { 
     height: 200px; 
-    background: #050505; 
+    background: #2b2b2b; 
     overflow-y: auto; 
     padding: 15px; 
     font-family: 'Fira Code', monospace; 
@@ -129,12 +141,16 @@ button:disabled {
     color: var(--mana); 
     font-weight: bold; 
 }
+.hp-warn { 
+    color: var(--hp); 
+    font-weight: bold;
+}
 .version {
     position: fixed;
     bottom: 15px;
     left: 15px;
     color: #666;
-    z-index: 200;
+    z-index: 9999999;
 }
 .save-controls { 
     position: absolute; 
@@ -199,18 +215,19 @@ button:disabled {
     box-shadow: 0 0 100px rgba(0,0,0,0.9); 
     width: 350px; 
 }
+
 #codes-button { 
-    background: var(--mana); 
+    background: #444; 
     color: #000; 
     border: none; 
-    padding: 8px 12px; 
-    font-size: 0.85rem; 
+    padding: 7px 11px; 
+    font-size: 0.80rem; 
     cursor: pointer; 
     font-family: 'Fira Code', monospace; 
     font-weight: bold; 
     position: absolute; 
-    top: 12px; 
-    right: 215px;
+    top: 14px; 
+    right: 220px;
 }
 
 /* Add a hover effect so it feels interactive */
@@ -219,6 +236,45 @@ button:disabled {
     transform: translateY(-2px);
 }
 
+#lootboxes-button { 
+    background: #444; 
+    color: #000; 
+    border: none; 
+    padding: 7px 11px; 
+    font-size: 0.80rem; 
+    cursor: pointer; 
+    font-family: 'Fira Code', monospace; 
+    font-weight: bold; 
+    position: absolute; 
+    top: 14px; 
+    right: 335px;
+}
+
+/* Add a hover effect so it feels interactive */
+#lootboxes-button:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+}
+
+#storage-button { 
+    background: #444; 
+    color: #000; 
+    border: none; 
+    padding: 7px 11px; 
+    font-size: 0.80rem; 
+    cursor: pointer; 
+    font-family: 'Fira Code', monospace; 
+    font-weight: bold; 
+    position: absolute; 
+    top: 14px; 
+    right: 443px;
+}
+
+/* Add a hover effect so it feels interactive */
+#storage-button:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+}
 
 .admin-icon {
     position: absolute;
