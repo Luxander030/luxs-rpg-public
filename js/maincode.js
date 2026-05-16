@@ -436,21 +436,6 @@ function getLetterAbbreviation(n) {
     return suffix.length === 1 ? "a" + suffix : suffix;
 }
 
-function log(msg, color = "#e1e1e6") {
-    const l = document.getElementById('log');
-    // Create and add the new log message
-    const newEntry = document.createElement('div');
-    newEntry.style.color = color;
-    newEntry.innerHTML = `[Day ${formatNumber(p.day)}] ${msg}`;
-    l.appendChild(newEntry);
-    // If we have more than 1000 messages, remove the first child (removes a lot of lag)
-    while (l.children.length > 1000) {
-        l.removeChild(l.firstChild);
-    }
-    // Auto-scroll to the bottom (just to annoy the player if they try to look higher)
-    l.scrollTop = l.scrollHeight;
-}
-
 function handleDailyResources() {
     let manaLossScalingFactor = p.day; 
     let manaRegainedScalingFactor = BigInt(p.lv);
