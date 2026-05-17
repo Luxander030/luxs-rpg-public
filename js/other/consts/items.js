@@ -545,7 +545,7 @@ const inventoryItems = [
         name: "MissingNo.'s Core",
         rarity: "???",
         rarityColor: "var(--insaneItem)",
-        description: "A flickering mass of pixels. It seems to be trying to overwrite your save file... or maybe it's just hungry for variables. We don't know.",
+        description: "A flickering mass of pixels. It seems to be trying to overwrite your save file... or maybe it's just hungry for variables. We don't know. Would recommend being careful however.",
         run: () => {
             // Randomly swap two major stats
             const stats = ['hp', 'mp', 'sn', 'gold', 'sp', 'dmgmult'];
