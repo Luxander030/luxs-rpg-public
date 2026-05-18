@@ -649,7 +649,7 @@ const inventoryItems = [
         description: "A red, bloody knife. It has seen many genocides. Will you be used by it as well?",
         run: () => {
             if (p.skills.includes('charaKnife')) {
-
+                console.log("Surprise! You found me. Have a cookie: 🍪")
             } else {
                 p.skills.push('charaKnife')
             }
@@ -675,6 +675,7 @@ const inventoryItems = [
         description: "Made from an obsidian base and with an amethyst on the head, this staff feels cool to the touch. The amethyst pulses with a calming, lunar light, which seems to absorb the surrounding light in the vicinity. There's a note tied to the handle of the staff: \"Beware. This staff is not to be used by the mentally fragile.\"",
         run: () => {
             if (p.skills.includes('noxNocturnalBeam')) {
+                console.log("Surprise! You found me. Have a cookie: 🍪")
             } else {
                 p.skills.push('noxNocturnalBeam', 'noxNocturnalExplosion', 'noxNocturnalSiphon')
             }
@@ -694,6 +695,7 @@ const inventoryItems = [
         description: "Just... a frying pan... what the fu-",
         run: () => {
             if (p.skills.includes('fryingPan')) {
+                console.log("gilld chese 💛")
             } else {
                 p.skills.push('fryingPan')
             }
