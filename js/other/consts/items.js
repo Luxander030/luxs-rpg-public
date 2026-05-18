@@ -568,7 +568,7 @@ const inventoryItems = [
         name: "Bob's Cardboard Box",
         rarity: "???",
         rarityColor: "var(--insaneItem)",
-        description: "A box that smells like wet cardboard and... cosmic energy? Bob says there's a 'surprise' inside.",
+        description: "A box that smells like wet cardboard and... cosmic energy? Bob says there's a 'surprise' inside. Concerning.",
         run: () => {
             const outcomes = [
                 () => { p.gold += 1000000n; return "A million gold! Bob was feeling generous."; },
