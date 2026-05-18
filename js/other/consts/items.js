@@ -573,7 +573,7 @@ const inventoryItems = [
             const outcomes = [
                 () => { p.gold += 1000000n; return "A million gold! Bob was feeling generous."; },
                 () => { p.hp = 1n; return "The box was empty. You felt so disappointed you took emotional damage."; },
-                () => { p.lv += 1n, p.sp += 1n; return "You found a 'Level Up' sticker inside. It actually worked!"; },
+                () => { let expRemaining = nextLevelExp - p.exp; addExperience(expRemaining); return "You found a 'Level Up' sticker inside. It actually worked!"; },
                 () => { p.flags.bobVisits += 1n; return "Inside was a photo of Bob. You feel... watched."; }
             ];
             const result = outcomes[Math.floor(Math.random() * outcomes.length)]();
