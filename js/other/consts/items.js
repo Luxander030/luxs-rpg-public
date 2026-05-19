@@ -545,7 +545,7 @@ const inventoryItems = [
         name: "MissingNo.'s Core",
         rarity: "???",
         rarityColor: "var(--insaneItem)",
-        description: "A flickering mass of pixels. It seems to be trying to overwrite your save file... or maybe it's just hungry for variables. We don't know. Would recommend being careful however.",
+        description: "A flickering mass of pixels. It seems to be trying to overwrite your save file... or maybe it's just hungry for variables. We don't know.",
         run: () => {
             // Randomly swap two major stats
             const stats = ['hp', 'mp', 'sn', 'gold', 'sp', 'dmgmult'];
@@ -568,12 +568,12 @@ const inventoryItems = [
         name: "Bob's Cardboard Box",
         rarity: "???",
         rarityColor: "var(--insaneItem)",
-        description: "A box that smells like wet cardboard and... cosmic energy? Bob says there's a 'surprise' inside. Concerning.",
+        description: "A box that smells like wet cardboard and... cosmic energy? Bob says there's a 'surprise' inside.",
         run: () => {
             const outcomes = [
                 () => { p.gold += 1000000n; return "A million gold! Bob was feeling generous."; },
                 () => { p.hp = 1n; return "The box was empty. You felt so disappointed you took emotional damage."; },
-                () => { let expRemaining = nextLevelExp - p.exp; addExperience(expRemaining); return "You found a 'Level Up' sticker inside. It actually worked!"; },
+                () => { p.lv += 1n, p.sp += 1n; return "You found a 'Level Up' sticker inside. It actually worked!"; },
                 () => { p.flags.bobVisits += 1n; return "Inside was a photo of Bob. You feel... watched."; }
             ];
             const result = outcomes[Math.floor(Math.random() * outcomes.length)]();
@@ -649,7 +649,7 @@ const inventoryItems = [
         description: "A red, bloody knife. It has seen many genocides. Will you be used by it as well?",
         run: () => {
             if (p.skills.includes('charaKnife')) {
-                console.log("Surprise! You found me. Have a cookie: 🍪")
+
             } else {
                 p.skills.push('charaKnife')
             }
@@ -675,7 +675,6 @@ const inventoryItems = [
         description: "Made from an obsidian base and with an amethyst on the head, this staff feels cool to the touch. The amethyst pulses with a calming, lunar light, which seems to absorb the surrounding light in the vicinity. There's a note tied to the handle of the staff: \"Beware. This staff is not to be used by the mentally fragile.\"",
         run: () => {
             if (p.skills.includes('noxNocturnalBeam')) {
-                console.log("Surprise! You found me. Have a cookie: 🍪")
             } else {
                 p.skills.push('noxNocturnalBeam', 'noxNocturnalExplosion', 'noxNocturnalSiphon')
             }
@@ -695,7 +694,6 @@ const inventoryItems = [
         description: "Just... a frying pan... what the fu-",
         run: () => {
             if (p.skills.includes('fryingPan')) {
-                console.log("gilld chese 💛")
             } else {
                 p.skills.push('fryingPan')
             }

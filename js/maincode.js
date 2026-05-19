@@ -1,3 +1,9 @@
+/* 
+
+document.body.innerHTML += '<div id="filter-debug" style="position:fixed;top:0;left:0;background:red;color:white;z-index:99999;">filter.js loaded</div>';
+
+*/
+
 let LuxShopTalkChance = null;
 let currentBossBGM = null;
 const name_code = "$argon2id$v=19$m=65536,t=3,p=4$NDc3ZjQ1YjZiOTdkYmJkMzVhMGQwNGI2NDk5YzY5NDU$n9hkkCz/n5vG3EnMdgAjmTrNutlFYOnHaPv3I9gzkig";
