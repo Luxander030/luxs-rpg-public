@@ -37,6 +37,11 @@ let p = {
         glassCannon3: 0n,
         glassCannon4: 0n,
         glassCannon5: 0n,
+        glassCannon6: 0n,
+        glassCannon7: 0n,
+        glassCannon8: 0n,
+        glassCannon9: 0n,
+        glassCannon10: 0n,
         // Sanity Drain Enemies
         voidStalker: 0n,
         gloomWeaver: 0n,
@@ -64,9 +69,18 @@ let p = {
         willOWisp: 0n,
         duriel: 0n,
         obsidianGolem: 0n,
+        gemGolem: 0n,
         // World Bosses
         azmodan: 0n,
         playerMirror: 0n,
+        // Sins
+        sloth: 0n,
+        wrath: 0n,
+        pride: 0n,
+        lust: 0n,
+        envy: 0n,
+        gluttony: 0n,
+        greed: 0n,
         // Lux
         kitsune: 0n,
         lux: 0n,
@@ -104,20 +118,27 @@ let p = {
     achievements: {
         reached100Days: {
             completed: false,
+            name: "Reached 100 Days",
             description: "Unk",
             hint: "Just keep pressing explore onwards."
         },
         gotten1Mgold: {
             completed: false,
+            name: "Got 1M gold.",
             description: "CAPITALISM!!!",
             hint: "Get 1M gold. It's not that difficult."
         },
         gottenFullManaReduction: {
             completed: false,
+            name: "Got Full Mana Reduction",
             description: "Wow. Cheapshot.",
             hint: "Get Mana Reduction to 100%"
         },
-        usedLuxLemon: false, // enjoy the sourness :3
+        usedLuxLemon: {
+            completed: false,
+            description: "You just had to eat it, didn't you.",
+            hint: "Enjoy the sourness :3",
+        },
         usedLuxTriangle: false, // pointy thing
         usedLuxSandwich: false, // SANDWICH
         reachedNegativeSanity: false, // I have no clue how you could get this but oh well

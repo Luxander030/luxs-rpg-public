@@ -41,6 +41,7 @@ const enemies = [
 
     {
         name: "Bob",
+        killKey: "bob",
         weight: 0.001,
         // BigInt getters
         get mhp() {
@@ -71,6 +72,7 @@ const enemies = [
     },
     {
         name: "Gerald",
+        killKey: "gerald",
         weight: 0.00001,
         // BigInt getters
         get mhp() {
@@ -110,6 +112,7 @@ const enemies = [
 
     {
         name: "Lux",
+        killKey: "lux",
         weight: 1,
         // BigInt getters
         get mhp() {
@@ -159,32 +162,33 @@ const enemies = [
     },
     {
         name: "Kitsune",
+        killKey: "kitsune",
         weight: 2,
         get mhp() {
             // Logic: (LV / 1.25) is same as (LV * 80 / 100)
-            let scaledLV = (p.lv * 80n) / 100n;
+            let scaledLV = (((p.lv * 80n) / 100n) || 1n);
             return 1000000n * scaledLV;
         },
         get hp() { return this.mhp; },
         get atk() {
-            let scaledLV = (p.lv * 80n) / 100n;
+            let scaledLV = (((p.lv * 80n) / 100n) || 1n);
             return 5000n * scaledLV;
         },
         get san() {
-            let scaledLV = (p.lv * 80n) / 100n;
+            let scaledLV = (((p.lv * 80n) / 100n) || 1n);
             return 5000n * scaledLV;
         },
         get exp() {
-            let scaledLV = (p.lv * 80n) / 100n;
+            let scaledLV = (((p.lv * 80n) / 100n) || 1n);
             return -(10000n * scaledLV);
         },
         get gold() {
-            let scaledLV = (p.lv * 80n) / 100n;
+            let scaledLV = (((p.lv * 80n) / 100n) || 1n);
             return -(10000n * scaledLV);
         },
         get lifesteal() {
             // Logic: LV / 2
-            return 1000n * (p.lv / 2n);
+            return 1000n * ((p.lv / 2n) || 1n);
         },
         burnResist: 0.9, // Stays Number (handled by multiplier math in enemyTurn)
         burnReflect: 1,
@@ -203,6 +207,7 @@ const enemies = [
 
     {
         name: "Sloth",
+        killKey: "sloth",
         weight: 3,
         slothSin: 1n,
         get mhp() {
@@ -229,6 +234,7 @@ const enemies = [
 
     {
         name: "Wrath",
+        killKey: "wrath",
         weight: 3,
         wrathSin: 1n,
         get mhp() {
@@ -257,6 +263,7 @@ const enemies = [
 
     {
         name: "Greed",
+        killKey: "greed",
         weight: 3,
         greedSin: 1n,
         get mhp() {
@@ -286,6 +293,7 @@ const enemies = [
 
     {
         name: "Gluttony",
+        killKey: "gluttony",
         weight: 3,
         gluttonySin: 1n,
         get mhp() {
@@ -314,6 +322,7 @@ const enemies = [
 
     {
         name: "Envy",
+        killKey: "envy",
         weight: 3,
         envySin: 1n,
         get mhp() {
@@ -343,6 +352,7 @@ const enemies = [
 
     {
         name: "Pride",
+        killKey: "pride",
         weight: 3,
         prideSin: 1n,
         get mhp() {
@@ -370,6 +380,7 @@ const enemies = [
 
     {
         name: "Lust",
+        killKey: "lust",
         weight: 3,
         lustSin: 1n,
         get mhp() {
@@ -408,29 +419,30 @@ const enemies = [
 
     {
         name: "Azmodan",
+        killKey: "azmodan",
         weight: 5,
         get mhp() {
             // Logic: 10000 * (LV / 2)
             // BigInt division (/) automatically floors the result
-            return 10000n * (p.lv / 2n);
+            return 10000n * ((p.lv / 2n) || 1n);
         },
         get hp() {
             return this.mhp;
         },
         get atk() {
-            return 240n * (p.lv / 2n);
+            return 240n * ((p.lv / 2n) || 1n);
         },
         get san() {
-            return 50n * (p.lv / 2n);
+            return 50n * ((p.lv / 2n) || 1n);
         },
         get exp() {
-            return 1200n * (p.lv / 2n);
+            return 1200n * ((p.lv / 2n) || 1n);
         },
         get gold() {
-            return 32000n * (p.lv / 2n);
+            return 32000n * ((p.lv / 2n) || 1n);
         },
         get lifesteal() {
-            return 500n * (p.lv / 2n);
+            return 500n * ((p.lv / 2n) || 1n);
         },
         // Use BigInt literal (30n) for the level check
         canSpawn: () => p.lv >= 30n && p.skills.includes('eldritchblast'),
@@ -439,6 +451,7 @@ const enemies = [
     },
     {
         name: "The Player's Mirror",
+        killKey: "playerMirror",
         weight: 2.5, // Chance for enemy to spawn
         get mhp() {
             return p.mhp
@@ -513,6 +526,7 @@ const enemies = [
 
     {
         name: "Obsidian Golem",
+        killKey: "obsidianGolem",
         weight: 10,
         get mhp() {
             // Logic: 1.5 is 3/2. Dividing by 1.5 is multiplying by 2 and dividing by 3.
@@ -542,6 +556,7 @@ const enemies = [
     },
     {
         name: "Gem Golem",
+        killKey: "gemGolem",
         weight: 10,
         get mhp() {
             // Logic: 1.5 is 3/2. Dividing by 1.5 is multiplying by 2 and dividing by 3.
@@ -571,6 +586,7 @@ const enemies = [
     },
     {
         name: "Duriel",
+        killKey: "duriel",
         weight: 10,
         get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -598,7 +614,8 @@ const enemies = [
         trait: "Boss"
     },
     {
-        name: "Will o' Wisp",
+        name: "Will O' Wisp",
+        killKey: "willOWisp",
         weight: 10,
         get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -628,6 +645,7 @@ const enemies = [
     },
     {
         name: "Fiery Will O' Wisp",
+        killKey: "fieryWillOWisp",
         weight: 5,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -668,6 +686,7 @@ const enemies = [
 
     {
     name: "Miss Circle",
+    killKey: "missCircle",
     weight: 10,
     get mhp() {
         return 1200n * p.lv
@@ -693,6 +712,7 @@ const enemies = [
 
     {
     name: "Miss Bloomie",
+    killKey: "missBloomie",
     weight: 10,
     get mhp() {
         return 1200n * p.lv
@@ -718,6 +738,7 @@ const enemies = [
     },
     {
     name: "Miss Thavel",
+    killKey: "missThavel",
     weight: 10,
     get mhp() {
         return 1200n * p.lv
@@ -754,6 +775,7 @@ const enemies = [
 
     {
         name: "Diamond Golem",
+        killKey: "diamondGolem",
         weight: 20,
         get mhp() {
             // Logic: LV / 1.5 is represented as (LV * 2) / 3
@@ -783,6 +805,7 @@ const enemies = [
     },
     {
         name: "Iron-Plated Diamond Golem",
+        killKey: "ironPlatedDiamondGolem",
         weight: 20,
         get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -812,6 +835,7 @@ const enemies = [
     },
     {
         name: "Mana Draining Wisp",
+        killKey: "manaDrainingWisp",
         weight: 20,
         get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -853,6 +877,7 @@ const enemies = [
 
     {
         name: "Fire Elemental",
+        killKey: "fireElemental",
         weight: 20,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -882,6 +907,7 @@ const enemies = [
     },
     {
         name: "Air Elemental",
+        killKey: "airElemental",
         weight: 20,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -911,6 +937,7 @@ const enemies = [
     },
     {   
         name: "Water Elemental",
+        killKey: "waterElemental",
         weight: 20,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -940,6 +967,7 @@ const enemies = [
     },
     {
         name: "Earth Elemental",
+        killKey: "earthElemental",
         weight: 20,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -968,6 +996,7 @@ const enemies = [
     },  
     {
         name: "Ice Elemental",
+        killKey: "iceElemental",
         weight: 20,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1006,6 +1035,7 @@ const enemies = [
 
     {
         name: "Blood Bat",
+        killKey: "bloodBat",
         weight: 40,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1038,6 +1068,7 @@ const enemies = [
     },
     {
         name: "Vampire",
+        killKey: "vampire",
         weight: 30,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1071,6 +1102,7 @@ const enemies = [
     },
     {
         name: "Vampire Lord",
+        killKey: "vampireLord",
         weight: 12,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1104,6 +1136,7 @@ const enemies = [
     },
     {
         name: "Vampire King",
+        killKey: "vampireKing",
         weight: 6,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1146,6 +1179,7 @@ const enemies = [
 
     {
         name: "Gloom Weaver",
+        killKey: "gloomWeaver",
         weight: 35,
         get mhp() { 
             // Replacement for Math.max(1, floor(lv / 1.5))
@@ -1181,6 +1215,7 @@ const enemies = [
     },
     {
         name: "Void Stalker",
+        killKey: "voidStalker",
         weight: 25,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1220,6 +1255,7 @@ const enemies = [
 
     {
         name: "Glass Cannon the I",
+        killKey: "glassCannon1",
         weight: 3,
         hp: 12n, mhp: 12n,
         atk: 1000000000n, san: 1000000000n,
@@ -1231,6 +1267,7 @@ const enemies = [
     },
     {
         name: "Glass Cannon the II",
+        killKey: "glassCannon2",
         weight: 2,
         hp: 24n, mhp: 24n,
         atk: 10000000000n, san: 10000000000n,
@@ -1242,6 +1279,7 @@ const enemies = [
     },
     {
         name: "Glass Cannon the III",
+        killKey: "glassCannon3",
         weight: 1,
         hp: 36n, mhp: 36n,
         atk: 100000000000n, san: 100000000000n,
@@ -1254,6 +1292,7 @@ const enemies = [
     },
     {
         name: "Glass Cannon the IV",
+        killKey: "glassCannon4",
         weight: 1,
         hp: 48n, mhp: 48n,
         atk: 1000000000000n, san: 1000000000000n,
@@ -1265,6 +1304,7 @@ const enemies = [
     },
     {
         name: "Glass Cannon the V",
+        killKey: "glassCannon5",
         weight: 1,
         hp: 60n, mhp: 60n,
         atk: 10000000000000n, san: 10000000000000n,
@@ -1285,6 +1325,7 @@ const enemies = [
 
     {
         name: "Shadow Imp",
+        killKey: "shadowImp",
         weight: 60,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1314,6 +1355,7 @@ const enemies = [
     },
     {
         name: "Armored Beetle",
+        killKey: "armoredBeetle",
         weight: 55,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1343,6 +1385,7 @@ const enemies = [
     },
     {
         name: "Drow Elf",
+        killKey: "drowElf",
         weight: 53,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1372,6 +1415,7 @@ const enemies = [
     },
     {
         name: "Elf",
+        killKey: "elf",
         weight: 59,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1398,6 +1442,7 @@ const enemies = [
     },
     {
         name: "Stone Golem",
+        killKey: "stoneGolem",
         weight: 50,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
@@ -1423,6 +1468,7 @@ const enemies = [
     },
     {
         name: "Iron Golem",
+        killKey: "ironGolem",
         weight: 40,
         get mhp() { 
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);

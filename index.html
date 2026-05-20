@@ -20,7 +20,7 @@
 </head>
 <body>
 <div class="version">
-    Version: 9.0.2
+    Version: 10.0.0
 </div>
 <div class="save-controls">
     <button class="export-btn" onclick="exportSave(); playSaveSFX();">Export .urpg</button>
@@ -46,7 +46,7 @@
                 <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:var(--exp); width:0%"></div></div>
             </div>
         </div>
-        <div id="log">Welcome to your standard RPG. <strong style="color:red">Check the top right corner for save exporting and importing.</strong></div>
+        <div id="log">Welcome to your standard RPG. <strong style="color:red">Check the top right corner for save exporting and importing, and check the bottom right for extra buttons.</strong></div>
         <div id="shop-view" class="hidden">
             <h3>Wandering Merchant</h3>
             <div id="shop-shelf" class="shop-grid"></div>
@@ -124,7 +124,7 @@
     <img src="images/Funfriend.gif" class="admin-icon" alt="Lux">
     <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Lux's Console</h3>
     <div id="console-output" style="height:100px; overflow-y:auto; background:#000; font-family:'Fira Code', monospace; font-size:12px; padding:10px; margin-bottom:10px; border:1px solid #333; color:#2ed573;">
-        Funfriend: Hello Lux (or Luxander, I have no clue who it is because it is the same password for both of you).
+        Funfriend: Hello Lux (or Luxander, I have no clue who it is because it is the same password for both of you; please, one of you, change your password to be unique).
     </div>
     <input type="text" id="console-input" placeholder="Enter command..." 
             style="width:100%; background:#000; border:1px solid var(--mana); color:white; padding:10px; box-sizing:border-box; font-family:'Fira Code', monospace;">
@@ -132,17 +132,24 @@
 </div>
 <div class="ghost-trigger" onclick="toggleAdmin()"></div>
 
+<!-- Single menu button -->
+<button id="extras-button" onclick="toggleExtrasMenu(); playMenuButtonClickSFX();">
+    Extras ⟁
+</button>
+
 <button id="codes-button" onclick="playMenuButtonClickSFX()">
     Enter Codes
 </button>
 
-<button id="lootboxes-button" onclick="playMenuButtonClickSFX(); openLootBoxUI();">
-    Loot Boxes
-</button>
-
-<button id="storage-button" onclick="playMenuButtonClickSFX(); openStorage();">
-    Storage
-</button>
+<!-- The menu that opens -->
+<div id="extras-menu" class="hidden">
+    <button onclick="playMenuButtonClickSFX(); openLootBoxUI(); closeExtrasMenu();">
+        Loot Boxes
+    </button>
+    <button onclick="playMenuButtonClickSFX(); openStorage(); closeExtrasMenu();">
+        Storage
+    </button>
+</div>
 
 <div id="codes-panel" class="hidden">
     <h3 style="margin-top:0; color:var(--mana); font-family: 'Fira Code', monospace; font-size: 14px;">Game Codes</h3>
@@ -159,52 +166,68 @@
     <p style="font-size:10px; color:#666; margin-top:5px;">Press ESC to close.</p>
 </div>
 </body>
-<script>
-    function log(msg, color = "#e1e1e6") {
-        const l = document.getElementById('log');
-        // Create and add the new log message
-        const newEntry = document.createElement('div');
-        newEntry.style.color = color;
-        newEntry.innerHTML = `[Day ${formatNumber(p.day)}] ${msg}`;
-        l.appendChild(newEntry);
-        // If we have more than 1000 messages, remove the first child (removes a lot of lag)
-        while (l.children.length > 1000) {
-            l.removeChild(l.firstChild);
-        }
-        // Auto-scroll to the bottom (just to annoy the player if they try to look higher)
-        l.scrollTop = l.scrollHeight;
-    }
-</script>
-<script src="js/cheat_codes.js"></script>
-<script src="js/other/consts/filter.js"></script>
-<script src="js/maincode.js"></script>
-<script src="js/other/bob.js"></script>
-<script src="js/other/consts/killandsparelogs.js"></script>
-<script src="js/other/consts/enemies.js"></script>
-<script src="js/other/consts/shop.js"></script>
-<script src="js/other/consts/dailyevents.js"></script>
-<script src="js/other/consts/spells.js"></script>
-<script src="js/other/playerinfo.js"></script>
-<script src="js/other/save_export_and_import_logic.js"></script>
-<script src="js/other/debugging.js"></script>
-<script src="js/other/combat.js"></script>
-<script src="js/other/consts/items.js"></script>
-<script src="js/other/consts/audio.js"></script>
-<script src="js/other/BigIntMath.js"></script>
-<script src="js/other/sub-Combat1.js"></script>
-<script src="js/other/gameCodes.js"></script>
-<script src="js/other/voices.js"></script>
-<script src="js/other/consts/status_effects.js"></script>
-<script src="js/other/lootboxes.js"></script>
-<script src="js/other/combat/bulletPatterns.js"></script>
-<script src="js/other/combat/combat.js"></script>
-<script src="js/other/combat/sub-Combat1.js"></script>
+<!-- Required Libraries -->
+<!-- External Libraries -->
 <script 
     src="https://cdnjs.cloudflare.com/ajax/libs/argon2-browser/1.18.0/argon2-bundled.min.js" 
     integrity="sha512-Alrh8vbmKDc5xiq7I/y8LTDwy9nw1nT9S/yR73HMMoWrpX4S1kizNPdWM896c/CDIGILNwAiaih627A94kRhYQ==" 
     crossorigin="anonymous" 
     referrerpolicy="no-referrer">
 </script>
+<!-- Internal Libraries -->
+<script src="js/other/BigIntMath.js"></script>
+
+<!-- Important Things to be src'd first -->
+<script src="js/other/playerinfo.js"></script>
+<script src="js/other/consts/filter.js"></script>
+<script src="js/other/consts/items.js"></script>
+<script src="js/other/consts/status_effects.js"></script>
+<script src="js/other/consts/killandsparelogs.js"></script>
+<script src="js/other/consts/shop.js"></script>
+<script src="js/other/consts/dailyevents.js"></script>
+<script src="js/other/consts/spells.js"></script>
+<script src="js/other/consts/audio.js"></script>
+<!-- Enemies Start -->
+<script src="js/other/combat/enemyStartUp.js"></script>
+<script src="js/other/combat/enemies/goobs.js"></script>
+<script src="js/other/combat/enemies/bosses.js"></script>
+<script src="js/other/combat/enemies/elementals.js"></script>
+<script src="js/other/combat/enemies/glasscannons.js"></script>
+<script src="js/other/combat/enemies/lux_and_co.js"></script>
+<script src="js/other/combat/enemies/minibosses.js"></script>
+<script src="js/other/combat/enemies/normal.js"></script>
+<script src="js/other/combat/enemies/sanity.js"></script>
+<script src="js/other/combat/enemies/sins.js"></script>
+<script src="js/other/combat/enemies/teachers.js"></script>
+<script src="js/other/combat/enemies/vampires.js"></script>
+<!-- Enemies End -->
+<!-- Bullet Patterns Start-->
+<script src="js/other/combat/bulletPatterns.js"></script>
+<script src="js/other/combat/bulletPatterns/bob.js"></script>
+<script src="js/other/combat/bulletPatterns/bosses.js"></script>
+<script src="js/other/combat/bulletPatterns/elementals.js"></script>
+<script src="js/other/combat/bulletPatterns/glasscannons.js"></script>
+<script src="js/other/combat/bulletPatterns/kitsune.js"></script>
+<script src="js/other/combat/bulletPatterns/lux.js"></script>
+<script src="js/other/combat/bulletPatterns/minibosses.js"></script>
+<script src="js/other/combat/bulletPatterns/normal.js"></script>
+<script src="js/other/combat/bulletPatterns/sanity.js"></script>
+<script src="js/other/combat/bulletPatterns/sins.js"></script>
+<script src="js/other/combat/bulletPatterns/teachers.js"></script>
+<script src="js/other/combat/bulletPatterns/vampires.js"></script>
+<!-- Bullet Patterns End-->
+<script src="js/other/voices.js"></script>
+<script src="js/other/save_export_and_import_logic.js"></script>
+<script src="js/other/gameCodes.js"></script>
+<script src="js/other/lootboxes.js"></script>
+
+<!-- The rest -->
+<script src="js/other/combat/combat.js"></script>
+<script src="js/other/combat/sub-Combat1.js"></script>
+<script src="js/other/bob.js"></script>
+<script src="js/other/debugging.js"></script>
+<script src="js/cheat_codes.js"></script>
+<script src="js/maincode.js"></script>
 <script>
     window.addEventListener('load', () => {
     updateUI();

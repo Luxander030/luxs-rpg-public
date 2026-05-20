@@ -60,6 +60,14 @@ function processCode() {
         log(`Funfriend: Why...?`)
         p.codesUsed.push('Enter codes...')
         p.gold += p.gold / 4n
+    } else if (val === 'Gluttony\'s pantry' && !p.codesUsed.includes('Gluttnoy\'s pantry')) {
+        log(`You managed to steal some food from Gluttony's pantry. Nice.`)
+        checkSpareAndAddItem("Lux's Sandwich")
+        checkSpareAndAddItem("Lux's Sandwich")
+        checkSpareAndAddItem("Lux's Sandwich")
+        checkSpareAndAddItem("Lux's Sandwich")
+        checkSpareAndAddItem("Lux's Sandwich")
+        LuxLog(`Lux: Wait. Hold on. How'd you get those from Gluttony's pantry...? Gluttony I swear to god if you stole my sandwiches-`)
     }
     else {
         log("Funfriend: Unknown code or already used code.", "var(--funfriend)");

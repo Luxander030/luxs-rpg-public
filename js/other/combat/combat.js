@@ -194,6 +194,13 @@ function startCombat() {
         exp: BigInt(selectedEnemy.exp),
         gold: BigInt(selectedEnemy.gold),
         lifesteal: BigInt(selectedEnemy.lifesteal || 0),
+        slothSin: selectedEnemy.slothSin || 0n,
+        prideSin: selectedEnemy.prideSin || 0n,
+        wrathSin: selectedEnemy.wrathSin || 0n,
+        lustSin: selectedEnemy.lustSin || 0n,
+        gluttonySin: selectedEnemy.gluttonySin || 0n,
+        greedSin: selectedEnemy.greedSin || 0n,
+        envySin: selectedEnemy.envySin || 0n,
         solari: 0n,
         fished: 0n,
         burning: 0n,
@@ -214,7 +221,7 @@ function startCombat() {
     if (enemy.name === "Lux") {
         playLuxTheme();
     }
-    // 5. SPECIAL DIALOGUE CHECK
+    // 5. SPECIAL DIALOGUE CHECK & OTHER
     if (selectedEnemy.specialMsg) {
         if (enemy.name === "Gerald") {
             LuxLog(`Lux: MY BOY!`)
@@ -234,6 +241,42 @@ function startCombat() {
             }, 150);
         }
     }
+    function removeEdibleItems() {
+        const edibleIds = new Set(
+            inventoryItems
+                .filter(item => item.edible)
+                .map(item => item.name) // slots store item names, not IDs
+        );
+    
+        let removed = 0;
+    
+        // Check named slots (slot1 - slot20)
+        for (let i = 1; i <= 20; i++) {
+            const key = `slot${i}`;
+            if (
+                p.inventory[key] !== "null" &&
+                p.inventory[key] !== "empty" &&
+                edibleIds.has(p.inventory[key])
+            ) {
+                p.inventory[key] = "empty";
+                removed++;
+            }
+        }
+        if (edibleIds.has(p.inventory.equippedWeapon)) {
+            p.inventory.equippedWeapon = "empty";
+            removed++;
+        }        
+        if (removed > 0) {
+            log(`Gluttony devours your food! ${removed} edible item${removed > 1 ? "s" : ""} consumed before the fight.`, "var(--enemyATK)");
+        } else {
+            log(`Gluttony searches your inventory... but finds nothing edible.`, "var(--enemyATK)");
+        }
+    
+        updateUI();
+    }    
+    if (selectedEnemy.gluttonySin) {
+        removeEdibleItems();
+    }
 }
 
 function playLuxTheme() {
@@ -248,7 +291,7 @@ function playLuxTheme() {
         } else if (p.kills >= 1000000n) {
             track = "sfx/combat/theme_music/lux/Geno/lux_piano.mp3"; // "Cordial Condolences but its only on a piano" by Zalundia
         } else if (Math.random() < 0.1) {
-            let solari = Math.random() // random variable name as I did not want to spend 10 minutes coming up with a suitable variable name so I just decided to take the last name of my OC
+            let solari = Math.random() // random variable name as I did not want to spend 10 minutes coming up with a suitable variable name so I just decided to take the last name of my OCs
             if (solari < 0.1) {
                 track = "sfx/combat/theme_music/lux/lux_secret1.mp3"; // "Seeing Red" by 'lucidMusic'
             } else if (solari < 0.2) {
@@ -256,15 +299,15 @@ function playLuxTheme() {
             } else if (solari < 0.3) {
                 track = "sfx/combat/theme_music/lux/lux_secret3.mp3"; // "Knife Dance (Extended Synth Metal Mix)" by 'AJDiSpirito' & 'FARADAY CAGE'      
             } else if (solari < 0.4) {
-                track = "sfx/combat/theme_music/lux/lux_secret4.mp3"; // to put (possibly "Перемога"? Or maybe another song.)
+                track = "sfx/combat/theme_music/lux/lux_secret4.mp3"; // to put (Idea: "Перемога" by [insert name later])
             } else if (solari < 0.5) {
                 track = "sfx/combat/theme_music/lux/lux_secret5.mp3"; // to put (just for fun, maybe add "Megalovania")
             } else if (solari < 0.6) {
-                track = "sfx/combat/theme_music/lux/lux_secret6.mp3"; // to put (Wither Storm theme song [fuck yeah])
+                track = "sfx/combat/theme_music/lux/lux_secret6.mp3"; // to put (Idea: Wither Storm theme song [fuck yeah])
             } else if (solari < 0.7) {
-                track = "sfx/combat/theme_music/lux/lux_secret7.mp3"; // to put (Enter Pony by Kalu4ii Plays)
+                track = "sfx/combat/theme_music/lux/lux_secret7.mp3"; // to put (Idea: Enter Pony by Kalu4ii Plays)
             } else if (solari < 0.8) {
-                track = "sfx/combat/theme_music/lux/lux_secret8.mp3"; // to put
+                track = "sfx/combat/theme_music/lux/lux_secret8.mp3"; // to put (Idea: "vendetta!" by MUPP & Sadfriendd)
             } else if (solari < 0.9) {
                 track = "sfx/combat/theme_music/lux/lux_secret9.mp3"; // to put
             } else if (solari < 1) {
@@ -292,15 +335,6 @@ function cast(sid) {
         updateUI();
         return;
     }
-    // if (p.statusEffects.stunned) {
-    //     log(`You are stunned! (${p.statusEffects.stunned} turns left until unstunned)`)
-    //     p.statusEffects.stunned -= 1n;
-    //     setTimeout(() => {
-    //         enemyTurn();
-    //         updateUI();
-    //     }, 800)
-    //     return;
-    // }
     let s = skillTree[sid];
     // getScaledMana now returns a BigInt
     let scaledCost = getScaledMana(s.mp);
@@ -342,8 +376,6 @@ function cast(sid) {
             damage += 100n * p.lv
             pretendDamage += 100n * p.lv
         }
-        if (s.fryingPan) damage *= 1000n
-        if (s.fryingPan) pretendDamage *= 1000n
         if (enemy.immortal) damage = 0n
         damage = enemy.frozen > 0n ? (damage * 3n) / 2n : damage; // Frozen Buff
         pretendDamage = enemy.frozen > 0n ? (pretendDamage * 3n) / 2n : pretendDamage; // Frozen Buff (pretend)
@@ -354,8 +386,12 @@ function cast(sid) {
         if (didCrit) pretendDamage = (pretendDamage * 3n);
         damage = enemy.resistant > 0n ? (damage / 2n) : damage; // Resistant debuff
         pretendDamage = enemy.resistant > 0n ? (pretendDamage / 2n) : pretendDamage; // Resistant debuff (pretend)
+        if (s.fryingPan) damage *= 1000n
+        if (s.fryingPan) pretendDamage *= 1000n
+        if (enemy.slothSin) damage = 1n
+        if (enemy.prideSin) { if (damage > (enemy.mhp / 20n)) { damage = enemy.mhp / 20n; } }
+        if (enemy.lustSin) damage / 2n
         enemy.hp -= damage;
-        // log(`Debug: enemy.hp after damage: ${formatNumber(enemy.hp)}`);
         if (sid === 'iceshock') {
             playIceshockSFX();
         } else {
@@ -367,7 +403,7 @@ function cast(sid) {
         }
         updateUI();
         if (enemy.immortal) {
-            log(`Your attack does not affect ${enemy.name}... (${formatNumber(pretendDamage)} dmg prevented)`, "var(--playerATK)")
+            log(`Your attack does not affect ${enemy.name}. (${formatNumber(pretendDamage)} dmg prevented)`, "var(--playerATK)")
         } else if (enemy.frozen) {
             log(`${p.name} strikes with ${s.name} for <span class="hp-warn">${formatNumber(damage)} damage</span> against frozen ${enemy.name}!`, "var(--freezeDMG)")
         } else {
@@ -392,7 +428,7 @@ function cast(sid) {
         }
     }
     if (s.fryingPan) {
-        if (Math.random() < 10.1) {
+        if (Math.random() < 0.1) {
             const fryingPanDropPool = ["Health Vial", "Mana Well", "Clarity Tonic", "Apple", "Abbie's Apple", "Lux's Lemon", "Bottle O' Water", "Lux's Sandwich", "Bob's Bread"];
             const item = fryingPanDropPool[Math.floor(Math.random() * fryingPanDropPool.length)];
             if (checkSpaceAndAddItem(item)) {
@@ -447,7 +483,7 @@ function cast(sid) {
             p.sn = BigMath.min(p.sn + sanAmt, p.msn);
             updateUI();
         }
-        if (s.an < 0n) {
+        if (s.san < 0n) {
             log(`Lost <span class="san-warn">${formatNumber(s.san)} Sanity</span>`, "var(--playerATK)")
         } else {
             log(`Regained <span class="san-warn">${formatNumber(s.san)} Sanity</span>`, "var(--playerATK)")
@@ -499,7 +535,7 @@ function enemyTurn() {
                 log(`The fish stuns the ENEMY`, "var(--fish)")
                 updateUI();
             } else if (rollChance < 0.6) {
-                enemy.burn += 10n
+                enemy.burning += 10n
                 log(`The fish burns the ENEMY`, "var(--fish)")
                 updateUI();
             } else if (rollChance < 0.7) {
@@ -587,29 +623,362 @@ function enemyTurn() {
         enemy.hp = BigMath.min(enemy.hp + heal, enemy.mhp);
         log(`${enemy.name} drains your life and heals ${formatNumber(heal)} HP`, "var(--hp)");
     }
-    // 3. Attack
-    let enemyDamage = enemy.atk
-    enemyDamage = enemy.weakened > 0n ? (enemyDamage / 2n) : enemyDamage;
-    p.hp -= enemyDamage
-    // 4. Sanity / Mana Drain
-    const sDrain = (enemy.san || 0n)
-    const mDrain = (enemy.manaDrain || 0n);
-    if (sDrain > 0n && enemy.name === "Gerald") {
-        p.sn = p.sn + sDrain
-        log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
-    } else if (sDrain > 0n && mDrain > 0n) {
-        p.sn = BigMath.max(p.sn - sDrain, 0n);
-        p.mp = BigMath.max(p.mp - mDrain, 0n);
-        log(`${enemy.name} strikes for <span class="hp-warn"> ${formatNumber(BigInt(enemy.atk))} HP</span>, <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
-    } else if (sDrain > 0n) {
-        p.sn = BigMath.max(p.sn - sDrain, 0n);
-        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(BigInt(enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span>!`, "var(--enemyATK)");
-    } else if (mDrain > 0n) {
-        p.mp = BigMath.max(p.mp - mDrain, 0n);
-        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(BigInt(enemy.atk))} HP</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
-    } else {
-        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(BigInt(enemy.atk))} HP</span>.`, "var(--enemyATK)");
+    // 3. Attack / Bullet Hell Logic
+    const matchedPatterns = (typeof patternLibrary !== "undefined" ? patternLibrary : [])
+    .filter(pat => pat.enemy === enemy.name);
+
+    if (matchedPatterns.length > 0) {
+        const activePattern = matchedPatterns[Math.floor(Math.random() * matchedPatterns.length)];
+        const patternDisplayName = typeof activePattern.getRandomName === "function"
+            ? activePattern.getRandomName()
+            : activePattern.name;
+        
+        log(`${enemy.name} uses ${patternDisplayName}!`, "var(--enemyATK)");
+
+    document.body.style.pointerEvents = "none";
+
+    const overlay = document.createElement("div");
+    overlay.id = "bullet-hell-overlay";
+    overlay.style.position = "fixed";
+    overlay.style.left = "0";
+    overlay.style.top = "0";
+    overlay.style.width = "100vw";
+    overlay.style.height = "100vh";
+    overlay.style.background = "rgba(0, 0, 0, 0.88)";
+    overlay.style.zIndex = "999999";
+    overlay.style.overflow = "hidden";
+    overlay.style.cursor = "none";
+
+    const info = document.createElement("div");
+    info.style.position = "absolute";
+    info.style.top = "15px";
+    info.style.left = "15px";
+    info.style.pointerEvents = "none";
+    info.style.color = "white";
+    info.style.fontFamily = "'Courier New', Courier, monospace";
+    info.style.textShadow = "2px 2px #000";
+    info.innerHTML = `Pattern: <span>${patternDisplayName}</span>`;
+
+    const timerUI = document.createElement("div");
+    timerUI.style.position = "absolute";
+    timerUI.style.top = "15px";
+    timerUI.style.right = "15px";
+    timerUI.style.textAlign = "right";
+    timerUI.style.pointerEvents = "none";
+    timerUI.style.color = "white";
+    timerUI.style.fontFamily = "'Courier New', Courier, monospace";
+    timerUI.style.textShadow = "2px 2px #000";
+    timerUI.innerHTML = `TIME: <span id="bullet-hell-time">0.00</span>s`;
+
+    canvas = document.createElement("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.display = "block";
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+    canvas.style.background = "#000";
+
+    overlay.appendChild(canvas);
+    overlay.appendChild(info);
+    overlay.appendChild(timerUI);
+    document.body.appendChild(overlay);
+
+    ctx = canvas.getContext("2d");
+    bullets = [];
+
+    let frame = 0;
+    let ended = false;
+    const duration = Math.floor(Math.random() * 5001) + 10000;
+    const startTime = Date.now();
+
+    let lastHitTime = 0;
+    const iFrameDuration = 500;
+
+    player = {
+        x: canvas.width / 2,
+        y: canvas.height * 0.75,
+        size: 15,
+        speed: 5,
+        hitbox: 4,
+        keys: {}
+    };
+
+    function drawHeart(x, y, size, color = "#ff0000") {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x, y + size / 4);
+        ctx.quadraticCurveTo(x, y, x + size / 4, y);
+        ctx.quadraticCurveTo(x + size / 2, y, x + size / 2, y + size / 4);
+        ctx.quadraticCurveTo(x + size / 2, y, x + size * 3 / 4, y);
+        ctx.quadraticCurveTo(x + size, y, x + size, y + size / 4);
+        ctx.quadraticCurveTo(x + size, y + size / 2, x + size / 2, y + size * 0.9);
+        ctx.quadraticCurveTo(x, y + size / 2, x, y + size / 4);
+        ctx.fill();
     }
+
+    const keyDownHandler = (e) => {
+        player.keys[e.key.toLowerCase()] = true;
+    };
+
+    const keyUpHandler = (e) => {
+        player.keys[e.key.toLowerCase()] = false;
+    };
+
+    const resizeHandler = () => {
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("keydown", keyDownHandler);
+    window.addEventListener("keyup", keyUpHandler);
+    window.addEventListener("resize", resizeHandler);
+
+    function updatePlayer() {
+        const focus = player.keys["shift"];
+        const moveSpeed = focus ? player.speed * 0.25 : player.speed;
+
+        if ((player.keys["w"] || player.keys["arrowup"]) && player.y > 0) {
+            player.y -= moveSpeed;
+        }        
+        if ((player.keys["s"] || player.keys["arrowdown"]) && player.y < canvas.height - player.size) {
+            player.y += moveSpeed;
+        }
+        
+        if ((player.keys["a"] || player.keys["arrowleft"]) && player.x > 0) {
+            player.x -= moveSpeed;
+        }
+        
+        if ((player.keys["d"] || player.keys["arrowright"]) && player.x < canvas.width - player.size) {
+            player.x += moveSpeed;
+        }
+        
+
+        const invincible = Date.now() - lastHitTime < iFrameDuration;
+
+        if (!invincible || Math.floor(Date.now() / 50) % 2 === 0) {
+            drawHeart(player.x, player.y, player.size, "#ff0000");
+        }
+
+        if (focus) {
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(player.x + player.size / 2, player.y + player.size / 2, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function checkCollision(b) {
+        const dx = b.x - (player.x + player.size / 2);
+        const dy = b.y - (player.y + player.size / 2);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < (b.radius || 4) + player.hitbox;
+    }
+
+    function handlePatternAftermath(playerDied) {
+        if (ended) return;
+        ended = true;
+
+        window.removeEventListener("keydown", keyDownHandler);
+        window.removeEventListener("keyup", keyUpHandler);
+        window.removeEventListener("resize", resizeHandler);
+
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+
+        bullets = [];
+        player = null;
+        ctx = null;
+        canvas = null;
+
+        if (!playerDied) {
+            log(`You survived ${activePattern.name}!`, "var(--unlocked)");
+        }
+
+        const sDrain = (enemy.san || 0n);
+        const mDrain = (enemy.manaDrain || 0n);
+
+        if (sDrain > 0n && enemy.name === "Gerald") {
+            p.sn = p.sn + sDrain;
+            log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
+        } else if (sDrain > 0n && mDrain > 0n) {
+            p.sn = BigMath.max(p.sn - sDrain, 0n);
+            p.mp = BigMath.max(p.mp - mDrain, 0n);
+            log(`${enemy.name}'s attack drained <span class="san-warn">${formatNumber(sDrain)} Sanity</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana</span>!`, "var(--enemyATK)");
+        } else if (sDrain > 0n) {
+            p.sn = BigMath.max(p.sn - sDrain, 0n);
+            log(`${enemy.name}'s attack drained <span class="san-warn">${formatNumber(sDrain)} Sanity</span>!`, "var(--enemyATK)");
+        } else if (mDrain > 0n) {
+            p.mp = BigMath.max(p.mp - mDrain, 0n);
+            log(`${enemy.name}'s attack drained <span class="mana-warn">${formatNumber(mDrain)} Mana</span>!`, "var(--enemyATK)");
+        }
+
+        enemy.vulnerable = BigMath.max(enemy.vulnerable - 1n, 0n);
+        enemy.resistant = BigMath.max(enemy.resistant - 1n, 0n);
+        enemy.weakened = BigMath.max(enemy.weakened - 1n, 0n);
+        enemy.fished = BigMath.max(enemy.fished - 1n, 0n);
+        enemy.solari = BigMath.max(enemy.solari - 1n, 0n);
+
+        updateUI();
+
+        if (p.hp <= 0n) {
+            if (Math.random() < 0.05) {
+                if (p.kills >= 1000000n) {
+                    log(`Lux: Enjoy the bitter, freezing embrace of death.`, "#ff0000");
+                    setTimeout(() => {
+                        document.body.innerHTML = `<span style="color: red;">Don't bother coming back.</span>`;
+                    }, 3000);
+                } else {
+                    log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`, "var(--lux)");
+                }
+
+                document.body.style.pointerEvents = "none";
+                if (currentBossBGM) {
+                    currentBossBGM.pause();
+                    currentBossBGM = null;
+                }
+            } else {
+                log(`${p.name}. You have perished.`, "#ff4757");
+                document.body.style.pointerEvents = "none";
+                if (currentBossBGM) {
+                    currentBossBGM.pause();
+                    currentBossBGM = null;
+                }
+            }
+
+            const deathSFX1 = new Audio("sfx/player_sfx/player_death/heart_crack.wav");
+            triggerShake();
+            deathSFX1.currentTime = 0;
+            deathSFX1.play().catch(e => console.log("Audio playback prevented:", e));
+
+            setTimeout(() => {
+                const deathSFX2 = new Audio("sfx/player_sfx/player_death/heart_shatter.wav");
+                deathSFX2.currentTime = 0;
+                deathSFX2.play().catch(e => console.log("Audio playback prevented:", e));
+            }, 1000);
+        } else {
+            document.body.style.pointerEvents = "auto";
+        }
+    }
+
+    function loopPattern() {
+        if (ended || !ctx || !canvas || !player) return;
+
+        const elapsed = Date.now() - startTime;
+        const timeEl = document.getElementById("bullet-hell-time");
+        if (timeEl) timeEl.textContent = (elapsed / 1000).toFixed(2);
+
+        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+
+        try {
+            activePattern.run.call(activePattern, frame, cx, cy);
+        } catch (err) {
+            console.error("Pattern error:", activePattern.name, err);
+            log(`Pattern Error in ${activePattern.name}: ${err.message}`, "#ff0000");
+            handlePatternAftermath(false);
+            return;
+        }
+
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            const b = bullets[i];
+
+            if (typeof b.update === "function") {
+                b.update();
+            } else {
+                b.x += b.vx || 0;
+                b.y += b.vy || 0;
+            }
+
+            if (typeof b.draw === "function") {
+                b.draw();
+            } else {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius || 4, 0, Math.PI * 2);
+                ctx.fillStyle = b.color || "#fff";
+                ctx.fill();
+            }
+
+            if (
+                b.dead ||
+                b.radius <= 0 ||
+                b.x < -1000 || b.x > canvas.width + 1000 ||
+                b.y < -1000 || b.y > canvas.height + 1000
+            ) {
+                bullets.splice(i, 1);
+                continue;
+            }
+
+            if (checkCollision(b)) {
+                const now = Date.now();
+
+                if (now - lastHitTime >= iFrameDuration) {
+                    lastHitTime = now;
+
+                    let enemyDamage = enemy.atk;
+                    enemyDamage = enemy.weakened > 0n ? (enemyDamage / 2n) : enemyDamage;
+
+                    p.hp -= enemyDamage;
+                    log(`${enemy.name}'s ${patternDisplayName} hits for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>!`, "var(--enemyATK)");
+                    if (enemy.greedSin) {
+                        let roll = Math.random() * 500n * p.totalGold
+                        p.gold -= roll
+                        log(`Greed claims ${formatNumber(roll)}g as its own!`, "var(--gold)")
+                    }
+                    playHurtSFX();
+                    updateUI();
+
+                    if (p.hp <= 0n) {
+                        handlePatternAftermath(true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        updatePlayer();
+        frame++;
+
+        if (elapsed >= duration) {
+            handlePatternAftermath(false);
+            return;
+        }
+
+        requestAnimationFrame(loopPattern);
+    }
+
+    loopPattern();
+    return;
+    }
+
+    // Fallback: normal attack if no bullet pattern matches
+    let enemyDamage = enemy.atk;
+    enemyDamage = enemy.weakened > 0n ? (enemyDamage / 2n) : enemyDamage;
+    p.hp -= enemyDamage;
+
+    const sDrain = (enemy.san || 0n);
+    const mDrain = (enemy.manaDrain || 0n);
+
+    if (sDrain > 0n && enemy.name === "Gerald") {
+    p.sn = p.sn + sDrain;
+    log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
+    } else if (sDrain > 0n && mDrain > 0n) {
+    p.sn = BigMath.max(p.sn - sDrain, 0n);
+    p.mp = BigMath.max(p.mp - mDrain, 0n);
+    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>, <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
+    } else if (sDrain > 0n) {
+    p.sn = BigMath.max(p.sn - sDrain, 0n);
+    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span>!`, "var(--enemyATK)");
+    } else if (mDrain > 0n) {
+    p.mp = BigMath.max(p.mp - mDrain, 0n);
+    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
+    } else {
+    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>.`, "var(--enemyATK)");
+    }
+    // -- END CHANGE LOCATION
+
     enemy.vulnerable -= 1n;
     enemy.resistant -= 1n;
     enemy.weakened -= 1n;

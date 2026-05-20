@@ -1,12 +1,21 @@
-/* 
-
-document.body.innerHTML += '<div id="filter-debug" style="position:fixed;top:0;left:0;background:red;color:white;z-index:99999;">filter.js loaded</div>';
-
-*/
-
 let LuxShopTalkChance = null;
 let currentBossBGM = null;
 const name_code = "$argon2id$v=19$m=65536,t=3,p=4$NDc3ZjQ1YjZiOTdkYmJkMzVhMGQwNGI2NDk5YzY5NDU$n9hkkCz/n5vG3EnMdgAjmTrNutlFYOnHaPv3I9gzkig";
+
+function log(msg, color = "#e1e1e6") {
+    const l = document.getElementById('log');
+    // Create and add the new log message
+    const newEntry = document.createElement('div');
+    newEntry.style.color = color;
+    newEntry.innerHTML = `[Day ${formatNumber(p.day)}] ${msg}`;
+    l.appendChild(newEntry);
+    // If we have more than 1000 messages, remove the first child (removes a lot of lag)
+    while (l.children.length > 1000) {
+        l.removeChild(l.firstChild);
+    }
+    // Auto-scroll to the bottom (just to annoy the player if they try to look higher)
+    l.scrollTop = l.scrollHeight;
+}
 
 function nameSelection() {
     let filterBypassed = false;
@@ -894,4 +903,16 @@ function exitEvent() {
         // Normal exit if Lux doesn't want to talk
         closeUI();
     }
+}
+
+function toggleExtrasMenu() {
+    const menu = document.getElementById("extras-menu");
+    const btn = document.getElementById("extras-button");
+    const isHidden = menu.classList.toggle("hidden");
+    btn.innerHTML = isHidden ? "Extras ⟁" : "Extras <span style='display:inline-block; transform:rotate(180deg);'>⟁</span>";
+}
+
+function closeExtrasMenu() {
+    document.getElementById("extras-menu").classList.add("hidden");
+    document.getElementById("extras-button").innerHTML = "Extras ⟁";
 }

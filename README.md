@@ -1,11 +1,12 @@
 # Lux's RPG
+
 This is a game where you have to survive as long as you can.\
 Thanks to Toby Fox (and "The Sounds Resource") for the SFX in my game. I am grateful.
 
-
 Basic information:
+
 - Life: Your health pool. If it reaches 0, you die. (Simple)
-    - Importance: If health = 0, run function "die"
+  - Importance: If health = 0, run function "die"
     - How to upgrade it:
         - Use the "Dragon Heart" item from the shop
         - Level up
@@ -32,7 +33,9 @@ Basic information:
 - Spells: Deal damage, heal, or increase your sanity. Better spells require more skill points.
 
 Shop Information:
+
 - Shop prices scale with player LV
+
 - Shop item's potency *also* scales with player LV
 - Items:
     - Health Vial
@@ -59,10 +62,11 @@ Shop Information:
         - Increases total dmg output by 5%
 
 Detailed information:
+
 - Save Exporting/Importing
+
     - You can export your current save as a **.urpg** file.
     - You can import your **.urpg** save file on a different computer.
         - **Word of warning: Some legacy save files will break with newer versions (and also when I change the logic for the save export/import code). I am not held responsible for any lost progress.**
 
-# But do be warned. Lux watched us all.
-# BigIntMath
+## But do be warned. Lux watched us all.

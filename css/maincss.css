@@ -276,6 +276,32 @@ button:disabled {
     transform: translateY(-2px);
 }
 
+#extras-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#extras-menu {
+    position: fixed;
+    bottom: 65px; /* sits just above the button */
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid var(--mana);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#extras-menu button {
+    width: 140px;
+}
+
+
 .admin-icon {
     position: absolute;
     top: 15px;      /* Matches panel padding */

@@ -13,6 +13,7 @@ const inventoryItems = [
         rarity: "Common",
         rarityColor: "var(--commonItem)",
         description: "A vial filled with a red liquid. Heals you back up to full.",
+        edible: true,
         info: [
             {label: "HP", value: () => p.mhp-p.hp}
         ],
@@ -30,6 +31,7 @@ const inventoryItems = [
         rarity: "Common",
         rarityColor: "var(--commonItem)",
         description: "A vial filled with a mystical, blue liquid. Restores all mana.",
+        edible: true,
         info: [
             {label: "MP", value: () => p.mmp-p.mp}
         ],
@@ -46,6 +48,7 @@ const inventoryItems = [
         rarity: "Common",
         rarityColor: "var(--commonItem)",
         description: "A vial filled with a purple liquid. It pulses with a calm lunar light. Restores all sanity.",
+        edible: true,
         info: [
             {label: "SN", value: () => p.msn-p.sn}
         ],
@@ -62,6 +65,7 @@ const inventoryItems = [
         rarity: "Common",
         rarityColor: "var(--commonItem)",
         description: "A red, perfect apple which heals for a small amount of HP.",
+        edible: true,
         info: [
             {label: "HP", value: () => 50n * p.lv}
         ],
@@ -80,6 +84,7 @@ const inventoryItems = [
         rarity: "Epic (Crossover)",
         rarityColor: "var(--epicItem)",
         description: "An apple given from our favorite goob which heals for an insane amount of HP.",
+        edible: true,
         info: [
             {label: "HP", value: () => 10000n * p.lv}
         ],
@@ -475,6 +480,7 @@ const inventoryItems = [
         rarity: "???",
         rarityColor: "var(--insaneItem)",
         description: "A simple club sandwich. Smells like '#3c23a8' and some sort of cheese you've never smelt before. I think the cheese came from the Netflix repo? Or did it come from the Meteor Client repo? Wherever it came from, it is certainly a potent smelling cheese.",
+        edible: true,
         info: [
             {label: "HP", value: () => p.mhp * p.spares}
         ],
@@ -492,6 +498,7 @@ const inventoryItems = [
         rarity: "???",
         rarityColor: "var(--insaneItem)",
         description: "A perfect, yellow lemon. It is so incredibly sour — don't use this unless you want to lose your tongue. Because this lemon. Is that fucking sour.",
+        edible: true,
         info: [
             {label: "HP", value: () => BigMath.pow(p.mhp, 2n)},
             {label: "SN", value: () => -(p.sn - 1n)}
@@ -515,6 +522,7 @@ const inventoryItems = [
         rarity: "???",
         rarityColor: "var(--insaneItem)",
         description: "A simple loaf of bread. Yet it pulses with... Meep's? What? This should not be possible...",
+        edible: true,
         info: [
             {label: "HP", value: () => p.mhp * p.mhp}
         ],
@@ -596,6 +604,7 @@ const inventoryItems = [
         rarity: "Legendary (Crossover)",
         rarityColor: "var(--legendaryItem)",
         description: "A pack of Oreos. (Un)surprisingly, the pack is already open and is missing half of the Oreos inside.",
+        edible: true,
         info: [
             {label: "HP", value: () => p.mhp * p.kills}
         ],
@@ -950,6 +959,7 @@ const inventoryItems = [
         rarity: "Junk",
         rarityColor: "var(--commonItem)",
         description: "Just a bottle of water. Seems as if it has SOME healing properties.",
+        edible: true,
         info: [
             {label: "HP", value: () => 1n * p.lv}
         ],
@@ -1810,6 +1820,7 @@ const inventoryItems = [
         rarity: "Event (Christmas)",
         rarityColor: "#ff4757",
         description: "A festive candy cane. Surprisingly restorative.",
+        edible: true,
         info: [
             { label: "HP", value: () => 75n * p.lv },
             { label: "SN", value: () => 75n * p.lv },
@@ -1830,6 +1841,7 @@ const inventoryItems = [
         rarity: "Event (Christmas)",
         rarityColor: "#8B4513",
         description: "A warm mug of cocoa. Restores mana and soothes the mind.",
+        edible: true,
         info: [
             { label: "MP", value: () => 100n * p.lv },
             { label: "SN", value: () => 50n * p.lv },
@@ -1850,6 +1862,7 @@ const inventoryItems = [
         rarity: "Event (Christmas)",
         rarityColor: "#cd853f",
         description: "You can't catch him. But you did. Restores a moderate amount of HP.",
+        edible: true,
         info: [
             { label: "HP", value: () => 150n * p.lv },
         ],
@@ -1868,6 +1881,7 @@ const inventoryItems = [
         rarity: "Event (Christmas)",
         rarityColor: "#70a1ff",
         description: "A snowglobe containing a tiny frozen world. Freezes your next enemy... somehow.",
+        edible: true,
         info: [
             { label: "DMG%", value: () => 20n * p.lv },
         ],
@@ -1908,6 +1922,7 @@ const inventoryItems = [
         rarity: "Event (Halloween)",
         rarityColor: "#ff6b00",
         description: "A bag full of candy. Could be good. Could be very bad.",
+        edible: true,
         run: () => {
             log(`Item used: "Trick or Treat Bag"`, "#ff6b00");
             if (Math.random() < 0.5) {
@@ -1932,6 +1947,7 @@ const inventoryItems = [
         rarity: "Event (Halloween)",
         rarityColor: "#ff6b00",
         description: "A pumpkin with a sinister grin. Massively boosts damage but drains sanity.",
+        edible: true,
         info: [
             { label: "DMG%", value: () => 30n * p.lv },
             { label: "SN", value: () => -(p.sn / 2n) },
@@ -1951,6 +1967,7 @@ const inventoryItems = [
         rarity: "Event (Halloween)",
         rarityColor: "#a29bfe",
         description: "A bubbling purple concoction. The effects are... unpredictable.",
+        edible: true,
         run: () => {
             log(`Item used: "Witch's Brew"`, "#a29bfe");
             const outcomes = [
@@ -1992,6 +2009,7 @@ const inventoryItems = [
         rarity: "Event (Halloween)",
         rarityColor: "#ff6b00",
         description: "A carved pumpkin that glows with an eerie light. Burns with an unnatural flame.",
+        edible: true,
         info: [
             { label: "DMG%", value: () => 15n * p.lv },
             { label: "HP", value: () => 50n * p.lv },
@@ -2057,6 +2075,7 @@ const inventoryItems = [
         rarity: "Event (New Year)",
         rarityColor: "#ffd700",
         description: "A bottle of fine champagne. Celebratory and restorative.",
+        edible: true,
         info: [
             { label: "HP", value: () => 200n * p.lv },
             { label: "MP", value: () => 200n * p.lv },
