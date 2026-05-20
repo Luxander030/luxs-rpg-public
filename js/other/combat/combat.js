@@ -688,7 +688,7 @@ function enemyTurn() {
 
     let frame = 0;
     let ended = false;
-    const duration = Math.floor(Math.random() * 5001) + 10000;
+    const duration = Math.floor(Math.random() * 5001) + 5000;
     const startTime = Date.now();
 
     let lastHitTime = 0;

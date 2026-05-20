@@ -59,11 +59,7 @@ const skillTree = {
             return (base * p.dmgmult) / 100n;
         },
         get burn() {
-            if (Math.random() < 0.5) {
-                return p.lv * 3n
-            } else {
-                return 0n
-            }
+            return p.lv * 3n
         }
     },
     fingerofdeath: {
