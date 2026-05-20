@@ -65,9 +65,9 @@ function renderCombatButtons() {
     if (!zone) return; 
     zone.innerHTML = ""; 
     const categories = [
-        { label: "Damaging Spells", filter: (s) => s.dmg && !s.weaponRequired},
-        { label: "Healing Spells", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave" && !s.dmg},
-        { label: "Weapon Skills", filter: (s) => s.weaponRequired && s.weaponRequired === p.inventory.equippedWeapon}
+        { label: "Damaging Actions", filter: (s) => s.dmg && !s.weaponRequired},
+        { label: "Healing Actions", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave" && !s.dmg},
+        { label: "Weapon Actions", filter: (s) => s.weaponRequired && s.weaponRequired === p.inventory.equippedWeapon}
     ];
     categories.forEach(cat => {
         const matchingSkills = p.skills.filter(sid => {
