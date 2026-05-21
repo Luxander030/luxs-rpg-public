@@ -31,6 +31,86 @@ patternLibrary.push(
         }
     },
     {
+        name: "Shadow Swarm",
+        enemy: "Shadow Imp",
+        run: (frame, cx, cy) => {
+            // Erratic bursts from random edges — imps dart in from the shadows
+            if (frame % 30 === 0) {
+                const side = Math.floor(Math.random() * 4);
+                const count = 6;
+    
+                for (let i = 0; i < count; i++) {
+                    let spawnX, spawnY, vx, vy;
+    
+                    switch (side) {
+                        case 0: // top
+                            spawnX = Math.random() * cx * 2;
+                            spawnY = -50;
+                            vx = (Math.random() - 0.5) * 3;
+                            vy = 2 + Math.random() * 2;
+                            break;
+                        case 1: // bottom
+                            spawnX = Math.random() * cx * 2;
+                            spawnY = cy * 2 + 50;
+                            vx = (Math.random() - 0.5) * 3;
+                            vy = -(2 + Math.random() * 2);
+                            break;
+                        case 2: // left
+                            spawnX = -50;
+                            spawnY = Math.random() * cy * 2;
+                            vx = 2 + Math.random() * 2;
+                            vy = (Math.random() - 0.5) * 3;
+                            break;
+                        case 3: // right
+                            spawnX = cx * 2 + 50;
+                            spawnY = Math.random() * cy * 2;
+                            vx = -(2 + Math.random() * 2);
+                            vy = (Math.random() - 0.5) * 3;
+                            break;
+                    }
+    
+                    const bullet = new Bullet(spawnX, spawnY, vx, vy, "#cc44ff");
+                    bullet._tick = 0;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._tick++;
+                        // Wobble — imps never fly straight
+                        this.vx += (Math.random() - 0.5) * 0.2;
+                        this.vy += (Math.random() - 0.5) * 0.2;
+                        this._baseUpdate();
+    
+                        const t = Math.min(this._tick / 100, 1);
+                        const r = Math.round(0xcc + 0x33 * t);
+                        const g = Math.round(0x44 - 0x44 * t);
+                        const b = Math.round(0xff - 0x55 * t);
+                        this.color = `rgb(${r}, ${g}, ${b})`;
+                    };
+    
+                    bullets.push(bullet);
+                }
+            }
+    
+            // Occasional cheap shot directly at the player
+            if (frame % 90 === 0) {
+                const angle = Math.atan2(player.y - cy, player.x - cx);
+                const speed = 4;
+                const bullet = new Bullet(cx, cy, Math.cos(angle) * speed, Math.sin(angle) * speed, "#ff44ff");
+                bullet._tick = 0;
+                bullet._baseUpdate = bullet.update.bind(bullet);
+                bullet.update = function () {
+                    this._tick++;
+                    this._baseUpdate();
+                    const t = Math.min(this._tick / 60, 1);
+                    const r = 0xff;
+                    const g = Math.round(0x44 + 0xbb * t);
+                    const b = 0xff;
+                    this.color = `rgb(${r}, ${g}, ${b})`;
+                };
+                bullets.push(bullet);
+            }
+        }
+    },    
+    {
         name: "Spit",
         enemy: "Armored Beetle",
         run: (frame, cx, cy) => {

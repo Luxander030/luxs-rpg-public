@@ -279,6 +279,7 @@ function updateUI() {
     // Damage Multiplier (Assuming stored as fixed-point, e.g., 105n = 1.05x)
     let dmgMultPercent = p.dmgmult - 100n 
     document.getElementById('side-dmgmult').innerText = "+" + formatNumber(dmgMultPercent) + "%";
+    document.getElementById('equipped-weapon').innerText = `Currently equipped weapon: ${(!p.inventory.equippedWeapon || p.inventory.equippedWeapon === "empty") ? "None" : p.inventory.equippedWeapon}`;
     // 4. Enemy Stats
     if (enemy) {
         document.getElementById('e-hp-txt').innerText = `HP: ${formatNumber(enemy.hp)} / ${formatNumber(enemy.mhp)}`;
@@ -335,16 +336,16 @@ function updateInventoryUI() {
                 `;
                 const tip = document.getElementById('tooltip');
                 const updateTipPos = (e) => {
-                    let x = BigInt(e.clientX) + 15n;
-                    let y = BigInt(e.clientY) + 15n;
-                    let tipH = BigInt(tip.offsetHeight);
-                    let winW = BigInt(window.innerWidth);
-                    let winH = BigInt(window.innerHeight);
-                    if (x + 200n > winW) x = BigInt(e.clientX) - 215n;
-                    if (y + tipH > winH) y = winH - tipH - 10n;
+                    let x = e.clientX + 15;
+                    let y = e.clientY + 15;
+                    let tipH = tip.offsetHeight;
+                    let winW = window.innerWidth;
+                    let winH = window.innerHeight;
+                    if (x + 200 > winW) x = e.clientX - 215;
+                    if (y + tipH > winH) y = winH - tipH - 10;
                     tip.style.left = x + 'px';
                     tip.style.top = y + 'px';
-                };
+                };                
                 slotDiv.onmouseenter = (e) => {
                     if (itemData) {
                         const rColor = itemData.rarityColor || "#a4b0be";
@@ -407,16 +408,15 @@ function formatNumber(num) {
     const str = absolute.toString();
     const tier = Math.floor((str.length - 1) / 3);
     let suffix = "";
-    // 1. Hand-coded exceptions for the basics (0-4)
     const basicUnits = ["", "K", "M", "B", "T"];
     if (tier < basicUnits.length) {
         suffix = basicUnits[tier];
     } else if (tier <= 1000) {
-        // 2. Latin programmatic generation (Tiers 5 to 1000)
+        // latin programmatic generation (Tiers 5 to 1000)
         suffix = getLatinAbbreviation(tier - 1);
     } else {
-        // 3. Letter notation (Tiers > 1000)
-        // Starts at "aa" for the 1001st tier
+        // letter notation (Tiers > 1000)
+        // starts at "aa" for the 1001st tier
         suffix = getLetterAbbreviation(tier - 1001);
     }
     const leadDigits = str.length % 3 || 3;
@@ -462,7 +462,7 @@ function handleDailyResources() {
             if (p.kills >= 1000000n) {
                 log(`Lux: And why would I talk to you?`,"#ff0000")
             } else {
-                log(`Lux: Your reliance on rest is a testament to your frailty. Perhaps if you were less slothful, you would have achieved your goal by now.`, "var(--lux)");
+                log(`Lux: Your reliance on rest is a testament to your frailty. Perhaps if you were less lazy, you would have achieved your goal by now.`, "var(--lux)");
             }
         }
     } else {
@@ -477,7 +477,7 @@ function handleDailyResources() {
             if (p.kills >= 1000000n) {
                 log(`Lux: And why would I talk to you?`,"#ff0000")
             } else {
-                log(`Lux: You let your mind fracture, and now I feast on the shards. Had you kept your wits, we might not be mired in this pathetic display.`, "var(--lux)");
+                log(`Lux: You let your mind fracture, and now I feast on the shards. Had you kept your wits, we might not have been in this... situation.`, "var(--lux)");
             }
         }
     }
@@ -522,8 +522,7 @@ function startShop() {
     document.getElementById('shop-view').classList.remove('hidden');
     const shelf = document.getElementById('shop-shelf'); 
     shelf.innerHTML = "";
-    // 1. Determine item count (Convert BigInt Level to Number for small logic)
-    let currentLv = BigInt(p.lv);
+    let currentLv = p.lv
     let spares = p.spares;
     // Geno Scaling: Based on LV (since Pacifists stay LV 1)
     let genoCount = 
@@ -541,7 +540,6 @@ function startShop() {
     let itemCount = Math.max(genoCount, pacifistCount);
     // 2. Filter out items
     let availableItems = masterShop.filter(item => {
-        // Change: Assuming manaReduction is now stored as a whole number percentage (e.g., 100n = 100%)
         if ((item.id === 'manastabilizer' || item.id === 'manastabilizer2') && p.manaReduction >= 100n) return false;
         if (p.inventory.slot610Unlocked === true && item.id === 'slot610unlocker') return false;
         if (p.inventory.slot1120Unlocked === true && item.id === 'slot1120unlocker') return false;
@@ -582,10 +580,6 @@ function startShop() {
                 onclick="buyItem('${item.id}', 'shop-btn-${index}')">Acquire</button>`;
         shelf.appendChild(div);
     });
-}
-
-function maybeSoldOut(btn) {
-    btn.innerText = Math.random() < 0.05 ? "=)" : "Sold Out";
 }
 
 function buyItem(id, btnId) {
@@ -732,7 +726,7 @@ function renderTree() {
     } else {
         for (let id in skillTree) {
             let s = skillTree[id];
-            if (s.name === "Chara's Knife" || s.name === "Nox Nocturnal (Beam)" || s.name === "Nox Nocturnal (Explosion)" || s.name === "Nox Nocturnal (Siphon)" || s.name === "Frying Pan") {
+            if (s.name === "Chara Knife" || s.name === "Nox Nocturnal (Beam)" || s.name === "Nox Nocturnal (Explosion)" || s.name === "Nox Nocturnal (Siphon)" || s.name === "Frying Pan") {
                 continue;
             }
             let isParentUnlocked = !s.parent || skillTree[s.parent].unlocked;
@@ -771,6 +765,7 @@ function buyMastery(stat) {
         // Cap Mana Reduction at 100n if that's the stat
         if (stat === 'manaReduction' && p.manaReduction > 100n) p.manaReduction = 100n;
         log(`Mastery Transformed! Spent ${formatNumber(amount)} SP to increase ${stat.toUpperCase()} by ${formatNumber(totalGain)}.`, "var(--unlocked)");
+        playSpellMasteryBuySFX();
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
                 document.body.style.pointerEvents = "none"; 
@@ -786,6 +781,7 @@ function buyMastery(stat) {
         renderTree();
         updateUI();
     } else {
+        playCantSelectSFX();
         log(`You lack the ${formatNumber(amount)} Skill Points required for this ascension.`, "#ff4757");
     }
 }
@@ -800,6 +796,7 @@ function buySkill(id) {
         s.unlocked = true;
         p.skills.push(id);
         log(`Learned ${s.name}!`, "var(--unlocked)");
+        playSpellMasteryBuySFX();
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
                 log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`,"#ff0000")
@@ -812,6 +809,7 @@ function buySkill(id) {
     } else {
         // formatNumber will handle the BigInt for the display
         log(`You need ${formatNumber(skillCost)} Skill Points to learn this.`, "#ff4757");
+        playCantSelectSFX();
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
                 log(`Lux: Idiot. Idiot. Idiot. Idiot. IDIOT.`,"#ff0000")

@@ -366,13 +366,13 @@ function cast(sid) {
     if (s.dmg) {
         let damage = s.dmg // Base Damage
         let pretendDamage = s.dmg
-        if (p.inventory.equippedWeapon === "stoneSword" && s.name === "Strike") {
+        if (p.inventory.equippedWeapon === "Stone Sword" && s.name === "Strike") {
             damage += 25n * p.lv
             pretendDamage += 25n * p.lv
-        } else if (p.inventory.equippedWeapon === "ironSword" && s.name === "Strike") {
+        } else if (p.inventory.equippedWeapon === "Iron Sword" && s.name === "Strike") {
             damage += 50n * p.lv
             pretendDamage += 50n * p.lv
-        } else if (p.inventory.equippedWeapon === "diamondSword" && s.name === "Strike") {
+        } else if (p.inventory.equippedWeapon === "Diamond Sword" && s.name === "Strike") {
             damage += 100n * p.lv
             pretendDamage += 100n * p.lv
         }
@@ -427,8 +427,9 @@ function cast(sid) {
             return;
         }
     }
-    if (s.fryingPan) {
-        if (Math.random() < 0.1) {
+    if (p.inventory.equippedWeapon === "Frying Pan" && skillTree.fryingPan.unlocked) {
+        let roll = Math.random()
+        if (roll < 0.1) {
             const fryingPanDropPool = ["Health Vial", "Mana Well", "Clarity Tonic", "Apple", "Abbie's Apple", "Lux's Lemon", "Bottle O' Water", "Lux's Sandwich", "Bob's Bread"];
             const item = fryingPanDropPool[Math.floor(Math.random() * fryingPanDropPool.length)];
             if (checkSpaceAndAddItem(item)) {

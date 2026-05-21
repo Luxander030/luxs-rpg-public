@@ -88,6 +88,12 @@ function playCoinSFX() {
     coinSFX.play().catch(e => console.log("Audio playback prevented:", e));
 }
 
+const masterySpellBuySFX = new Audio("sfx/masterySpellBuy.wav");
+function playSpellMasteryBuySFX() {
+    masterySpellBuySFX.currentTime = 0;
+    masterySpellBuySFX.play().catch(e => console.log("Audio playback prevented:", e));
+}
+
 /*
 ###########################################################################################
 

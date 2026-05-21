@@ -652,7 +652,7 @@ const inventoryItems = [
     },
     {
         id: "charaKnife",
-        name: "Chara's Knife",
+        name: "Chara Knife",
         rarity: "Legendary (Crossover)",
         rarityColor: "var(--legendaryItem)",
         description: "A red, bloody knife. It has seen many genocides. Will you be used by it as well?",
@@ -662,8 +662,8 @@ const inventoryItems = [
             } else {
                 p.skills.push('charaKnife')
             }
-            p.inventory.equippedWeapon = "charaKnife"
-            log(`Equipped "Chara's Knife"`, "#ff0000")
+            p.inventory.equippedWeapon = "Chara Knife"
+            log(`Equipped "Chara Knife"`, "#ff0000")
             return updateUI();
         }
     },
@@ -687,7 +687,7 @@ const inventoryItems = [
             } else {
                 p.skills.push('noxNocturnalBeam', 'noxNocturnalExplosion', 'noxNocturnalSiphon')
             }
-            p.inventory.equippedWeapon = "noxNocturnal"
+            p.inventory.equippedWeapon = "Nox Nocturnal"
             let scaledAmount = p.sn / 4n
             p.sn = BigMath.max(p.sn - scaledAmount, 0n); 
             p.msn = BigMath.max(p.msn - scaledAmount, 0n);
@@ -706,7 +706,7 @@ const inventoryItems = [
             } else {
                 p.skills.push('fryingPan')
             }
-            p.inventory.equippedWeapon = "fryingPan"
+            p.inventory.equippedWeapon = "Frying Pan"
             log(`Equipped "Frying Pan"`, "var(--lux)")
             return updateUI();
         }
@@ -718,7 +718,7 @@ const inventoryItems = [
         rarityColor: "var(--uncommonItem)",
         description: "A simple stone sword. Deals some more damage then a normal strike.",
         run: () => {
-            p.inventory.equippedWeapon = "stoneSword"
+            p.inventory.equippedWeapon = "Stone Sword"
             log(`Equipped "Stone Sword"`, "var(--uncommonItem)")
             return updateUI();
         }
@@ -730,7 +730,7 @@ const inventoryItems = [
         rarityColor: "var(--rareItem)",
         description: "An iron sword. Much stronger and sharper then a stone one.",
         run: () => {
-            p.inventory.equippedWeapon = "ironSword"
+            p.inventory.equippedWeapon = "Iron Sword"
             log(`Equipped "Iron Sword"`, "var(--rareItem)")
             return updateUI();
         }
@@ -742,7 +742,7 @@ const inventoryItems = [
         rarityColor: "var(--epicItem)",
         description: "A diamond sword. Much, much stronger then an iron one.",
         run: () => {
-            p.inventory.equippedWeapon = "diamondSword"
+            p.inventory.equippedWeapon = "Diamond Sword"
             log(`Equipped "Diamond Sword"`, "var(--epicItem)")
             return updateUI();
         }

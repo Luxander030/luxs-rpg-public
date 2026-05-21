@@ -209,8 +209,8 @@ const skillTree = {
     */
 
     charaKnife: {
-        name: "Chara's Knife",
-        weaponRequired: "charaKnife",
+        name: "Chara Knife",
+        weaponRequired: "Chara Knife",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -223,7 +223,7 @@ const skillTree = {
     },
     noxNocturnalBeam: {
         name: "Nox Nocturnal (Beam)",
-        weaponRequired: "noxNocturnal",
+        weaponRequired: "Nox Nocturnal",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -241,7 +241,7 @@ const skillTree = {
     },
     noxNocturnalExplosion: {
         name: "Nox Nocturnal (Explosion)",
-        weaponRequired: "noxNocturnal",
+        weaponRequired: "Nox Nocturnal",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -264,7 +264,7 @@ const skillTree = {
     },
     noxNocturnalSiphon: {
         name: "Nox Nocturnal (Siphon)",
-        weaponRequired: "noxNocturnal",
+        weaponRequired: "Nox Nocturnal",
         cost: 0n,
         parent: null,
         unlocked: false,
