@@ -1140,6 +1140,7 @@ function win() {
     p.kills += 1n;
     addEnemyKillCount();
     enemyItemDrop();
+    gemDrop();
     updateUI();
     checkLuxKillLogs();
     enemy = null;

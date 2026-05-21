@@ -10,7 +10,6 @@ function enemyItemDrop() {
     if (!drop) return;
     checkSpaceAndAddItem(drop);
     log(`Collected item "${drop}" from ${enemy.name}`, "var(--gold)");
-    gemDrop();
 }
 
 function gemDrop() {
