@@ -2,7 +2,7 @@ const save_version_check = "4.0.2"
 async function checkForUpdates() {
     try {
         const response = await fetch(
-            'https://raw.githubusercontent.com/Luxander030/luxs-rpg-public/main/version.txt'
+            `https://raw.githubusercontent.com/Luxander030/luxs-rpg-public/main/version.txt?t=${Date.now()}`
         );
 
         if (!response.ok) return;
