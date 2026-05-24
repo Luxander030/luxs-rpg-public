@@ -1,9 +1,8 @@
-const save_version_check = "4.0.1"
+const save_version_check = "4.0.2"
 async function checkForUpdates() {
     try {
         const response = await fetch(
-            'https://api.github.com/repos/Luxander030/luxs-rpg-public/contents/version.txt',
-            { headers: { 'Accept': 'application/vnd.github.v3.raw' } }
+            'https://raw.githubusercontent.com/Luxander030/luxs-rpg-public/main/version.txt'
         );
 
         if (!response.ok) return;
