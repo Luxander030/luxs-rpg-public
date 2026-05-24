@@ -19,11 +19,11 @@ function gemDrop() {
         "Gloom Weaver": 0.07, "Void Stalker": 0.07, "Elf": 0.05, "Drow Elf": 0.05,
         "Blood Bat": 0.05, "Vampire": 0.08, "Vampire Lord": 0.10, "Vampire King": 0.12,
         // Glass Cannons
-        "Glass Cannon the I": 0.03, "Glass Cannon the II": 0.03,
-        "Glass Cannon the III": 0.03, "Glass Cannon the IV": 0.03, 
-        "Glass Cannon the V": 0.03, "Glass Cannon the VI": 0.03, 
-        "Glass Cannon the VII": 0.03, "Glass Cannon the VIII": 0.03, 
-        "Glass Cannon the IX": 0.03, "Glass Cannon the X": 0.03,
+        "Glass Cannon the I": 0.01, "Glass Cannon the II": 0.02,
+        "Glass Cannon the III": 0.03, "Glass Cannon the IV": 0.04, 
+        "Glass Cannon the V": 0.05, "Glass Cannon the VI": 0.06, 
+        "Glass Cannon the VII": 0.07, "Glass Cannon the VIII": 0.08, 
+        "Glass Cannon the IX": 0.09, "Glass Cannon the X": 0.1,
         // Elementals
         "Fire Elemental": 0.10, "Air Elemental": 0.10, "Water Elemental": 0.10,
         "Earth Elemental": 0.10, "Ice Elemental": 0.10,
@@ -39,7 +39,7 @@ function gemDrop() {
         "Gem Golem": 1.0, // Guarenteed gem from Gem Golem (it's made from gems for fucks sake)
         "Lux": 1.0,   // Guaranteed gem from Lux
         "Bob": 1.0,   // Guaranteed gem from Bob
-        "Gerald": 0,  // Gerald gives nothing. He's a rock.
+        "Gerald": 0,  // Gerald gives nothing. He's a rock. He is perfect.
     };
 
     const gemChance = gemChances[enemy.name] ?? 0.10; // Default 10% for anything not listed

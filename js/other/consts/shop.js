@@ -1101,4 +1101,126 @@ const masterShop = [
         }
     },
 
+    // ====================
+    // EFFECT ITEMS
+    // ====================
+
+    {
+        id: 'venomVial',
+        name: 'Venom Vial',
+        weight: 18,
+        get cost() {
+            let c = 80n;
+            for (let i = 1n; i < p.lv; i++) c = (c * 108n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Venom Vial")) {
+                updateInventoryUI();
+                return `Bought "Venom Vial."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    
+    {
+        id: 'flashbang',
+        name: 'Flashbang',
+        weight: 15,
+        get cost() {
+            let c = 120n;
+            for (let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Flashbang")) {
+                updateInventoryUI();
+                return `Bought "Flashbang."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    
+    {
+        id: 'torchOil',
+        name: 'Torch Oil',
+        weight: 20,
+        get cost() {
+            let c = 60n;
+            for (let i = 1n; i < p.lv; i++) c = (c * 107n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Torch Oil")) {
+                updateInventoryUI();
+                return `Bought "Torch Oil."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    
+    {
+        id: 'iceShard',
+        name: 'Ice Shard',
+        weight: 20,
+        get cost() {
+            let c = 60n;
+            for (let i = 1n; i < p.lv; i++) c = (c * 107n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Ice Shard")) {
+                updateInventoryUI();
+                return `Bought "Ice Shard."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    
+    {
+        id: 'cursedDust',
+        name: 'Cursed Dust',
+        weight: 12,
+        get cost() {
+            let c = 200n;
+            for (let i = 1n; i < p.lv; i++) c = (c * 112n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Cursed Dust")) {
+                updateInventoryUI();
+                return `Bought "Cursed Dust."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    
+    {
+        id: 'weakeningSalve',
+        name: 'Weakening Salve',
+        weight: 12,
+        get cost() {
+            let c = 180n;
+            for (let i = 1n; i < p.lv; i++) c = (c * 112n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Weakening Salve")) {
+                updateInventoryUI();
+                return `Bought "Weakening Salve."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },
+    
+    {
+        id: 'combinationKit',
+        name: 'Combination Kit',
+        weight: 6,
+        get cost() {
+            let c = 500n;
+            for (let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
+            return c;
+        },
+        run: () => {
+            if (tryAddItem("Combination Kit")) {
+                updateInventoryUI();
+                return `Bought "Combination Kit."`;
+            } else { return `Your inventory is currently full.`; }
+        }
+    },    
 ]

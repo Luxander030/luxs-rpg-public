@@ -17,6 +17,361 @@ function log(msg, color = "#e1e1e6") {
     l.scrollTop = l.scrollHeight;
 }
 
+function classSelection() {
+    const classes = [
+        {
+            id: "astralMage",
+            name: "Astral Mage",
+            image: "images/classes/astral.gif",
+            benefits: [
+                "Very, very powerful spells.",
+            ],
+            cons: [
+                "Very expensive SP prices.",
+            ],
+            color: "#a78bfa"
+        },
+        {
+            id: "stormmancer",
+            name: "Stormmancer",
+            image: "images/classes/storm.gif",
+            benefits: [
+                "Applies stun to enemies.",
+            ],
+            cons: [
+                "Spells have a chance to backfire on you.",
+            ],
+            color: "#60a5fa"
+        },
+        {
+            id: "druid",
+            name: "Druid",
+            image: "images/classes/druid.gif",
+            benefits: [
+                "One of the only classes with dedicated healing spells.",
+            ],
+            cons: [
+                "Fire based enemies take less damage from these spells.",
+            ],
+            color: "#4ade80"
+        },
+        {
+            id: "flamemancer",
+            name: "Flamemancer",
+            image: "images/classes/flamemancer.gif",
+            benefits: [
+                "Applies a lot of burn ticks.",
+            ],
+            cons: [
+                "Relatively weak attack, but stronger than physical attacks.",
+            ],
+            color: "#fb923c"
+        },
+        {
+            id: "cryomancer",
+            name: "Cryomancer",
+            image: "images/status_effects/frozen.png",
+            benefits: [
+                "Applies frozen status.",
+                "Second strongest, second only to Astral Spells"
+            ],
+            cons: [
+                "No dedicated healing spells.",
+            ],
+            color: "#baffff"
+        },
+        {
+            id: "watermancer",
+            name: "Watermancer",
+            image: "images/classes/watermancer.gif",
+            benefits: [
+                "Strong against fire type enemies.",
+            ],
+            cons: [
+                "Generally weak (3rd weakest).",
+                "Not that much variety for spells."
+            ],
+            color: "#38bdf8"
+        },
+        {
+            id: "shadow",
+            name: "Shadow",
+            image: "images/classes/shadow.gif",
+            benefits: [
+                "Deals more damage to enemies like Lux or Kitsune.",
+            ],
+            cons: [
+                "Deals less damage to demon-like enemies.",
+            ],
+            color: "#c084fc"
+        },
+        {
+            id: "neutral",
+            name: "Neutral",
+            image: null,
+            benefits: [
+                "Random effect.",
+                "Random effect.",
+                "Random effect.",
+            ],
+            cons: [
+                "Random effect.",
+                "Random effect.",
+                "Random effect.",
+            ],
+            color: "#a4b0be"
+        },
+    ];
+
+    // Build the overlay
+    const overlay = document.createElement('div');
+    overlay.id = "class-selection-overlay";
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow-y: auto;
+        padding: 40px 20px;
+        box-sizing: border-box;
+    `;
+
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = `
+        text-align: center;
+        margin-bottom: 30px;
+    `;
+    header.innerHTML = `
+        <h1 style="color: var(--mana); font-size: 2em; margin-bottom: 10px;">Choose Your Class</h1>
+        <p style="color: #a4b0be; font-size: 0.95em;">This choice is permanent. Choose wisely.</p>
+    `;
+    overlay.appendChild(header);
+
+    // Grid
+    const grid = document.createElement('div');
+    grid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px;
+    `;
+
+    classes.forEach(cls => {
+        const card = document.createElement('div');
+        card.style.cssText = `
+            background: #16161a;
+            border: 2px solid ${cls.color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        `;
+        card.onmouseenter = () => {
+            card.style.transform = "translateY(-5px)";
+            card.style.boxShadow = `0 0 20px ${cls.color}88`;
+        };
+        card.onmouseleave = () => {
+            card.style.transform = "translateY(0)";
+            card.style.boxShadow = "none";
+        };
+
+        // Image
+        const imgContainer = document.createElement('div');
+        imgContainer.style.cssText = `
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid ${cls.color};
+        `;
+        if (cls.image) {
+            const img = document.createElement('img');
+            img.src = cls.image;
+            img.alt = cls.name;
+            img.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            `;
+            imgContainer.appendChild(img);
+        } else {
+            imgContainer.style.background = "#2f3542";
+            imgContainer.style.display = "flex";
+            imgContainer.style.alignItems = "center";
+            imgContainer.style.justifyContent = "center";
+            imgContainer.innerHTML = `<span style="font-size: 2em; color: #a4b0be;">?</span>`;
+        }
+
+        // Name
+        const name = document.createElement('h3');
+        name.style.cssText = `
+            color: ${cls.color};
+            margin: 0;
+            font-size: 1.1em;
+        `;
+        name.textContent = cls.name;
+
+        // Benefits
+        const benefits = document.createElement('div');
+        benefits.style.cssText = `
+            font-size: 0.8em;
+            color: #2ed573;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        `;
+        cls.benefits.forEach(b => {
+            const line = document.createElement('div');
+            line.innerHTML = `<b>+</b> ${b}`;
+            benefits.appendChild(line);
+        });
+
+        // Cons
+        const cons = document.createElement('div');
+        cons.style.cssText = `
+            font-size: 0.8em;
+            color: #ff4757;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        `;
+        cls.cons.forEach(c => {
+            const line = document.createElement('div');
+            line.innerHTML = `<b>-</b> ${c}`;
+            cons.appendChild(line);
+        });
+
+        // Select button
+        const btn = document.createElement('button');
+        btn.textContent = `Choose ${cls.name}`;
+        btn.style.cssText = `
+            margin-top: 10px;
+            width: 100%;
+            background: ${cls.color}22;
+            border: 1px solid ${cls.color};
+            color: ${cls.color};
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        `;
+        btn.onmouseenter = () => btn.style.background = `${cls.color}44`;
+        btn.onmouseleave = () => btn.style.background = `${cls.color}22`;
+        btn.onclick = () => confirmClassSelection(cls, overlay);
+
+        card.appendChild(imgContainer);
+        card.appendChild(name);
+        card.appendChild(benefits);
+        card.appendChild(cons);
+        card.appendChild(btn);
+        grid.appendChild(card);
+    });
+
+    overlay.appendChild(grid);
+    document.body.appendChild(overlay);
+}
+
+function confirmClassSelection(cls, overlay) {
+    const confirm = document.createElement('div');
+    confirm.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.97);
+        z-index: 100000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    `;
+    confirm.innerHTML = `
+        <h2 style="color: ${cls.color};">Are you sure?</h2>
+        <p style="color: #a4b0be; text-align: center; max-width: 400px;">
+            You are about to choose <strong style="color: ${cls.color};">${cls.name}</strong> as your class.
+            <br><br>
+            <span style="color: #ff4757; font-weight: bold;">This cannot be changed.</span>
+        </p>
+        <div style="display: flex; gap: 15px;">
+            <button id="confirm-class-yes" style="
+                background: ${cls.color}22;
+                border: 1px solid ${cls.color};
+                color: ${cls.color};
+                padding: 12px 30px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 1em;
+            ">Yes, I'm sure</button>
+            <button id="confirm-class-no" style="
+                background: #2f3542;
+                border: 1px solid #57606f;
+                color: white;
+                padding: 12px 30px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 1em;
+            ">Go back</button>
+        </div>
+    `;
+    document.body.appendChild(confirm);
+
+    document.getElementById('confirm-class-yes').onclick = () => {
+        p.class = cls.id;
+        localStorage.setItem("luxsRPGplayerClass", cls.id);
+        applyClassStartingSpells(cls.id);
+        confirm.remove();
+        overlay.remove();
+        log(`You have chosen the path of the <strong style="color: ${cls.color};">${cls.name}</strong>.`, cls.color);
+        updateUI();
+    };
+
+    document.getElementById('confirm-class-no').onclick = () => {
+        confirm.remove();
+    };
+}
+
+function applyClassStartingSpells(classId) {
+    const startingSpells = {
+        astralMage:   ["starbit"],
+        stormmancer:  ["multispark"],
+        druid:        ["brambleChain"],
+        flamemancer:  ["flame"],
+        cryomancer:   ["chill"],
+        watermancer:  ["soak1"],
+        shadow:       ["miraShade"],
+        neutral:      ["campfire"],
+    };
+
+    const spells = startingSpells[classId] || [];
+    spells.forEach(spellId => {
+        if (skillTree[spellId]) {
+            skillTree[spellId].unlocked = true;
+            if (!p.skills.includes(spellId)) {
+                p.skills.push(spellId);
+            }
+        }
+    });
+}
+
 function nameSelection() {
     let filterBypassed = false;
 
@@ -280,6 +635,7 @@ function updateUI() {
     let dmgMultPercent = p.dmgmult - 100n 
     document.getElementById('side-dmgmult').innerText = "+" + formatNumber(dmgMultPercent) + "%";
     document.getElementById('equipped-weapon').innerText = `Currently equipped weapon: ${(!p.inventory.equippedWeapon || p.inventory.equippedWeapon === "empty") ? "None" : p.inventory.equippedWeapon}`;
+    document.getElementById('side-class').innerText = `Class: ${(!p.class || p.class === null) ? "None" : getClassName(p.class)}`;
     // 4. Enemy Stats
     if (enemy) {
         document.getElementById('e-hp-txt').innerText = `HP: ${formatNumber(enemy.hp)} / ${formatNumber(enemy.mhp)}`;
@@ -665,20 +1021,26 @@ function openTree() {
 }
 
 function renderTree() {
-    const container = document.getElementById('tree-nodes'); 
-    container.innerHTML = "";   
+    const container = document.getElementById('tree-nodes');
+    container.innerHTML = "";
+
+    // Sync unlocked state from p.skills
     p.skills.forEach(skillId => {
         if (skillTree[skillId]) {
             skillTree[skillId].unlocked = true;
         }
-    }); 
-    if (p.skills.includes('strike')) skillTree.strike.unlocked = true;
-    const ignoredNames = ["Chara's Knife", "Nox Nocturnal (Beam)", "Nox Nocturnal (Explosion)", "Nox Nocturnal (Siphon)", "Frying Pan"];
-    const allUnlocked = Object.keys(skillTree).every(id => {
-        // Check if the current name is in our list of ignored names
-        if (ignoredNames.includes(skillTree[id].name)) return true; 
-        return skillTree[id].unlocked === true;
     });
+
+    const weaponSkills = ["charaKnife", "noxNocturnalBeam", "noxNocturnalExplosion", "noxNocturnalSiphon", "fryingPan"];
+
+    const relevantTrees = ["general", "physical", p.class];
+    const relevantSkills = Object.keys(skillTree).filter(id => {
+        const s = skillTree[id];
+        return relevantTrees.includes(s.tree) && !weaponSkills.includes(id);
+    });
+
+    const allUnlocked = relevantSkills.every(id => skillTree[id].unlocked === true);
+
     if (allUnlocked) {
         let controlDiv = document.createElement('div');
         controlDiv.style = "grid-column: span 3; margin-bottom: 15px; text-align: center;";
@@ -688,17 +1050,19 @@ function renderTree() {
                 style="width:80px; background:#000; border:1px solid var(--mana); color:white; border-radius:4px; padding:5px; margin-left:10px;">
         `;
         container.appendChild(controlDiv);
+
         const masteryOptions = [
-            { name: "Vitality Mastery", stat: "mhp", color: "var(--hp)", desc: "Max HP" },
-            { name: "Magic Mastery", stat: "mmp", color: "var(--mana)", desc: "Max Mana" },
-            { name: "Clarity Mastery", stat: "msn", color: "var(--sanity)", desc: "Max Sanity" },
-            { name: "War Mastery", stat: "dmgmult", color: "#ff0000", desc: "Damage Multiplier" },
-            { name: "Efficiency Mastery", stat: "manaReduction", color: "var(--unlocked)", desc: "Mana Efficiency" }
+            { name: "Vitality Mastery",   stat: "mhp",           color: "var(--hp)",       desc: "Max HP" },
+            { name: "Magic Mastery",       stat: "mmp",           color: "var(--mana)",     desc: "Max Mana" },
+            { name: "Clarity Mastery",     stat: "msn",           color: "var(--sanity)",   desc: "Max Sanity" },
+            { name: "War Mastery",         stat: "dmgmult",       color: "#ff0000",         desc: "Damage Multiplier" },
+            { name: "Efficiency Mastery",  stat: "manaReduction", color: "var(--unlocked)", desc: "Mana Efficiency" }
         ];
+
         masteryOptions.forEach(opt => {
             if (opt.stat === 'manaReduction' && p.manaReduction >= 100n) {
                 let maxDiv = document.createElement('div');
-                maxDiv.className = "node purchased"; // Use 'purchased' class for a locked look
+                maxDiv.className = "node purchased";
                 maxDiv.style.borderColor = opt.color;
                 maxDiv.innerHTML = `
                     <strong>${opt.name}</strong><br>
@@ -706,15 +1070,12 @@ function renderTree() {
                     <small style="color:#666">100% Efficiency reached.</small>
                 `;
                 container.appendChild(maxDiv);
-                return; // Skip the rest of the loop for this option
+                return;
             }
+
             let div = document.createElement('div');
             div.className = "node available";
             div.style.borderColor = opt.color;
-            // Preview calculation for 1 point
-            let currentValue = BigInt(p[opt.stat]);
-            let currentGain = (currentValue * 5n) / 100n; 
-            if (currentGain < 1n) currentGain = 1n; // Minimum gain
             div.innerHTML = `
                 <strong>${opt.name}</strong><br>
                 Cost: (Amount) SP<br>
@@ -723,61 +1084,168 @@ function renderTree() {
             div.onclick = () => buyMastery(opt.stat);
             container.appendChild(div);
         });
+
     } else {
-        for (let id in skillTree) {
-            let s = skillTree[id];
-            if (s.name === "Chara Knife" || s.name === "Nox Nocturnal (Beam)" || s.name === "Nox Nocturnal (Explosion)" || s.name === "Nox Nocturnal (Siphon)" || s.name === "Frying Pan") {
-                continue;
-            }
-            let isParentUnlocked = !s.parent || skillTree[s.parent].unlocked;
-            let div = document.createElement('div');
-            div.className = `node ${s.unlocked ? 'purchased' : (isParentUnlocked ? 'available' : '')}`;
-            let displayName = Math.random() < 0.05 ? "=)" : s.name;
-            // Ensure cost is compared or displayed correctly if it's a BigInt
-            let displayCost = Math.random() < 0.05 ? "=)" : (s.unlocked ? 'Known' : s.cost + ' SP');
-            div.innerHTML = `<strong>${displayName}</strong><br>${displayCost}`;
-            if (isParentUnlocked && !s.unlocked) div.onclick = () => buySkill(id);
-            container.appendChild(div);
+        const tabs = [
+            { id: p.class,    label: getClassName(p.class) },
+            { id: "physical", label: "Physical" },
+            { id: "general",  label: "General"  },
+        ];
+
+        const tabBar = document.createElement('div');
+        tabBar.style.cssText = "grid-column: span 3; display: flex; gap: 8px; margin-bottom: 15px;";
+
+        let activeTab = p.class;
+
+        tabs.forEach(tab => {
+            const btn = document.createElement('button');
+            btn.textContent = tab.label;
+            btn.style.cssText = `
+                flex: 1;
+                background: ${activeTab === tab.id ? 'var(--mana)' : '#2f3542'};
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 8px;
+                cursor: pointer;
+                font-weight: bold;
+            `;
+            btn.onclick = () => {
+                activeTab = tab.id;
+                renderTabContent(tab.id);
+                playMenuButtonClickSFX();
+                tabBar.querySelectorAll('button').forEach((b, i) => {
+                    b.style.background = tabs[i].id === activeTab ? 'var(--mana)' : '#2f3542';
+                });
+            };
+            tabBar.appendChild(btn);
+        });
+
+        container.appendChild(tabBar);
+
+        const contentArea = document.createElement('div');
+        contentArea.id = "tree-tab-content";
+        contentArea.style.cssText = "grid-column: span 3; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;";
+        container.appendChild(contentArea);
+
+        function renderTabContent(treeId) {
+            contentArea.innerHTML = "";
+
+            const treeSkills = Object.keys(skillTree).filter(id =>
+                skillTree[id].tree === treeId && !weaponSkills.includes(id)
+            );
+
+            treeSkills.forEach(id => {
+                const s = skillTree[id];
+                const isParentUnlocked = !s.parent || skillTree[s.parent]?.unlocked;
+
+                const div = document.createElement('div');
+                div.className = `node ${s.unlocked ? 'purchased' : (isParentUnlocked ? 'available' : '')}`;
+
+                const displayName = Math.random() < 0.05 ? "=)" : s.name;
+                const displayCost = Math.random() < 0.05 ? "=)" : (s.unlocked ? 'Known' : s.cost + ' SP');
+
+                // Description — only show if the spell has one
+                const descHtml = s.description
+                    ? `<br><small style="color:#a4b0be; font-style:italic; display:block; margin-top:4px;">${s.description}</small>`
+                    : '';
+
+                // Trait notes
+                const backfireNote = s.backfireChance
+                    ? `<br><small style="color:#ff4757">⚠ ${(s.backfireChance * 100).toFixed(0)}% backfire chance</small>`
+                    : '';
+                const fireNote = s.fireReduction
+                    ? `<br><small style="color:#fb923c">🔥 Reduced vs fire enemies</small>`
+                    : '';
+                const waterNote = s.fireBonus
+                    ? `<br><small style="color:#38bdf8">💧 2x vs fire enemies</small>`
+                    : '';
+                const shadowNote = s.luxBonus
+                    ? `<br><small style="color:#c084fc">↑ vs Lux/Kitsune | ↓ vs Demons</small>`
+                    : '';
+
+                // Parent requirement note — only show if parent is locked
+                const parentNote = s.parent && !skillTree[s.parent]?.unlocked
+                    ? `<br><small style="color:#666">Requires: ${skillTree[s.parent]?.name || s.parent}</small>`
+                    : '';
+
+                div.innerHTML = `
+                    <strong>${displayName}</strong><br>
+                    ${displayCost}
+                    ${descHtml}
+                    ${backfireNote}
+                    ${fireNote}
+                    ${waterNote}
+                    ${shadowNote}
+                    ${parentNote}
+                `;
+
+                if (isParentUnlocked && !s.unlocked) {
+                    div.onclick = () => buySkill(id);
+                }
+
+                contentArea.appendChild(div);
+            });
         }
+
+        renderTabContent(activeTab);
     }
+}
+
+// Helper to get a readable class name from the class ID
+function getClassName(classId) {
+    const names = {
+        astralMage:   "Astral Mage",
+        stormmancer:  "Stormmancer",
+        druid:        "Druid",
+        flamemancer:  "Flamemancer",
+        cryomancer:   "Cryomancer",
+        watermancer:  "Watermancer",
+        shadow:       "Shadow",
+        neutral:      "Neutral",
+    };
+    return names[classId] || classId;
 }
 
 function buyMastery(stat) {
     const amountInput = document.getElementById('mastery-amount');
     let amount = amountInput ? BigInt(amountInput.value) : 1n;
     if (amount < 1n) amount = 1n;
+
     if (p.sp >= amount) {
         p.sp -= amount;
         let totalGain = 0n;
-        // Use a loop to simulate the 5% compounding per point spent
-        // For very large amounts (e.g. 1000 SP), this is fast for BigInt
+
         for (let i = 0; i < Number(amount); i++) {
             let gain = (p[stat] * 1n) / 100n;
             if (gain < 1n) gain = 1n;
             p[stat] += gain;
             totalGain += gain;
-            // If it's a Max stat (starts with 'm'), heal the current stat too
+
             if (stat.startsWith('m') && stat !== 'manaReduction') {
-                let currentKey = stat.substring(1); 
+                let currentKey = stat.substring(1);
                 p[currentKey] += gain;
             }
         }
-        // Cap Mana Reduction at 100n if that's the stat
+
         if (stat === 'manaReduction' && p.manaReduction > 100n) p.manaReduction = 100n;
+
         log(`Mastery Transformed! Spent ${formatNumber(amount)} SP to increase ${stat.toUpperCase()} by ${formatNumber(totalGain)}.`, "var(--unlocked)");
         playSpellMasteryBuySFX();
+
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
-                document.body.style.pointerEvents = "none"; 
-                log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`,"#ff0000")
+                document.body.style.pointerEvents = "none";
+                log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`, "#ff0000");
                 setTimeout(() => {
-                    log(`Lux: And yet I still hold the needle which will cause you to pop.`,"#ff0000")
-                    document.body.style.pointerEvents = "auto"; 
-                }, 1000)
+                    log(`Lux: And yet I still hold the needle which will cause you to pop.`, "#ff0000");
+                    document.body.style.pointerEvents = "auto";
+                }, 1000);
             } else {
                 LuxLog(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`);
             }
         }
+
         renderTree();
         updateUI();
     } else {
@@ -789,32 +1257,36 @@ function buyMastery(stat) {
 function buySkill(id) {
     let s = skillTree[id];
     if (s.unlocked) return;
-    // Convert s.cost to BigInt for comparison and subtraction
+
     const skillCost = BigInt(s.cost);
-    if (p.sp >= skillCost) { 
-        p.sp -= skillCost; 
+
+    if (p.sp >= skillCost) {
+        p.sp -= skillCost;
         s.unlocked = true;
         p.skills.push(id);
+
         log(`Learned ${s.name}!`, "var(--unlocked)");
         playSpellMasteryBuySFX();
+
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
-                log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`,"#ff0000")
+                log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`, "#ff0000");
             } else {
-                log(`Lux: Congratulations. You got a new spell. Doesn't really help you anyway. I can still kill you just as easily as before.`,"var(--lux)");
+                log(`Lux: Congratulations. You got a new spell. Doesn't really help you anyway. I can still kill you just as easily as before.`, "var(--lux)");
             }
         }
+
         renderTree();
         updateUI();
     } else {
-        // formatNumber will handle the BigInt for the display
         log(`You need ${formatNumber(skillCost)} Skill Points to learn this.`, "#ff4757");
         playCantSelectSFX();
+
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
-                log(`Lux: Idiot. Idiot. Idiot. Idiot. IDIOT.`,"#ff0000")
+                log(`Lux: Idiot. Idiot. Idiot. Idiot. IDIOT.`, "#ff0000");
             } else {
-                log(`Lux: You lack the wisdom that I have. I'm still a god in this world anyway. You're nothing...`,"var(--lux)");
+                log(`Lux: You lack the wisdom that I have. I'm still a god in this world anyway. You're nothing...`, "var(--lux)");
             }
         }
     }

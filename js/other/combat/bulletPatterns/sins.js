@@ -98,6 +98,128 @@ patternLibrary.push(
         }
     },
     {
+        name: "Tax Collection",
+        enemy: "Greed",
+        run: (frame, cx, cy) => {
+            // --- Coins raining from above in dense waves ---
+            if (frame % 4 === 0) {
+                const xPos = Math.random() * cx * 2;
+                const speed = 2 + Math.random() * 2;
+                const bullet = new Bullet(xPos, -50, (Math.random() - 0.5) * 0.5, speed, "#ffd700");
+                bullet._tick = 0;
+                bullet._baseUpdate = bullet.update.bind(bullet);
+                bullet.update = function () {
+                    this._tick++;
+                    this._baseUpdate();
+                    const t = Math.min(this._tick / 120, 1);
+                    const g = Math.round(0xd7 - 0x77 * t);
+                    this.color = `rgb(255, ${g}, 0)`;
+                };
+                bullets.push(bullet);
+            }
+
+            // --- Sweeping arc of gold bolts left to right ---
+            if (frame % 6 === 0) {
+                const sweep = Math.sin(frame * 0.04) * Math.PI;
+                const speed = 3;
+                const bullet = new Bullet(cx, cy,
+                    Math.cos(sweep) * speed,
+                    Math.abs(Math.sin(sweep)) * speed,
+                    "#ffaa00"
+                );
+                bullet._tick = 0;
+                bullet._baseUpdate = bullet.update.bind(bullet);
+                bullet.update = function () {
+                    this._tick++;
+                    this._baseUpdate();
+                };
+                bullets.push(bullet);
+            }
+
+            // --- Vault burst: massive ring every 150 frames ---
+            if (frame % 150 === 0) {
+                const count = 28;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const speed = 2 + Math.random() * 1.5;
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ffd700"
+                    );
+                    bullet._originX = cx;
+                    bullet._originY = cy;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._baseUpdate();
+                        const dx = this.x - this._originX;
+                        const dy = this.y - this._originY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const t = Math.min(dist / 300, 1);
+                        this.color = `rgb(255, ${Math.round(0xd7 - 0xd7 * t)}, 0)`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+        }
+    },
+    {
+        name: "Golden Cage",
+        enemy: "Greed",
+        run: (frame, cx, cy) => {
+            // --- Four walls of coins closing in from each side ---
+            if (frame % 180 === 0) {
+                const count = 12;
+                // Top wall
+                for (let i = 0; i < count; i++) {
+                    const x = (cx * 2 / count) * i;
+                    bullets.push(new Bullet(x, -50, 0, 1.5, "#ffd700"));
+                }
+                // Bottom wall
+                for (let i = 0; i < count; i++) {
+                    const x = (cx * 2 / count) * i;
+                    bullets.push(new Bullet(x, cy * 2 + 50, 0, -1.5, "#ffd700"));
+                }
+                // Left wall
+                for (let i = 0; i < count; i++) {
+                    const y = (cy * 2 / count) * i;
+                    bullets.push(new Bullet(-50, y, 1.5, 0, "#ffaa00"));
+                }
+                // Right wall
+                for (let i = 0; i < count; i++) {
+                    const y = (cy * 2 / count) * i;
+                    bullets.push(new Bullet(cx * 2 + 50, y, -1.5, 0, "#ffaa00"));
+                }
+            }
+
+            // --- Greedy spiral that accelerates over time ---
+            if (frame % 5 === 0) {
+                const speed = 1.5 + Math.min(frame / 200, 4);
+                const arms = 4;
+                for (let i = 0; i < arms; i++) {
+                    const angle = (frame * 0.04) + (i * (Math.PI * 2 / arms));
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ffd700"
+                    );
+                    bullet._originX = cx;
+                    bullet._originY = cy;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._baseUpdate();
+                        const dx = this.x - this._originX;
+                        const dy = this.y - this._originY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const t = Math.min(dist / 300, 1);
+                        this.color = `rgb(255, ${Math.round(0xd7 - 0xb7 * t)}, 0)`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+        }
+    },
+    {
         name: "Food Throw",
         enemy: "Gluttony",
         run: (() => {
@@ -337,6 +459,122 @@ patternLibrary.push(
         }
     },
     {
+        name: "Fury Unleashed",
+        enemy: "Wrath",
+        run: (frame, cx, cy) => {
+            // --- Rapid fire straight down in dense columns ---
+            if (frame % 3 === 0) {
+                const cols = 5;
+                for (let i = 0; i < cols; i++) {
+                    const x = (cx * 2 / (cols + 1)) * (i + 1);
+                    const speed = 4 + Math.random() * 2;
+                    const bullet = new Bullet(x, -50, (Math.random() - 0.5) * 0.5, speed, "#ff2200");
+                    bullet._tick = 0;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._tick++;
+                        this._baseUpdate();
+                        const t = Math.min(this._tick / 80, 1);
+                        this.color = `rgb(255, ${Math.round(0x22 + 0x33 * t)}, 0)`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+
+            // --- Rage burst: expanding ring that gets faster over time ---
+            if (frame % 100 === 0) {
+                const count = 20;
+                const speed = 2 + Math.min(frame / 150, 4);
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ff0000"
+                    );
+                    bullet._originX = cx;
+                    bullet._originY = cy;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._baseUpdate();
+                        const dx = this.x - this._originX;
+                        const dy = this.y - this._originY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const t = Math.min(dist / 300, 1);
+                        this.color = `rgb(255, ${Math.round(0x22 * (1 - t))}, 0)`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+        }
+    },
+    {
+        name: "Berserker",
+        enemy: "Wrath",
+        run: (frame, cx, cy) => {
+            // --- Completely chaotic spray that gets worse over time ---
+            if (frame % 2 === 0) {
+                const rage = Math.min(frame / 250, 1);
+                const count = Math.floor(2 + rage * 6);
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 3 + Math.random() * (3 + rage * 5);
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ff0000"
+                    );
+                    bullet._tick = 0;
+                    bullet._rage = rage;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._tick++;
+                        // Gets more erratic the angrier it gets
+                        this.vx += (Math.random() - 0.5) * 0.3 * (1 + this._rage * 2);
+                        this.vy += (Math.random() - 0.5) * 0.3 * (1 + this._rage * 2);
+                        this._baseUpdate();
+                        const t = Math.min(this._tick / 60, 1);
+                        this.color = `rgb(255, ${Math.round(0x44 * (1 - t))}, 0)`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+
+            // --- Lightning bolts of rage every 60 frames ---
+            if (frame % 60 === 0) {
+                const numBolts = 3;
+                for (let b = 0; b < numBolts; b++) {
+                    const boltX = Math.random() * cx * 2;
+                    const count = 40;
+                    const anchor = { bullet: null };
+                    for (let i = 0; i < count; i++) {
+                        const zigSegment = (i / count) * 4;
+                        const zigPhase = zigSegment % 1;
+                        const zigDir = Math.floor(zigSegment) % 2 === 0 ? 1 : -1;
+                        const xOff = zigDir * (zigPhase - 0.5) * 2 * 20;
+                        const yOff = (i / count) * 80;
+                        const isLeader = i === 0;
+                        const bullet = new Bullet(boltX + xOff, -50 + yOff, 0, 8, "#ff3300");
+                        bullet._xOff = xOff;
+                        bullet._yOff = yOff;
+                        bullet._boltX = boltX;
+                        bullet._anchor = anchor;
+                        bullet._baseUpdate = bullet.update.bind(bullet);
+                        if (isLeader) anchor.bullet = bullet;
+                        bullet.update = function () {
+                            this._baseUpdate();
+                            if (!isLeader && this._anchor.bullet) {
+                                this.x = this._boltX + this._xOff;
+                                this.y = this._anchor.bullet.y + this._yOff;
+                            }
+                        };
+                        bullets.push(bullet);
+                    }
+                }
+            }
+        }
+    },
+    {
         name: "Envious Flower",
         enemy: "Envy",
         run: (frame, cx, cy) => {
@@ -384,6 +622,130 @@ patternLibrary.push(
                         const g = Math.round(0xff - 0xff * t);
                         const b = Math.round(0x88 + 0x77 * t);
                         this.color = `rgb(${r}, ${g}, ${b})`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+        }
+    },
+    {
+        name: "Green With Envy",
+        enemy: "Envy",
+        run: (frame, cx, cy) => {
+            // --- Mirrored spirals — always copying, never original ---
+            if (frame % 5 === 0) {
+                const arms = 4;
+                const speed = 2 + Math.sin(frame * 0.03) * 1;
+                for (let i = 0; i < arms; i++) {
+                    const angle = (frame * 0.035) + (i * (Math.PI * 2 / arms));
+                    const mirrorAngle = -(frame * 0.035) + (i * (Math.PI * 2 / arms));
+
+                    [angle, mirrorAngle].forEach(a => {
+                        const bullet = new Bullet(cx, cy,
+                            Math.cos(a) * speed,
+                            Math.sin(a) * speed,
+                            "#00ff44"
+                        );
+                        bullet._originX = cx;
+                        bullet._originY = cy;
+                        bullet._baseUpdate = bullet.update.bind(bullet);
+                        bullet.update = function () {
+                            this._baseUpdate();
+                            const dx = this.x - this._originX;
+                            const dy = this.y - this._originY;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            const t = Math.min(dist / 300, 1);
+                            const r = Math.round(0x66 * t);
+                            const g = Math.round(0xff - 0xcc * t);
+                            const b = Math.round(0x44 + 0xbb * t);
+                            this.color = `rgb(${r}, ${g}, ${b})`;
+                        };
+                        bullets.push(bullet);
+                    });
+                }
+            }
+
+            // --- Jealous ring: closing in from outside ---
+            if (frame % 140 === 0) {
+                const count = 20;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const dist = 240;
+                    const bullet = new Bullet(
+                        cx + Math.cos(angle) * dist,
+                        cy + Math.sin(angle) * dist,
+                        -Math.cos(angle) * 2,
+                        -Math.sin(angle) * 2,
+                        "#00cc44"
+                    );
+                    bullets.push(bullet);
+                }
+            }
+        }
+    },
+    {
+        name: "Covet",
+        enemy: "Envy",
+        run: (frame, cx, cy) => {
+            // --- Tendrils that reach toward the player area ---
+            if (frame % 8 === 0) {
+                const count = 3;
+                for (let i = 0; i < count; i++) {
+                    const spread = (i - 1) * 0.3;
+                    const baseAngle = Math.PI / 2 + spread;
+                    const speed = 2.5 + Math.random();
+                    const bullet = new Bullet(
+                        cx + (Math.random() - 0.5) * cx,
+                        -50,
+                        Math.cos(baseAngle) * speed * 0.3,
+                        Math.sin(baseAngle) * speed,
+                        "#00ff88"
+                    );
+                    bullet._tick = 0;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._tick++;
+                        this.vx += (Math.random() - 0.5) * 0.1;
+                        this._baseUpdate();
+                        const t = Math.min(this._tick / 100, 1);
+                        const g = Math.round(0xff - 0xbb * t);
+                        const b = Math.round(0x88 + 0x77 * t);
+                        this.color = `rgb(0, ${g}, ${b})`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+
+            // --- Oscillating wave from sides ---
+            if (frame % 5 === 0) {
+                const wave = Math.sin(frame * 0.05) * cy * 0.7;
+                const speed = 2.5;
+                const b1 = new Bullet(-50, cy + wave, speed, 0, "#00dd55");
+                const b2 = new Bullet(cx * 2 + 50, cy - wave, -speed, 0, "#00dd55");
+                bullets.push(b1, b2);
+            }
+
+            // --- Envy burst every 120 frames ---
+            if (frame % 120 === 0) {
+                const count = 16;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const speed = 3;
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#00ff44"
+                    );
+                    bullet._originX = cx;
+                    bullet._originY = cy;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._baseUpdate();
+                        const dx = this.x - this._originX;
+                        const dy = this.y - this._originY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const t = Math.min(dist / 300, 1);
+                        this.color = `rgb(0, ${Math.round(0xff - 0xbb * t)}, ${Math.round(0x44 + 0xbb * t)})`;
                     };
                     bullets.push(bullet);
                 }
@@ -465,6 +827,67 @@ patternLibrary.push(
         }
     },
     {
+        name: "Above All Others",
+        enemy: "Pride",
+        run: (frame, cx, cy) => {
+            // --- Slow majestic cross that rotates with authority ---
+            if (frame % 4 === 0) {
+                const arms = 8;
+                const speed = 2 + Math.sin(frame * 0.02) * 0.8;
+                for (let i = 0; i < arms; i++) {
+                    const angle = (frame * 0.018) + (i * (Math.PI * 2 / arms));
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ffffff"
+                    );
+                    bullet._originX = cx;
+                    bullet._originY = cy;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._baseUpdate();
+                        const dx = this.x - this._originX;
+                        const dy = this.y - this._originY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const t = Math.min(dist / 300, 1);
+                        const r = 0xff;
+                        const g = Math.round(0xff - 0x9a * t);
+                        const b = Math.round(0xff - 0xff * t);
+                        this.color = `rgb(${r}, ${g}, ${b})`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+
+            // --- Crown: ring that expands then a second one closes in ---
+            if (frame % 200 === 0) {
+                const count = 24;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    bullets.push(new Bullet(cx, cy,
+                        Math.cos(angle) * 2.5,
+                        Math.sin(angle) * 2.5,
+                        "#ffffaa"
+                    ));
+                }
+            }
+            if (frame % 200 === 100) {
+                const count = 24;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const dist = 280;
+                    bullets.push(new Bullet(
+                        cx + Math.cos(angle) * dist,
+                        cy + Math.sin(angle) * dist,
+                        -Math.cos(angle) * 2,
+                        -Math.sin(angle) * 2,
+                        "#ffffff"
+                    ));
+                }
+            }
+        }
+    },
+    {
         name: "Pulling Heartbeat",
         enemy: "Lust",
         run: (frame, cx, cy) => {
@@ -505,6 +928,124 @@ patternLibrary.push(
                     const bullet = new Bullet(spawnX, spawnY, -Math.cos(angle) * speed, -Math.sin(angle) * speed, "#ff69b4");
                     bullets.push(bullet);
                 }
+            }
+        }
+    },
+    {
+        name: "Enthrall",
+        enemy: "Lust",
+        run: (frame, cx, cy) => {
+            // --- Slow seductive figure-8 pattern ---
+            if (frame % 5 === 0) {
+                const t = frame * 0.03;
+                const ox = Math.sin(t) * 130;
+                const oy = Math.sin(t * 2) * 65;
+                const count = 5;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2 + t;
+                    const speed = 1.8;
+                    const bullet = new Bullet(
+                        cx + ox, cy + oy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ff69b4"
+                    );
+                    bullet._originX = cx + ox;
+                    bullet._originY = cy + oy;
+                    bullet._tick = 0;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._tick++;
+                        this._baseUpdate();
+                        const fade = Math.min(this._tick / 100, 1);
+                        const r = 0xff;
+                        const g = Math.round(0x69 - 0x69 * fade);
+                        const b = Math.round(0xb4 - 0x80 * fade);
+                        this.color = `rgb(${r}, ${g}, ${b})`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+
+            // --- Charm ring: slow inward pull ---
+            if (frame % 120 === 0) {
+                const count = 16;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const dist = 200;
+                    const bullet = new Bullet(
+                        cx + Math.cos(angle) * dist,
+                        cy + Math.sin(angle) * dist,
+                        -Math.cos(angle) * 1.5,
+                        -Math.sin(angle) * 1.5,
+                        "#ff1493"
+                    );
+                    bullets.push(bullet);
+                }
+            }
+
+            // --- Pulsing burst that syncs with heartbeat ---
+            if (frame % 80 === 0) {
+                const count = 12;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const speed = 2.5;
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ff69b4"
+                    );
+                    bullets.push(bullet);
+                }
+            }
+        }
+    },
+    {
+        name: "Obsession",
+        enemy: "Lust",
+        run: (frame, cx, cy) => {
+            // --- Spiral that tightens over time — obsession closing in ---
+            if (frame % 4 === 0) {
+                const tightness = Math.min(frame / 300, 0.8);
+                const speed = 1.5 + tightness * 2;
+                const arms = 5;
+                for (let i = 0; i < arms; i++) {
+                    const angle = (frame * (0.03 + tightness * 0.02)) + (i * (Math.PI * 2 / arms));
+                    const bullet = new Bullet(cx, cy,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        "#ff1493"
+                    );
+                    bullet._originX = cx;
+                    bullet._originY = cy;
+                    bullet._tick = 0;
+                    bullet._baseUpdate = bullet.update.bind(bullet);
+                    bullet.update = function () {
+                        this._tick++;
+                        this._baseUpdate();
+                        const dx = this.x - this._originX;
+                        const dy = this.y - this._originY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const t = Math.min(dist / 300, 1);
+                        const r = 0xff;
+                        const g = Math.round(0x14 + 0x55 * (1 - t));
+                        const b = Math.round(0x93 - 0x93 * t);
+                        this.color = `rgb(${r}, ${g}, ${b})`;
+                    };
+                    bullets.push(bullet);
+                }
+            }
+
+            // --- Waves from all four sides that converge ---
+            if (frame % 7 === 0) {
+                const wave = Math.sin(frame * 0.04);
+                const speed = 2;
+                const offset = wave * cy * 0.5;
+
+                bullets.push(new Bullet(-50, cy + offset, speed, 0, "#ff69b4"));
+                bullets.push(new Bullet(cx * 2 + 50, cy - offset, -speed, 0, "#ff69b4"));
+                bullets.push(new Bullet(cx + offset, -50, 0, speed, "#ff1493"));
+                bullets.push(new Bullet(cx - offset, cy * 2 + 50, 0, -speed, "#ff1493"));
             }
         }
     },

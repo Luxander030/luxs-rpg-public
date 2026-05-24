@@ -61,64 +61,155 @@ function renderStatusIcons() {
 function renderCombatButtons() {
     const zone = document.getElementById('combat-btns');
     const searchInput = document.getElementById('action-search');
-    const query = searchInput ? searchInput.value.toLowerCase() : ""; 
-    if (!zone) return; 
-    zone.innerHTML = ""; 
+    const query = searchInput ? searchInput.value.toLowerCase() : "";
+    if (!zone) return;
+    zone.innerHTML = "";
+
     const categories = [
-        { label: "Damaging Actions", filter: (s) => s.dmg && !s.weaponRequired},
-        { label: "Healing Actions", filter: (s) => (s.heal || s.san) && s.mp && s.name !== "Snowgrave" && !s.dmg},
-        { label: "Weapon Actions", filter: (s) => s.weaponRequired && s.weaponRequired === p.inventory.equippedWeapon}
+        {
+            label: "Class Spells",
+            filter: (s, sid) => {
+                if (s.weaponRequired) return false;
+                if (!s.tree) return false;
+                // Show spells that belong to the player's class tree
+                return s.tree === p.class && (s.dmg || s.heal || s.san);
+            }
+        },
+        {
+            label: "General Spells",
+            filter: (s, sid) => {
+                if (s.weaponRequired) return false;
+                return s.tree === "general" && (s.heal || s.san);
+            }
+        },
+        {
+            label: "Physical Attacks",
+            filter: (s, sid) => {
+                if (s.weaponRequired) return false;
+                return s.tree === "physical" && s.dmg;
+            }
+        },
+        {
+            label: "Weapon Actions",
+            filter: (s, sid) => {
+                return s.weaponRequired && s.weaponRequired === p.inventory.equippedWeapon;
+            }
+        }
     ];
+
+    const updateTipPos = (e, tip) => {
+        let x = e.clientX + 15;
+        let y = e.clientY + 15;
+        let tipH = tip.offsetHeight;
+        let winW = window.innerWidth;
+        let winH = window.innerHeight;
+        if (x + 200 > winW) x = e.clientX - 215;
+        if (y + tipH > winH) y = winH - tipH - 10;
+        tip.style.left = x + 'px';
+        tip.style.top = y + 'px';
+    };
+
     categories.forEach(cat => {
         const matchingSkills = p.skills.filter(sid => {
             let s = skillTree[sid];
-            return s && cat.filter(s) && s.name.toLowerCase().includes(query);
+            return s && cat.filter(s, sid) && s.name.toLowerCase().includes(query);
         });
+
         if (matchingSkills.length > 0) {
             const header = document.createElement('div');
             header.style = "grid-column: span 2; color: #a4b0be; font-size: 0.75em; margin-top: 10px; border-bottom: 1px solid #2f3542; text-transform: uppercase;";
             header.innerText = cat.label;
             zone.appendChild(header);
+
             matchingSkills.forEach(sid => {
                 let s = skillTree[sid];
-                let b = document.createElement('button');
-                // Ensure mana calculation uses BigInt
                 let currentCost = BigInt(getScaledMana(s.mp || 0));
+
+                let b = document.createElement('button');
                 b.innerText = `${s.name}${s.mp ? ' (' + formatNumber(currentCost) + ' MP)' : ''}`;
                 b.onclick = () => cast(sid);
-                const updateTipPos = (e, tip) => {
-                    let x = BigInt(e.clientX) + 15n;
-                    let y = BigInt(e.clientY) + 15n;
-                    let tipH = BigInt(tip.offsetHeight);
-                    let winW = BigInt(window.innerWidth);
-                    let winH = BigInt(window.innerHeight);
-                    if (x + 200n > winW) x = BigInt(e.clientX) - 215n;
-                    if (y + tipH > winH) y = winH - tipH - 10n;
-                    tip.style.left = x + 'px';
-                    tip.style.top = y + 'px';
-                };
+
+                // Backfire warning for stormmancer spells
+                if (s.backfireChance) {
+                    b.style.borderBottom = `2px solid #ff4757`;
+                }
+
+                // Fire reduction warning for druid spells
+                if (s.fireReduction && enemy && (
+                    enemy.name === "Fire Elemental" ||
+                    enemy.name === "Fiery Will O' Wisp" ||
+                    enemy.name === "Azmodan"
+                )) {
+                    b.style.opacity = "0.6";
+                    b.title = "Reduced damage against fire enemies";
+                }
+
+                // Fire bonus highlight for watermancer spells
+                if (s.fireBonus && enemy && (
+                    enemy.name === "Fire Elemental" ||
+                    enemy.name === "Fiery Will O' Wisp" ||
+                    enemy.name === "Azmodan"
+                )) {
+                    b.style.borderBottom = `2px solid #38bdf8`;
+                }
+
+                // Shadow bonus highlight
+                if (s.luxBonus && enemy && (
+                    enemy.name === "Lux" ||
+                    enemy.name === "Kitsune"
+                )) {
+                    b.style.borderBottom = `2px solid #c084fc`;
+                }
+
                 b.onmouseenter = (e) => {
                     const tip = document.getElementById('tooltip');
-                    let html = `<strong>${s.name}</strong><br>`;
-                    // Assuming formatNumber handles BigInt
-                    if (s.dmg) html += `DMG: <span style="color:var(--hp)">${formatNumber(BigInt(s.dmg))}</span><br>`;
-                    if (s.heal) html += `Healing: <span style="color:var(--unlocked)">${formatNumber(BigInt(s.heal))}</span><br>`;
-                    if (s.san) html += `Sanity: <span style="color:var(--sanity)">${formatNumber(BigInt(s.san))}</span><br>`;
-                    if (s.burn) html += `Burn: <span style="color:var(--gold)">${s.burn} turns</span><br>`;
-                    tip.innerHTML = html + `<hr style="border:0;border-top:1px solid #444;margin:5px 0"><small>${s.mp ? 'Cost: ' + formatNumber(currentCost) + ' MP' : 'No Cost'}</small>`;
+                    let html = `<strong>${s.name}</strong>`;
+
+                    // Class tag
+                    if (s.tree && s.tree !== "weapon") {
+                        html += ` <span style="font-size:0.75em; color:#a4b0be;">[${getClassName(s.tree)}]</span>`;
+                    }
+                    html += `<br>`;
+
+                    // Stats
+                    if (s.dmg)   html += `DMG: <span style="color:var(--hp)">${formatNumber(BigInt(s.dmg))}</span><br>`;
+                    if (s.heal)  html += `Healing: <span style="color:var(--unlocked)">${formatNumber(BigInt(s.heal))}</span><br>`;
+                    if (s.san)   html += `Sanity: <span style="color:var(--sanity)">${formatNumber(BigInt(s.san))}</span><br>`;
+                    if (s.burn)  html += `Burn: <span style="color:var(--burnDMG)">${s.burn} turns</span><br>`;
+                    if (s.freeze) html += `Freeze: <span style="color:var(--freezeDMG)">${s.freeze} turns</span><br>`;
+                    if (s.stun)  html += `Stun: <span style="color:#ffd700">${s.stun} turns</span><br>`;
+                    if (s.poison) html += `Poison: <span style="color:var(--poisonDMG)">${formatNumber(BigInt(s.poison))}</span><br>`;
+
+                    // Special notes
+                    if (s.backfireChance) {
+                        html += `<span style="color:#ff4757">⚠ ${(s.backfireChance * 100).toFixed(0)}% chance to backfire</span><br>`;
+                    }
+                    if (s.fireReduction) {
+                        html += `<span style="color:#fb923c">Reduced damage vs fire (🔥) enemies</span><br>`;
+                    }
+                    if (s.fireBonus) {
+                        html += `<span style="color:#38bdf8">Water (💧) Magic has a 2x damage bonus vs fire (🔥) enemies</span><br>`;
+                    }
+                    if (s.luxBonus) {
+                        html += `<span style="color:#c084fc">↑ vs Lux/Kitsune | ↓ vs Demons</span><br>`;
+                    }
+
+                    html += `<hr style="border:0;border-top:1px solid #444;margin:5px 0">`;
+                    html += `<small>${s.mp ? 'Cost: ' + formatNumber(currentCost) + ' MP' : 'No Cost'}</small>`;
+
+                    tip.innerHTML = html;
                     tip.style.display = 'block';
                     updateTipPos(e, tip);
                 };
-                b.onmousemove = (e) => {
-                    updateTipPos(e, document.getElementById('tooltip'));
-                };
-                b.onmouseleave = () => {
-                    document.getElementById('tooltip').style.display = 'none';
-                };
+
+                b.onmousemove = (e) => updateTipPos(e, document.getElementById('tooltip'));
+                b.onmouseleave = () => document.getElementById('tooltip').style.display = 'none';
+
                 zone.appendChild(b);
             });
         }
     });
+
     if (zone.innerHTML === "" && query !== "") {
         zone.innerHTML = `<div style="grid-column: span 2; text-align: center; color: #666; margin-top: 10px;">No actions matching "${query}"</div>`;
     }
@@ -201,6 +292,7 @@ function startCombat() {
         gluttonySin: selectedEnemy.gluttonySin || 0n,
         greedSin: selectedEnemy.greedSin || 0n,
         envySin: selectedEnemy.envySin || 0n,
+        killKey: selectedEnemy.killKey,
         solari: 0n,
         fished: 0n,
         burning: 0n,
@@ -329,70 +421,132 @@ function playLuxTheme() {
 
 function cast(sid) {
     document.body.style.pointerEvents = "none";
+
     if (enemy.immortal && enemy.hp <= 0n) enemy.hp = enemy.mhp;
     if (!enemy.hp || enemy.hp <= 0n) {
         win();
         updateUI();
         return;
     }
+
     let s = skillTree[sid];
-    // getScaledMana now returns a BigInt
     let scaledCost = getScaledMana(s.mp);
-    // 1. Mana Check (BigInt comparison)
+
+    // 1. Mana Check
     if (s.mp && p.mp < scaledCost) {
         log(`Insufficient Mana! Need ${formatNumber(scaledCost)} MP.`, "#ff4757");
         if (Math.random() < 0.2) {
             if (p.kills >= 1000000n) {
-                document.body.style.pointerEvents = "none"; 
-                log(`Lux: ...`,"#ff0000")
-                setTimeout (() => {
-                    log(`Lux: You do not deserve the ability to cast spells.`,"#ff0000")
-                    p.mp = -100n * p.lv * p.kills
+                document.body.style.pointerEvents = "none";
+                log(`Lux: ...`, "#ff0000");
+                setTimeout(() => {
+                    log(`Lux: You do not deserve the ability to cast spells.`, "#ff0000");
+                    p.mp = -100n * p.lv * p.kills;
                     playHeartCrackSFX();
-                    document.body.style.pointerEvents = "auto"; 
-                }, 3000)
+                    document.body.style.pointerEvents = "auto";
+                }, 3000);
             } else {
                 log(`Lux: You absolute buffoon. You're stressing yourself out more and more. Do you really want to burn out your soul? It'll just make it easier to kill you later.`, "var(--lux)");
                 document.body.style.pointerEvents = "auto";
             }
         }
         document.body.style.pointerEvents = "auto";
-        return; 
+        return;
     }
-    // 2. Deduct Mana (BigInt subtraction)
+
+    // 2. Deduct Mana
     if (s.mp) p.mp -= scaledCost;
     updateUI();
-    // 3. Damage Logic
-    if (s.dmg) {
-        let damage = s.dmg // Base Damage
-        let pretendDamage = s.dmg
-        if (p.inventory.equippedWeapon === "Stone Sword" && s.name === "Strike") {
-            damage += 25n * p.lv
-            pretendDamage += 25n * p.lv
-        } else if (p.inventory.equippedWeapon === "Iron Sword" && s.name === "Strike") {
-            damage += 50n * p.lv
-            pretendDamage += 50n * p.lv
-        } else if (p.inventory.equippedWeapon === "Diamond Sword" && s.name === "Strike") {
-            damage += 100n * p.lv
-            pretendDamage += 100n * p.lv
+
+    // 3. Stormmancer Backfire
+    if (s.backfireChance && Math.random() < s.backfireChance) {
+        const backfireDmg = s.dmg ? (s.dmg / 4n) : (10n * p.lv);
+        p.hp -= backfireDmg;
+        p.hp = BigMath.max(p.hp, 1n); // Don't kill the player from backfire
+        playHurtSFX();
+        log(`⚡ The spell backfired! ${p.name} took <span class="hp-warn">${formatNumber(backfireDmg)} damage</span> from the feedback!`, "#ff4757");
+        updateUI();
+        if (p.hp <= 1n) {
+            log(`You barely survived the backfire...`, "#ff4757");
         }
-        if (enemy.immortal) damage = 0n
-        damage = enemy.frozen > 0n ? (damage * 3n) / 2n : damage; // Frozen Buff
-        pretendDamage = enemy.frozen > 0n ? (pretendDamage * 3n) / 2n : pretendDamage; // Frozen Buff (pretend)
-        damage = enemy.vulnerable > 0n ? (damage * 2n) : damage; // Vulnerable Buff
-        pretendDamage = enemy.vulnerable > 0n ? (pretendDamage * 2n) : pretendDamage; // Vulnerable Buff (pretend)
+    }
+
+    // 4. Damage Logic
+    if (s.dmg) {
+        let damage = s.dmg;
+        let pretendDamage = s.dmg;
+
+        // Weapon bonuses on Strike
+        if (p.inventory.equippedWeapon === "Stone Sword" && s.tree === "physical") {
+            damage += 25n * p.lv;
+            pretendDamage += 25n * p.lv;
+        } else if (p.inventory.equippedWeapon === "Iron Sword" && s.tree === "physical") {
+            damage += 50n * p.lv;
+            pretendDamage += 50n * p.lv;
+        } else if (p.inventory.equippedWeapon === "Diamond Sword" && s.tree === "physical") {
+            damage += 100n * p.lv;
+            pretendDamage += 100n * p.lv;
+        }        
+
+        // Druid fire reduction
+        if (s.fireReduction && enemy.fireType) {
+            damage = BigInt(Math.floor(Number(damage) * s.fireReduction));
+            pretendDamage = BigInt(Math.floor(Number(pretendDamage) * s.fireReduction));
+            log(`${enemy.name} (🔥) resists nature magic! Damage reduced.`, "#fb923c");
+        }
+
+        // Watermancer fire bonus
+        if (s.fireBonus && enemy.fireType) {
+            damage = BigInt(Math.floor(Number(damage) * s.fireBonus));
+            pretendDamage = BigInt(Math.floor(Number(pretendDamage) * s.fireBonus));
+            log(`Water (💧) is super effective against ${enemy.name}! Damage doubled!`, "#38bdf8");
+        }
+
+        // Shadow lux bonus
+        if (s.luxBonus && (
+            enemy.name === "Lux" ||
+            enemy.name === "Kitsune"
+        )) {
+            damage = BigInt(Math.floor(Number(damage) * s.luxBonus));
+            pretendDamage = BigInt(Math.floor(Number(pretendDamage) * s.luxBonus));
+            log(`Shadow (🌑) magic resonates against ${enemy.name}! Damage boosted!`, "#c084fc");
+        }
+
+        // Shadow demon penalty
+        if (s.demonPenalty && enemy.demonType) {
+            damage = BigInt(Math.floor(Number(damage) * s.demonPenalty));
+            pretendDamage = BigInt(Math.floor(Number(pretendDamage) * s.demonPenalty));
+            log(`Shadow (🌑) magic is weak against ${enemy.name}! Damage reduced.`, "#c084fc");
+        }
+
+        if (enemy.immortal) damage = 0n;
+
+        // Status modifiers
+        damage = enemy.frozen > 0n ? (damage * 3n) / 2n : damage;
+        pretendDamage = enemy.frozen > 0n ? (pretendDamage * 3n) / 2n : pretendDamage;
+
+        damage = enemy.vulnerable > 0n ? (damage * 2n) : damage;
+        pretendDamage = enemy.vulnerable > 0n ? (pretendDamage * 2n) : pretendDamage;
+        let critChance = 0.3
         const didCrit = enemy.vulnerable > 0n && Math.random() < critChance;
-        if (didCrit) damage = (damage * 3n);
-        if (didCrit) pretendDamage = (pretendDamage * 3n);
-        damage = enemy.resistant > 0n ? (damage / 2n) : damage; // Resistant debuff
-        pretendDamage = enemy.resistant > 0n ? (pretendDamage / 2n) : pretendDamage; // Resistant debuff (pretend)
-        if (s.fryingPan) damage *= 1000n
-        if (s.fryingPan) pretendDamage *= 1000n
-        if (enemy.slothSin) damage = 1n
+        if (didCrit) { damage *= 3n; pretendDamage *= 3n; }
+
+        damage = enemy.resistant > 0n ? (damage / 2n) : damage;
+        pretendDamage = enemy.resistant > 0n ? (pretendDamage / 2n) : pretendDamage;
+
+        if (s.fryingPan) { damage *= 1000n; pretendDamage *= 1000n; }
+
+        if (enemy.slothSin) damage = 1n;
         if (enemy.prideSin) { if (damage > (enemy.mhp / 20n)) { damage = enemy.mhp / 20n; } }
-        if (enemy.lustSin) damage / 2n
+        if (enemy.lustSin) damage = damage / 2n; 
+
         enemy.hp -= damage;
-        if (sid === 'iceshock') {
+
+        // SFX
+        if (sid === 'iceshock' || sid === 'snowgrave' || sid === 'snowgraveShadow' ||
+            sid === 'chill' || sid === 'suddenChill' || sid === 'chillSplinter' ||
+            sid === 'coldSnap' || sid === 'snowflakeStrike' || sid === 'snowlingBall' ||
+            sid === 'spearcicles' || sid === 'frigidBlast' || sid === 'frostPrison') {
             playIceshockSFX();
         } else {
             if (damage >= enemy.mhp || pretendDamage >= enemy.mhp) {
@@ -401,35 +555,42 @@ function cast(sid) {
                 playPlayerAtkHitSFX();
             }
         }
+
         updateUI();
+
         if (enemy.immortal) {
-            log(`Your attack does not affect ${enemy.name}. (${formatNumber(pretendDamage)} dmg prevented)`, "var(--playerATK)")
-        } else if (enemy.frozen) {
-            log(`${p.name} strikes with ${s.name} for <span class="hp-warn">${formatNumber(damage)} damage</span> against frozen ${enemy.name}!`, "var(--freezeDMG)")
+            log(`Your attack does not affect ${enemy.name}. (${formatNumber(pretendDamage)} dmg prevented)`, "var(--playerATK)");
+        } else if (enemy.frozen > 0n) {
+            log(`${p.name} strikes with ${s.name} for <span class="hp-warn">${formatNumber(damage)} damage</span> against frozen ${enemy.name}!`, "var(--freezeDMG)");
+        } else if (didCrit) {
+            log(`${p.name} lands a critical hit with ${s.name} for <span class="hp-warn">${formatNumber(damage)} damage</span>!`, "#ffd700");
         } else {
             log(`${p.name} strikes with ${s.name} for <span class="hp-warn">${formatNumber(damage)} damage</span>.`, "var(--playerATK)");
         }
+
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
                 if (s.dmg >= enemy.mhp) {
-                    log(`Lux: Was that really necessary?`, "#ff0000")
+                    log(`Lux: Was that really necessary?`, "#ff0000");
                 } else {
-                    log(`Lux doesn't seem like talking.`, "#ff0000")
+                    log(`Lux doesn't seem like talking.`, "#ff0000");
                 }
             } else {
-                log(`Lux: You dealt ${formatNumber(damage)} damage. Nice job. Just don't forget...`,"var(--lux)");
-                log(`Lux: I can do much, much more.`,"#ff0000");
+                log(`Lux: You dealt ${formatNumber(damage)} damage. Nice job. Just don't forget...`, "var(--lux)");
+                log(`Lux: I can do much, much more.`, "#ff0000");
             }
         }
+
         if (enemy.hp <= 0n) {
             win();
             updateUI();
             return;
         }
     }
-    if (p.inventory.equippedWeapon === "Frying Pan" && skillTree.fryingPan.unlocked) {
-        let roll = Math.random()
-        if (roll < 0.1) {
+
+    // 5. Frying Pan food drop
+    if (p.inventory.equippedWeapon === "fryingPan" && skillTree.fryingPan.unlocked) {
+        if (Math.random() < 0.1) {
             const fryingPanDropPool = ["Health Vial", "Mana Well", "Clarity Tonic", "Apple", "Abbie's Apple", "Lux's Lemon", "Bottle O' Water", "Lux's Sandwich", "Bob's Bread"];
             const item = fryingPanDropPool[Math.floor(Math.random() * fryingPanDropPool.length)];
             if (checkSpaceAndAddItem(item)) {
@@ -440,584 +601,629 @@ function cast(sid) {
         }
     }
 
-    // 4. Status Effects
+    // 6. Status Effects
+
+    // Stun (Stormmancer)
+    if (s.stun) {
+        if (enemy.freezeImmune) {
+            log(`${enemy.name} is immune to stun!`, "#ffd700");
+        } else {
+            enemy.stunned += s.stun;
+            log(`${enemy.name} is stunned for ${formatNumber(s.stun)} turns!`, "#ffd700");
+        }
+    }
+
     if (s.poison) {
         if (enemy.poisonImmune) {
             log(`${enemy.name} is immune to poison!`, "var(--poisonDMG)");
         } else {
-            enemy.poison += s.poison
+            enemy.poison += s.poison;
             log(`${enemy.name} is poisoned for ${formatNumber(s.poison)} stacks!`, "var(--poisonDMG)");
         }
     }
+
     if (s.burn) {
         if (enemy.burnImmune) {
             log(`${enemy.name} is immune to burn!`, "var(--burnDMG)");
         } else {
-            enemy.burning += s.burn
+            enemy.burning += s.burn;
             log(`${enemy.name} is set ablaze for ${formatNumber(s.burn)} turns!`, "var(--burnDMG)");
         }
     }
+
     if (s.freeze) {
         if (enemy.freezeImmune) {
-            log(`${enemy.name} is immune to freezing!`, "var(--freezeDMG)")
+            log(`${enemy.name} is immune to freezing!`, "var(--freezeDMG)");
         } else {
-            log(`${enemy.name} is frozen for ${formatNumber(s.freeze)} turns!`, "var(--freezeDMG)")
-            enemy.frozen += s.freeze
+            log(`${enemy.name} is frozen for ${formatNumber(s.freeze)} turns!`, "var(--freezeDMG)");
+            enemy.frozen += s.freeze;
         }
     }
-    // 5. Healing / Sanity
+
+    // 7. Neutral spell special handling
+    if (sid === 'campfire') {
+        const roll = Math.random();
+        if (roll < 0.33) {
+            log(`The campfire crackles warmly. Nothing happens.`, "#a4b0be");
+        } else if (roll < 0.66) {
+            const healAmt = (50n * p.lv);
+            p.hp = BigMath.min(p.hp + healAmt, p.mhp);
+            playHealSFX();
+            log(`The campfire warms your wounds. Healed ${formatNumber(healAmt)} HP.`, "#fb923c");
+        } else {
+            log(`The campfire roars! Something good is coming...`, "#fb923c");
+            p.gold += 100n * p.lv;
+            log(`Found ${formatNumber(100n * p.lv)}g in the embers.`, "var(--gold)");
+        }
+        updateUI();
+    }
+
+    if (sid === 'cauterize') {
+        const roll = Math.random();
+        if (roll < 0.33) {
+            const healAmt = (80n * p.lv);
+            p.hp = BigMath.min(p.hp + healAmt, p.mhp);
+            playHealSFX();
+            log(`The cauterization seals your wounds. Healed ${formatNumber(healAmt)} HP.`, "#fb923c");
+        } else if (roll < 0.66) {
+            const dmg = (30n * p.lv);
+            p.hp -= dmg;
+            playHurtSFX();
+            log(`The cauterization burns too deep! Lost ${formatNumber(dmg)} HP.`, "#ff4757");
+        } else {
+            const healAmt = (160n * p.lv);
+            p.hp = BigMath.min(p.hp + healAmt, p.mhp);
+            const sanAmt = (50n * p.lv);
+            p.sn = BigMath.min(p.sn + sanAmt, p.msn);
+            playHealSFX();
+            log(`The cauterization works perfectly! Healed ${formatNumber(healAmt)} HP and ${formatNumber(sanAmt)} SN.`, "#fb923c");
+        }
+        updateUI();
+    }
+
+    if (sid === 'cosmicBlessing') {
+        const roll = Math.random();
+        if (roll < 0.25) {
+            const dmgAmt = (200n * p.lv * p.dmgmult) / 100n;
+            enemy.hp -= dmgAmt;
+            log(`The cosmos strikes ${enemy.name} for ${formatNumber(dmgAmt)} damage!`, "#a78bfa");
+            if (enemy.hp <= 0n) { win(); updateUI(); return; }
+        } else if (roll < 0.5) {
+            log(`The cosmos is silent. Nothing happens.`, "#a4b0be");
+        } else if (roll < 0.75) {
+            const dmgAmt = (500n * p.lv * p.dmgmult) / 100n;
+            enemy.hp -= dmgAmt;
+            log(`A cosmic ray obliterates ${enemy.name} for ${formatNumber(dmgAmt)} damage!`, "#a78bfa");
+            if (enemy.hp <= 0n) { win(); updateUI(); return; }
+        } else {
+            // Full heal
+            p.hp = p.mhp;
+            p.mp = p.mmp;
+            p.sn = p.msn;
+            playHealSFX();
+            log(`The cosmos blesses you completely! All vitals restored.`, "#a78bfa");
+        }
+        updateUI();
+    }
+
+    // snowgraveShadow — same as snowgrave
+    if (sid === 'snowgraveShadow') {
+        if (!enemy.freezeImmune) {
+            enemy.frozen += s.freeze;
+            log(`${enemy.name} is entombed in shadow ice for ${formatNumber(s.freeze)} turns!`, "#c084fc");
+        } else {
+            log(`${enemy.name} is immune to freezing!`, "var(--freezeDMG)");
+        }
+    }
+
+    // 8. Healing / Sanity
     if (s.heal) {
         let healAmt = BigInt(s.heal);
-        let totalHealAmt = BigMath.min(p.hp + healAmt, p.mhp)
-        p.hp = totalHealAmt
+        if (healAmt > 0n) {
+            p.hp = BigMath.min(p.hp + healAmt, p.mhp);
+            playHealSFX();
+            log(`${p.name} healed for <span class="hp-warn">${formatNumber(healAmt)} HP</span>`, "var(--playerATK)");
+        } else {
+            // Negative heal (e.g. noxNocturnalExplosion)
+            p.hp += healAmt;
+            log(`${p.name} lost <span class="hp-warn">${formatNumber(healAmt)} HP</span> as a cost.`, "#ff4757");
+        }
         updateUI();
-        playHealSFX();
-        log(`${p.name} healed for <span class="hp-warn">${formatNumber(s.heal)} HP</span>`, "var(--playerATK)")
     }
+
     if (s.san) {
-        if (s.san < 0n) {
-            let sanAmt = BigInt(s.san);
-            p.sn += sanAmt
-            updateUI();
+        let sanAmt = BigInt(s.san);
+        if (sanAmt < 0n) {
+            p.sn += sanAmt;
+            log(`Lost <span class="san-warn">${formatNumber(sanAmt)} Sanity</span>`, "var(--playerATK)");
         } else {
-            let sanAmt = BigInt(s.san);
             p.sn = BigMath.min(p.sn + sanAmt, p.msn);
-            updateUI();
+            log(`Regained <span class="san-warn">${formatNumber(sanAmt)} Sanity</span>`, "var(--playerATK)");
         }
-        if (s.san < 0n) {
-            log(`Lost <span class="san-warn">${formatNumber(s.san)} Sanity</span>`, "var(--playerATK)")
-        } else {
-            log(`Regained <span class="san-warn">${formatNumber(s.san)} Sanity</span>`, "var(--playerATK)")
-        }
+        updateUI();
     }
+
     updateUI();
+
     setTimeout(() => {
-        // 6. Passive Mana Regen
+        // 9. Passive Mana Regen
         if (p.sn > 0n) {
-            let sclaedAmount = 5n * p.mp
-            p.mp = BigMath.min(p.mp + sclaedAmount, p.mmp);
+            let scaledAmount = 5n * p.mp;
+            p.mp = BigMath.min(p.mp + scaledAmount, p.mmp);
             updateUI();
         }
-        // 7. Win/Turn Logic
+
+        // 10. Win/Turn Logic
         if (enemy.hp <= 0n) {
-            win(); 
+            win();
             updateUI();
             return;
         } else {
             enemyTurn();
         }
+
         document.body.style.pointerEvents = "auto";
-    }, 800)
+    }, 800);
 }
 
 function enemyTurn() {
     if (!enemy || enemy.hp <= 0n) return;
     if (enemy.immortal && enemy.hp <= 0n) enemy.hp = enemy.mhp;
+
+    // --- Fish logic ---
     if (enemy.immortal) {
-        enemy.fished = 0n
+        enemy.fished = 0n;
     } else {
         if (enemy.fished > 0n) {
-            let rollChance = Math.random()
+            let rollChance = Math.random();
             if (rollChance < 0.1) {
-                enemy.fished += 2n
-                log(`The fish increases its influence...`, "var(--fish)")
+                enemy.fished += 2n;
+                log(`The fish increases its influence...`, "var(--fish)");
                 updateUI();
             } else if (rollChance < 0.2) {
-                p.hp = p.hp / 2n
-                log(`The fish deals damage to YOU`, "var(--fish)")
+                p.hp = p.hp / 2n;
+                log(`The fish deals damage to YOU`, "var(--fish)");
                 updateUI();
             } else if (rollChance < 0.3) {
-                enemy.hp = enemy.hp / 2n
-                log(`The fish deals damage to the ENEMY`, "var(--fish)")
+                enemy.hp = enemy.hp / 2n;
+                log(`The fish deals damage to the ENEMY`, "var(--fish)");
             } else if (rollChance < 0.4) {
-
+                // Nothing
             } else if (rollChance < 0.5) {
-                enemy.stunned += 10n
-                log(`The fish stuns the ENEMY`, "var(--fish)")
+                enemy.stunned += 10n;
+                log(`The fish stuns the ENEMY`, "var(--fish)");
                 updateUI();
             } else if (rollChance < 0.6) {
-                enemy.burning += 10n
-                log(`The fish burns the ENEMY`, "var(--fish)")
+                enemy.burning += 10n;
+                log(`The fish burns the ENEMY`, "var(--fish)");
                 updateUI();
             } else if (rollChance < 0.7) {
-                let FishScaledAmount = 100n * p.lv * (enemy.poison || 1n)
-                enemy.poison += FishScaledAmount
-                log(`The fish poisons the ENEMY`, "var(--fish)")
+                let FishScaledAmount = 100n * p.lv * (enemy.poison || 1n);
+                enemy.poison += FishScaledAmount;
+                log(`The fish poisons the ENEMY`, "var(--fish)");
                 updateUI();
             } else if (rollChance < 0.8) {
-                enemy.frozen += 10n
-                log(`The fish freezes the ENEMY`, "var(--fish)")
+                enemy.frozen += 10n;
+                log(`The fish freezes the ENEMY`, "var(--fish)");
                 updateUI();
             } else if (rollChance < 0.9) {
-                let FishGold = 100n * p.totalGold
-                p.gold += FishGold
-                p.totalGold += FishGold
-                log(`The fish gives ${p.name} gold.`, "var(--fish)")
+                let FishGold = 100n * p.totalGold;
+                p.gold += FishGold;
+                p.totalGold += FishGold;
+                log(`The fish gives ${p.name} gold.`, "var(--fish)");
                 updateUI();
-            } else if (rollChance < 1) {
-                log(`The fish does nothing... it rests...`, "var(--fish)")
             } else {
-                console.log("Error: 'Math.random' returned a value higher then 1 (somehow). Pleasecontact   the creators of the 'Math.random' function to fix this shit.")
-                log(`Funfriend: Error: 'Math.random' returned a value higher then 1 (somehow).  Pleasecontact the creators of the 'Math.random' function to fix this shit.`, "va (--funfriend)")
-                log(`The fish is... confused?`, "var(--fish)")
+                log(`The fish does nothing... it rests...`, "var(--fish)");
             }
         }
     }
+
+    // --- Poison tick ---
     if (enemy.immortal) {
-        enemy.poison = 0n
+        enemy.poison = 0n;
     } else {
         if (enemy.poison > 1n) {
-            let stacksUsed = enemy.poison / 2n
-            let preTotalPoisonDamage = stacksUsed * p.lv
-            if ((enemy.poison - stacksUsed) === 1n) {
-                enemy.poison = 0n
-            } else {
-                enemy.poison -= stacksUsed
-            }
-            let totalPoisonDamage = (preTotalPoisonDamage * p.dmgmult) / 100n
-            enemy.hp -= totalPoisonDamage
-            log(`${enemy.name} is poisoned! (-${formatNumber(totalPoisonDamage)} HP, -${formatNumber(stacksUsed)} poison stacks)`, "var(--poisonDMG)")
+            let stacksUsed = enemy.poison / 2n;
+            let preTotalPoisonDamage = stacksUsed * p.lv;
+            enemy.poison = (enemy.poison - stacksUsed) === 1n ? 0n : enemy.poison - stacksUsed;
+            let totalPoisonDamage = (preTotalPoisonDamage * p.dmgmult) / 100n;
+            enemy.hp -= totalPoisonDamage;
+            log(`${enemy.name} is poisoned! (-${formatNumber(totalPoisonDamage)} HP, -${formatNumber(stacksUsed)} poison stacks)`, "var(--poisonDMG)");
         }
     }
-    // Burn tick (BigInt math)
+
+    // --- Burn tick ---
     if (enemy.immortal) {
-        enemy.burning = 0n
+        enemy.burning = 0n;
     } else {
         if (enemy.burning > 0n) {
             if (enemy.burnImmune) {
                 enemy.burning = 0n;
             } else {
-                // Ensure multipliers are treated as BigInt 'units' (100 = 1.0)
-                // 1. Calculate Base (4n at LV 2)
                 let baseBurnDMG = BigInt(p.lv) * 2n;
-                // 2. Scale all multipliers by 100 (treating 100 as 1.0)
                 let res = BigInt(Math.floor((enemy.burnResist || 1) * 100));
                 let vuln = BigInt(Math.floor((enemy.burnVuln || 1) * 100));
-                let pDmg = p.dmgmult;
-                // 3. Divide by (100 * 100 * 100) to reset the scale
-                let finalBurnDMG = (baseBurnDMG * res * vuln * pDmg) / 1000000n;
-                // 4. Ensure it doesn't drop to 0 if you want a minimum tick
+                let finalBurnDMG = (baseBurnDMG * res * vuln * p.dmgmult) / 1000000n;
                 if (finalBurnDMG === 0n && baseBurnDMG > 0n) finalBurnDMG = 1n;
                 enemy.hp -= finalBurnDMG;
                 enemy.burning -= 1n;
                 log(`${enemy.name} is burning! (-${finalBurnDMG} HP)`, "var(--burnDMG)");
-                // log(`Burn Debug: baseBurnDMG=${baseBurnDMG}, res=${res}, vuln=${vuln}, pDmg=${pDmg}, final=${finalBurnDMG}`, "#888888");
                 if (enemy.burnReflect && enemy.burnReflect > 0) {
-                    let reflectMult = BigInt(Math.floor(enemy.burnReflect * 100));
-                    let reflectDMG = (finalBurnDMG * reflectMult) / 100n;
+                    let reflectDMG = (finalBurnDMG * BigInt(Math.floor(enemy.burnReflect * 100))) / 100n;
                     p.hp -= reflectDMG;
                     log(`${enemy.name} reflects ${formatNumber(reflectDMG)} burn damage back to ${p.name}!`, "var(--burnDMG)");
                 }
             }
         }
     }
+
     if (enemy.immortal && enemy.hp <= 0n) enemy.hp = enemy.mhp;
     if (enemy.hp <= 0n) return win();
+
+    // --- Stun check ---
     if (enemy.stunned >= 1n) {
-        log(`${enemy.name} is stunned!`)
+        log(`${enemy.name} is stunned and cannot attack!`, "#ffd700");
         enemy.stunned -= 1n;
+        updateUI();
+        document.body.style.pointerEvents = "auto";
         return;
     }
-    // 2. Lifesteal (Math.min replacement)
+
+    // --- Lifesteal ---
     if (enemy.lifesteal && BigInt(enemy.lifesteal) > 0n) {
-        let heal = enemy.lifesteal;
+        let heal = BigInt(enemy.lifesteal);
         enemy.hp = BigMath.min(enemy.hp + heal, enemy.mhp);
         log(`${enemy.name} drains your life and heals ${formatNumber(heal)} HP`, "var(--hp)");
     }
-    // 3. Attack / Bullet Hell Logic
+
+    // --- Bullet Hell ---
     const matchedPatterns = (typeof patternLibrary !== "undefined" ? patternLibrary : [])
-    .filter(pat => pat.enemy === enemy.name);
+        .filter(pat => pat.enemy === enemy.name);
 
     if (matchedPatterns.length > 0) {
         const activePattern = matchedPatterns[Math.floor(Math.random() * matchedPatterns.length)];
         const patternDisplayName = typeof activePattern.getRandomName === "function"
             ? activePattern.getRandomName()
             : activePattern.name;
-        
+
         log(`${enemy.name} uses ${patternDisplayName}!`, "var(--enemyATK)");
+        document.body.style.pointerEvents = "none";
 
-    document.body.style.pointerEvents = "none";
+        const overlay = document.createElement("div");
+        overlay.id = "bullet-hell-overlay";
+        overlay.style.cssText = `
+            position: fixed; left: 0; top: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.88);
+            z-index: 999999; overflow: hidden; cursor: none;
+        `;
 
-    const overlay = document.createElement("div");
-    overlay.id = "bullet-hell-overlay";
-    overlay.style.position = "fixed";
-    overlay.style.left = "0";
-    overlay.style.top = "0";
-    overlay.style.width = "100vw";
-    overlay.style.height = "100vh";
-    overlay.style.background = "rgba(0, 0, 0, 0.88)";
-    overlay.style.zIndex = "999999";
-    overlay.style.overflow = "hidden";
-    overlay.style.cursor = "none";
+        const info = document.createElement("div");
+        info.style.cssText = `
+            position: absolute; top: 15px; left: 15px;
+            pointer-events: none; color: white;
+            font-family: 'Courier New', Courier, monospace;
+            text-shadow: 2px 2px #000;
+        `;
+        info.innerHTML = `Pattern: <span>${patternDisplayName}</span>`;
 
-    const info = document.createElement("div");
-    info.style.position = "absolute";
-    info.style.top = "15px";
-    info.style.left = "15px";
-    info.style.pointerEvents = "none";
-    info.style.color = "white";
-    info.style.fontFamily = "'Courier New', Courier, monospace";
-    info.style.textShadow = "2px 2px #000";
-    info.innerHTML = `Pattern: <span>${patternDisplayName}</span>`;
+        const timerUI = document.createElement("div");
+        timerUI.style.cssText = `
+            position: absolute; top: 15px; right: 15px;
+            text-align: right; pointer-events: none; color: white;
+            font-family: 'Courier New', Courier, monospace;
+            text-shadow: 2px 2px #000;
+        `;
+        timerUI.innerHTML = `TIME: <span id="bullet-hell-time">0.00</span>s`;
 
-    const timerUI = document.createElement("div");
-    timerUI.style.position = "absolute";
-    timerUI.style.top = "15px";
-    timerUI.style.right = "15px";
-    timerUI.style.textAlign = "right";
-    timerUI.style.pointerEvents = "none";
-    timerUI.style.color = "white";
-    timerUI.style.fontFamily = "'Courier New', Courier, monospace";
-    timerUI.style.textShadow = "2px 2px #000";
-    timerUI.innerHTML = `TIME: <span id="bullet-hell-time">0.00</span>s`;
-
-    canvas = document.createElement("canvas");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    canvas.style.display = "block";
-    canvas.style.width = "100vw";
-    canvas.style.height = "100vh";
-    canvas.style.background = "#000";
-
-    overlay.appendChild(canvas);
-    overlay.appendChild(info);
-    overlay.appendChild(timerUI);
-    document.body.appendChild(overlay);
-
-    ctx = canvas.getContext("2d");
-    bullets = [];
-
-    let frame = 0;
-    let ended = false;
-    const duration = Math.floor(Math.random() * 5001) + 5000;
-    const startTime = Date.now();
-
-    let lastHitTime = 0;
-    const iFrameDuration = 500;
-
-    player = {
-        x: canvas.width / 2,
-        y: canvas.height * 0.75,
-        size: 15,
-        speed: 5,
-        hitbox: 4,
-        keys: {}
-    };
-
-    function drawHeart(x, y, size, color = "#ff0000") {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(x, y + size / 4);
-        ctx.quadraticCurveTo(x, y, x + size / 4, y);
-        ctx.quadraticCurveTo(x + size / 2, y, x + size / 2, y + size / 4);
-        ctx.quadraticCurveTo(x + size / 2, y, x + size * 3 / 4, y);
-        ctx.quadraticCurveTo(x + size, y, x + size, y + size / 4);
-        ctx.quadraticCurveTo(x + size, y + size / 2, x + size / 2, y + size * 0.9);
-        ctx.quadraticCurveTo(x, y + size / 2, x, y + size / 4);
-        ctx.fill();
-    }
-
-    const keyDownHandler = (e) => {
-        player.keys[e.key.toLowerCase()] = true;
-    };
-
-    const keyUpHandler = (e) => {
-        player.keys[e.key.toLowerCase()] = false;
-    };
-
-    const resizeHandler = () => {
-        if (!canvas) return;
+        canvas = document.createElement("canvas");
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-    };
+        canvas.style.cssText = "display: block; width: 100vw; height: 100vh; background: #000;";
 
-    window.addEventListener("keydown", keyDownHandler);
-    window.addEventListener("keyup", keyUpHandler);
-    window.addEventListener("resize", resizeHandler);
+        overlay.appendChild(canvas);
+        overlay.appendChild(info);
+        overlay.appendChild(timerUI);
+        document.body.appendChild(overlay);
 
-    function updatePlayer() {
-        const focus = player.keys["shift"];
-        const moveSpeed = focus ? player.speed * 0.25 : player.speed;
+        ctx = canvas.getContext("2d");
+        bullets = [];
+        let frame = 0;
+        let ended = false;
+        const duration = Math.floor(Math.random() * 5001) + 5000;
+        const startTime = Date.now();
+        let lastHitTime = 0;
+        const iFrameDuration = 500;
 
-        if ((player.keys["w"] || player.keys["arrowup"]) && player.y > 0) {
-            player.y -= moveSpeed;
-        }        
-        if ((player.keys["s"] || player.keys["arrowdown"]) && player.y < canvas.height - player.size) {
-            player.y += moveSpeed;
-        }
-        
-        if ((player.keys["a"] || player.keys["arrowleft"]) && player.x > 0) {
-            player.x -= moveSpeed;
-        }
-        
-        if ((player.keys["d"] || player.keys["arrowright"]) && player.x < canvas.width - player.size) {
-            player.x += moveSpeed;
-        }
-        
+        player = {
+            x: canvas.width / 2,
+            y: canvas.height * 0.75,
+            size: 15,
+            speed: 5,
+            hitbox: 4,
+            keys: {}
+        };
 
-        const invincible = Date.now() - lastHitTime < iFrameDuration;
-
-        if (!invincible || Math.floor(Date.now() / 50) % 2 === 0) {
-            drawHeart(player.x, player.y, player.size, "#ff0000");
-        }
-
-        if (focus) {
-            ctx.fillStyle = "white";
+        function drawHeart(x, y, size, color = "#ff0000") {
+            ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(player.x + player.size / 2, player.y + player.size / 2, 2, 0, Math.PI * 2);
+            ctx.moveTo(x, y + size / 4);
+            ctx.quadraticCurveTo(x, y, x + size / 4, y);
+            ctx.quadraticCurveTo(x + size / 2, y, x + size / 2, y + size / 4);
+            ctx.quadraticCurveTo(x + size / 2, y, x + size * 3 / 4, y);
+            ctx.quadraticCurveTo(x + size, y, x + size, y + size / 4);
+            ctx.quadraticCurveTo(x + size, y + size / 2, x + size / 2, y + size * 0.9);
+            ctx.quadraticCurveTo(x, y + size / 2, x, y + size / 4);
             ctx.fill();
         }
-    }
 
-    function checkCollision(b) {
-        const dx = b.x - (player.x + player.size / 2);
-        const dy = b.y - (player.y + player.size / 2);
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < (b.radius || 4) + player.hitbox;
-    }
+        const keyDownHandler = (e) => { player.keys[e.key.toLowerCase()] = true; };
+        const keyUpHandler   = (e) => { player.keys[e.key.toLowerCase()] = false; };
+        const resizeHandler  = () => { if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; } };
 
-    function handlePatternAftermath(playerDied) {
-        if (ended) return;
-        ended = true;
+        window.addEventListener("keydown", keyDownHandler);
+        window.addEventListener("keyup",   keyUpHandler);
+        window.addEventListener("resize",  resizeHandler);
 
-        window.removeEventListener("keydown", keyDownHandler);
-        window.removeEventListener("keyup", keyUpHandler);
-        window.removeEventListener("resize", resizeHandler);
+        function updatePlayer() {
+            const focus = player.keys["shift"];
+            const moveSpeed = focus ? player.speed * 0.25 : player.speed;
+            if ((player.keys["w"] || player.keys["arrowup"])    && player.y > 0)                         player.y -= moveSpeed;
+            if ((player.keys["s"] || player.keys["arrowdown"])  && player.y < canvas.height - player.size) player.y += moveSpeed;
+            if ((player.keys["a"] || player.keys["arrowleft"])  && player.x > 0)                         player.x -= moveSpeed;
+            if ((player.keys["d"] || player.keys["arrowright"]) && player.x < canvas.width  - player.size) player.x += moveSpeed;
 
-        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-
-        bullets = [];
-        player = null;
-        ctx = null;
-        canvas = null;
-
-        if (!playerDied) {
-            log(`You survived ${activePattern.name}!`, "var(--unlocked)");
-        }
-
-        const sDrain = (enemy.san || 0n);
-        const mDrain = (enemy.manaDrain || 0n);
-
-        if (sDrain > 0n && enemy.name === "Gerald") {
-            p.sn = p.sn + sDrain;
-            log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
-        } else if (sDrain > 0n && mDrain > 0n) {
-            p.sn = BigMath.max(p.sn - sDrain, 0n);
-            p.mp = BigMath.max(p.mp - mDrain, 0n);
-            log(`${enemy.name}'s attack drained <span class="san-warn">${formatNumber(sDrain)} Sanity</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana</span>!`, "var(--enemyATK)");
-        } else if (sDrain > 0n) {
-            p.sn = BigMath.max(p.sn - sDrain, 0n);
-            log(`${enemy.name}'s attack drained <span class="san-warn">${formatNumber(sDrain)} Sanity</span>!`, "var(--enemyATK)");
-        } else if (mDrain > 0n) {
-            p.mp = BigMath.max(p.mp - mDrain, 0n);
-            log(`${enemy.name}'s attack drained <span class="mana-warn">${formatNumber(mDrain)} Mana</span>!`, "var(--enemyATK)");
-        }
-
-        enemy.vulnerable = BigMath.max(enemy.vulnerable - 1n, 0n);
-        enemy.resistant = BigMath.max(enemy.resistant - 1n, 0n);
-        enemy.weakened = BigMath.max(enemy.weakened - 1n, 0n);
-        enemy.fished = BigMath.max(enemy.fished - 1n, 0n);
-        enemy.solari = BigMath.max(enemy.solari - 1n, 0n);
-
-        updateUI();
-
-        if (p.hp <= 0n) {
-            if (Math.random() < 0.05) {
-                if (p.kills >= 1000000n) {
-                    log(`Lux: Enjoy the bitter, freezing embrace of death.`, "#ff0000");
-                    setTimeout(() => {
-                        document.body.innerHTML = `<span style="color: red;">Don't bother coming back.</span>`;
-                    }, 3000);
-                } else {
-                    log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`, "var(--lux)");
-                }
-
-                document.body.style.pointerEvents = "none";
-                if (currentBossBGM) {
-                    currentBossBGM.pause();
-                    currentBossBGM = null;
-                }
-            } else {
-                log(`${p.name}. You have perished.`, "#ff4757");
-                document.body.style.pointerEvents = "none";
-                if (currentBossBGM) {
-                    currentBossBGM.pause();
-                    currentBossBGM = null;
-                }
+            const invincible = Date.now() - lastHitTime < iFrameDuration;
+            if (!invincible || Math.floor(Date.now() / 50) % 2 === 0) {
+                drawHeart(player.x, player.y, player.size, "#ff0000");
             }
-
-            const deathSFX1 = new Audio("sfx/player_sfx/player_death/heart_crack.wav");
-            triggerShake();
-            deathSFX1.currentTime = 0;
-            deathSFX1.play().catch(e => console.log("Audio playback prevented:", e));
-
-            setTimeout(() => {
-                const deathSFX2 = new Audio("sfx/player_sfx/player_death/heart_shatter.wav");
-                deathSFX2.currentTime = 0;
-                deathSFX2.play().catch(e => console.log("Audio playback prevented:", e));
-            }, 1000);
-        } else {
-            document.body.style.pointerEvents = "auto";
-        }
-    }
-
-    function loopPattern() {
-        if (ended || !ctx || !canvas || !player) return;
-
-        const elapsed = Date.now() - startTime;
-        const timeEl = document.getElementById("bullet-hell-time");
-        if (timeEl) timeEl.textContent = (elapsed / 1000).toFixed(2);
-
-        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2;
-
-        try {
-            activePattern.run.call(activePattern, frame, cx, cy);
-        } catch (err) {
-            console.error("Pattern error:", activePattern.name, err);
-            log(`Pattern Error in ${activePattern.name}: ${err.message}`, "#ff0000");
-            handlePatternAftermath(false);
-            return;
-        }
-
-        for (let i = bullets.length - 1; i >= 0; i--) {
-            const b = bullets[i];
-
-            if (typeof b.update === "function") {
-                b.update();
-            } else {
-                b.x += b.vx || 0;
-                b.y += b.vy || 0;
-            }
-
-            if (typeof b.draw === "function") {
-                b.draw();
-            } else {
+            if (focus) {
+                ctx.fillStyle = "white";
                 ctx.beginPath();
-                ctx.arc(b.x, b.y, b.radius || 4, 0, Math.PI * 2);
-                ctx.fillStyle = b.color || "#fff";
+                ctx.arc(player.x + player.size / 2, player.y + player.size / 2, 2, 0, Math.PI * 2);
                 ctx.fill();
             }
+        }
 
-            if (
-                b.dead ||
-                b.radius <= 0 ||
-                b.x < -1000 || b.x > canvas.width + 1000 ||
-                b.y < -1000 || b.y > canvas.height + 1000
-            ) {
-                bullets.splice(i, 1);
-                continue;
+        function checkCollision(b) {
+            const dx = b.x - (player.x + player.size / 2);
+            const dy = b.y - (player.y + player.size / 2);
+            return Math.sqrt(dx * dx + dy * dy) < (b.radius || 4) + player.hitbox;
+        }
+
+        function handlePatternAftermath(playerDied) {
+            if (ended) return;
+            ended = true;
+
+            window.removeEventListener("keydown", keyDownHandler);
+            window.removeEventListener("keyup",   keyUpHandler);
+            window.removeEventListener("resize",  resizeHandler);
+
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            bullets = [];
+            player = null;
+            ctx = null;
+            canvas = null;
+
+            if (!playerDied) {
+                log(`You survived ${activePattern.name}!`, "var(--unlocked)");
             }
 
-            if (checkCollision(b)) {
-                const now = Date.now();
+            const sDrain = enemy.san || 0n;
+            const mDrain = enemy.manaDrain || 0n;
 
-                if (now - lastHitTime >= iFrameDuration) {
-                    lastHitTime = now;
+            if (sDrain > 0n && enemy.name === "Gerald") {
+                p.sn = p.sn + sDrain;
+                log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
+            } else if (sDrain > 0n && mDrain > 0n) {
+                p.sn = BigMath.max(p.sn - sDrain, 0n);
+                p.mp = BigMath.max(p.mp - mDrain, 0n);
+                log(`${enemy.name}'s attack drained <span class="san-warn">${formatNumber(sDrain)} Sanity</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana</span>!`, "var(--enemyATK)");
+            } else if (sDrain > 0n) {
+                p.sn = BigMath.max(p.sn - sDrain, 0n);
+                log(`${enemy.name}'s attack drained <span class="san-warn">${formatNumber(sDrain)} Sanity</span>!`, "var(--enemyATK)");
+            } else if (mDrain > 0n) {
+                p.mp = BigMath.max(p.mp - mDrain, 0n);
+                log(`${enemy.name}'s attack drained <span class="mana-warn">${formatNumber(mDrain)} Mana</span>!`, "var(--enemyATK)");
+            }
 
-                    let enemyDamage = enemy.atk;
-                    enemyDamage = enemy.weakened > 0n ? (enemyDamage / 2n) : enemyDamage;
+            enemy.vulnerable = BigMath.max(enemy.vulnerable - 1n, 0n);
+            enemy.resistant  = BigMath.max(enemy.resistant  - 1n, 0n);
+            enemy.weakened   = BigMath.max(enemy.weakened   - 1n, 0n);
+            enemy.fished     = BigMath.max(enemy.fished     - 1n, 0n);
+            enemy.solari     = BigMath.max(enemy.solari     - 1n, 0n);
 
-                    p.hp -= enemyDamage;
-                    log(`${enemy.name}'s ${patternDisplayName} hits for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>!`, "var(--enemyATK)");
-                    if (enemy.greedSin) {
-                        let roll = Math.random() * 500n * p.totalGold
-                        p.gold -= roll
-                        log(`Greed claims ${formatNumber(roll)}g as its own!`, "var(--gold)")
+            updateUI();
+
+            if (p.hp <= 0n) {
+                if (currentBossBGM) { currentBossBGM.pause(); currentBossBGM = null; }
+                document.body.style.pointerEvents = "none";
+
+                if (Math.random() < 0.05) {
+                    if (p.kills >= 1000000n) {
+                        log(`Lux: Enjoy the bitter, freezing embrace of death.`, "#ff0000");
+                    } else {
+                        log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`, "var(--lux)");
                     }
-                    playHurtSFX();
-                    updateUI();
+                } else {
+                    log(`${p.name}. You have perished.`, "#ff4757");
+                }
 
-                    if (p.hp <= 0n) {
-                        handlePatternAftermath(true);
-                        return;
+                const deathSFX1 = new Audio("sfx/player_sfx/player_death/heart_crack.wav");
+                triggerShake();
+                deathSFX1.currentTime = 0;
+                deathSFX1.play().catch(() => {});
+
+                setTimeout(() => {
+                    const deathSFX2 = new Audio("sfx/player_sfx/player_death/heart_shatter.wav");
+                    deathSFX2.currentTime = 0;
+                    deathSFX2.play().catch(() => {});
+                }, 1000);
+
+                if (p.kills >= 1000000n) {
+                    setTimeout(() => {
+                        document.body.innerHTML = `<div style="color:red; font-family:'Fira Code',monospace; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">Don't bother coming back.</div>`;
+                    }, 3000);
+                }
+            } else {
+                document.body.style.pointerEvents = "auto";
+            }
+        }
+
+        function loopPattern() {
+            if (ended || !ctx || !canvas || !player) return;
+
+            const elapsed = Date.now() - startTime;
+            const timeEl = document.getElementById("bullet-hell-time");
+            if (timeEl) timeEl.textContent = (elapsed / 1000).toFixed(2);
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            try {
+                activePattern.run.call(activePattern, frame, cx, cy);
+            } catch (err) {
+                console.error("Pattern error:", activePattern.name, err);
+                log(`Pattern Error in ${activePattern.name}: ${err.message}`, "#ff0000");
+                handlePatternAftermath(false);
+                return;
+            }
+
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const b = bullets[i];
+
+                if (typeof b.update === "function") { b.update(); }
+                else { b.x += b.vx || 0; b.y += b.vy || 0; }
+
+                if (typeof b.draw === "function") { b.draw(); }
+                else {
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.radius || 4, 0, Math.PI * 2);
+                    ctx.fillStyle = b.color || "#fff";
+                    ctx.fill();
+                }
+
+                if (b.dead || b.radius <= 0 ||
+                    b.x < -1000 || b.x > canvas.width  + 1000 ||
+                    b.y < -1000 || b.y > canvas.height + 1000) {
+                    bullets.splice(i, 1);
+                    continue;
+                }
+
+                if (checkCollision(b)) {
+                    const now = Date.now();
+                    if (p.bulletPatternImmortality === true) {
+                        console.log(`Funfriend: Debug Bullet Pattern Immortaility Enabled`)
+                    } else if (now - lastHitTime >= iFrameDuration) {
+                        lastHitTime = now;
+                        let enemyDamage = enemy.atk;
+                        enemyDamage = enemy.weakened > 0n ? (enemyDamage / 2n) : enemyDamage;
+                        p.hp -= enemyDamage;
+                        log(`${enemy.name}'s ${patternDisplayName} hits for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>!`, "var(--enemyATK)");
+
+                        if (enemy.greedSin) {
+                            let roll = BigInt(Math.floor(Math.random() * 500)) * p.totalGold;
+                            p.gold = BigMath.max(p.gold - roll, 0n);
+                            log(`Greed claims ${formatNumber(roll)}g as its own!`, "var(--gold)");
+                            if (Math.random() < 0.01) {
+                                LuxLog(`Lux: Lmao`)
+                            }
+                        }
+
+                        playHurtSFX();
+                        updateUI();
+
+                        if (p.hp <= 0n) {
+                            handlePatternAftermath(true);
+                            return;
+                        }
                     }
                 }
             }
+
+            updatePlayer();
+            frame++;
+
+            if (elapsed >= duration) {
+                handlePatternAftermath(false);
+                return;
+            }
+
+            requestAnimationFrame(loopPattern);
         }
 
-        updatePlayer();
-        frame++;
-
-        if (elapsed >= duration) {
-            handlePatternAftermath(false);
-            return;
-        }
-
-        requestAnimationFrame(loopPattern);
+        loopPattern();
+        return;
     }
 
-    loopPattern();
-    return;
-    }
-
-    // Fallback: normal attack if no bullet pattern matches
+    // --- Fallback: normal attack ---
     let enemyDamage = enemy.atk;
     enemyDamage = enemy.weakened > 0n ? (enemyDamage / 2n) : enemyDamage;
     p.hp -= enemyDamage;
 
-    const sDrain = (enemy.san || 0n);
-    const mDrain = (enemy.manaDrain || 0n);
+    const sDrain = enemy.san || 0n;
+    const mDrain = enemy.manaDrain || 0n;
 
     if (sDrain > 0n && enemy.name === "Gerald") {
-    p.sn = p.sn + sDrain;
-    log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
+        p.sn = p.sn + sDrain;
+        log(`Gerald heals for <span class="hp-warn">${formatNumber(BigInt(-enemy.atk))} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Restore</span>!`, "var(--enemyATK)");
     } else if (sDrain > 0n && mDrain > 0n) {
-    p.sn = BigMath.max(p.sn - sDrain, 0n);
-    p.mp = BigMath.max(p.mp - mDrain, 0n);
-    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>, <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
+        p.sn = BigMath.max(p.sn - sDrain, 0n);
+        p.mp = BigMath.max(p.mp - mDrain, 0n);
+        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>, <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
     } else if (sDrain > 0n) {
-    p.sn = BigMath.max(p.sn - sDrain, 0n);
-    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span>!`, "var(--enemyATK)");
+        p.sn = BigMath.max(p.sn - sDrain, 0n);
+        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span> and <span class="san-warn">${formatNumber(sDrain)} Sanity Drain</span>!`, "var(--enemyATK)");
     } else if (mDrain > 0n) {
-    p.mp = BigMath.max(p.mp - mDrain, 0n);
-    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
+        p.mp = BigMath.max(p.mp - mDrain, 0n);
+        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span> and <span class="mana-warn">${formatNumber(mDrain)} Mana Drain</span>`, "var(--enemyATK)");
     } else {
-    log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>.`, "var(--enemyATK)");
+        log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>.`, "var(--enemyATK)");
     }
-    // -- END CHANGE LOCATION
 
-    enemy.vulnerable -= 1n;
-    enemy.resistant -= 1n;
-    enemy.weakened -= 1n;
-    enemy.fished -= 1n;
-    enemy.solari -= 1n;
+    enemy.vulnerable = BigMath.max(enemy.vulnerable - 1n, 0n);
+    enemy.resistant  = BigMath.max(enemy.resistant  - 1n, 0n);
+    enemy.weakened   = BigMath.max(enemy.weakened   - 1n, 0n);
+    enemy.fished     = BigMath.max(enemy.fished     - 1n, 0n);
+    enemy.solari     = BigMath.max(enemy.solari     - 1n, 0n);
+
     playHurtSFX();
-    // 5. Death check
-    if (p.hp <= 0n) { 
+
+    if (p.hp <= 0n) {
+        if (currentBossBGM) { currentBossBGM.pause(); currentBossBGM = null; }
+        document.body.style.pointerEvents = "none";
+
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
-                log(`Lux: Enjoy the bitter, freezing embrace of death.`,"#ff0000")
-                if (p.kills >= 1000000n) {
-                    setTimeout(() => {
-                        document.body.innerHTML = `<span style="color: red;">Don't bother coming back.</span>`;
-                    }, 3000);
-                }
+                log(`Lux: Enjoy the bitter, freezing embrace of death.`, "#ff0000");
             } else {
-                log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`,"var(--lux)");
+                log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`, "var(--lux)");
             }
-            document.body.style.pointerEvents = "none";
-            currentBossBGM.pause();
-            currentBossBGM = null;
         } else {
-            log(`${p.name}. You have perished.`, "#ff4757"); 
-            document.body.style.pointerEvents = "none";
-            currentBossBGM.pause();
-            currentBossBGM = null;
-        } 
+            log(`${p.name}. You have perished.`, "#ff4757");
+        }
+
         const deathSFX1 = new Audio("sfx/player_sfx/player_death/heart_crack.wav");
         triggerShake();
         deathSFX1.currentTime = 0;
-        deathSFX1.play().catch(e => console.log("Audio playback prevented:", e));
-        setTimeout(()=>{
+        deathSFX1.play().catch(() => {});
+
+        setTimeout(() => {
             const deathSFX2 = new Audio("sfx/player_sfx/player_death/heart_shatter.wav");
             deathSFX2.currentTime = 0;
-            deathSFX2.play().catch(e => console.log("Audio playback prevented:", e));
-        }, 1000)
+            deathSFX2.play().catch(() => {});
+        }, 1000);
+
+        if (p.kills >= 1000000n) {
+            setTimeout(() => {
+                document.body.innerHTML = `<div style="color:red; font-family:'Fira Code',monospace; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">Don't bother coming back.</div>`;
+            }, 3000);
+        }
     }
+
     updateUI();
 }
 

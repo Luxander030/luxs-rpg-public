@@ -55,10 +55,4 @@ const statusEffects = [
         flavor: "The equivilant of a 10-round revolver and the bullets are hidden.",
         icon: "images/status_effects/fish-spin.gif"
     },
-    {
-        name: "Solari",
-        description: "Fished but much, much more brutal.",
-        flavor: "The equivilant of a 10-round revolver and the bullets are hidden, and the bullets are incendiary, explosive, armor piercing, or normal. You just don't know.",
-        icon: "images/status_effects/solari.png"
-    },
 ];

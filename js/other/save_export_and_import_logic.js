@@ -55,7 +55,6 @@ function importSave(saveText) {
         const decoded = xorCipher(atob(encodedData), SAVE_KEY);
         const parsed = JSON.parse(decoded);
 
-        // Standardize BigInt handling for checksum verification
         const bigIntReplacer = (key, value) => typeof value === 'bigint' ? value.toString() : value;
         const verificationStr = JSON.stringify(parsed.payload, bigIntReplacer);
 
@@ -63,6 +62,7 @@ function importSave(saveText) {
             let currentTampered = BigInt(parsed.payload.data.flags.timesTampered || 0n);
             parsed.payload.data.flags.timesTampered = currentTampered + 1n;
             const tamperCount = parsed.payload.data.flags.timesTampered;
+
             if (tamperCount >= 15n) {
                 LuxTypeToLogPissed(`THAT'S IT.`, "#ff0000", 25)
                 setTimeout(() => {
@@ -86,7 +86,15 @@ function importSave(saveText) {
         }
         let loadedPlayer = parsed.payload.data;
         restoreBigInts(loadedPlayer);
-        // Apply to global state
+        // Reject if class doesn't match the one stored in localStorage
+        const localClass = localStorage.getItem('luxsRPGplayerClass');
+        if (localClass && loadedPlayer.class !== localClass) {
+            log(`Lux: The soul trying to enter this world does not match the one that left it.`, "#ff0000");
+            log(`Error: Save file class mismatch. Import rejected.`, "#ff4757");
+            playCantSelectSFX();
+            return;
+        }
+
         p = loadedPlayer;
         p.v = SAVE_VERSION;
         const completedGenocideRun = localStorage.getItem('completedGenocideRun');
@@ -103,7 +111,7 @@ function importSave(saveText) {
         log("Error: Could not read file. Check console for details.", "#ff4757");
         log(`${err}`, "#ff4757")
         if (p.flags.timesTampered >= 1) {
-            log(`Lux: I see tampering with the world has caused... undesirable consequences.`,"#ff0000")
+            LuxTypeToLogPissed(`I see tampering with this save caused... undesirable consequences.`)
         }
     }
 }

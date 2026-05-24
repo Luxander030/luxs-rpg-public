@@ -117,6 +117,11 @@ function cmdClearName() {
     log(`Name cleared`, "var(--funfriend)")
 }
 
+function cmdClearClass() {
+    localStorage.removeItem("luxsRPGplayerClass")
+    log(`Class cleared`, "var(--funfriend)")
+}
+
 const cmdRegistry = {
     'clearname': cmdClearName
 };
@@ -141,6 +146,9 @@ function handleCommand(cmd) {
     switch (command) {
         case '/clearname':
             cmdClearName();
+            break;
+        case '/clearclass':
+            cmdClearClass();
             break;
         case '/effect':
             let effectVal;

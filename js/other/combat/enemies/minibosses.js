@@ -1,118 +1,104 @@
 enemies.push(
-    /*
-    
-    Vars to use for enemies:
-    name = the name of the enemy
-    hp = current hp
-    mhp = max hp of the enemy
-    atk = dmg dealt by enemy
-    san = amount of sanity drain enemy deals
-    manaDrain = amount of mana drained
-    exp = amount of exp recived when enemy is killed
-    gold = amount of gold recived when enemy is killed
-    lifesteal = amoutn of hp enemy heals for each round (must be equal to or higher the dmg stat)
-    burnImmune = true/false, makes enemy either immune to burn dmg or not
-    burnResist = 0-1, 0.5 = half burn dmg, 1 is basically immunity
-    burnVuln = any number higher then 1, 1.5 = 150% burn damage
-    burnReflect = amount of burn damage reflected to player
-
-    */
-
 
     {
         name: "Diamond Golem",
         killKey: "diamondGolem",
         weight: 20,
         get mhp() {
-            // Logic: LV / 1.5 is represented as (LV * 2) / 3
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 600n;
+            return 3000n + (scaledLV * 900n);
         },
         get hp() { return this.mhp; },
         get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 80n;
+            return 200n + (scaledLV * 180n);
         },
         get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 10n;
+            return 15n + (scaledLV * 15n);
         },
         get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 400n;
+            return 1000n + (scaledLV * 800n);
         },
         get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 320n;
+            return 800n + (scaledLV * 700n);
         },
         lifesteal: 0n,
+        burnResist: 0.8, // Diamond doesn't burn easily
         canSpawn: () => p.lv >= 15n,
         trait: "Mini-Boss",
         drop: () => "Diamond",
     },
+
     {
         name: "Iron-Plated Diamond Golem",
         killKey: "ironPlatedDiamondGolem",
-        weight: 20,
+        weight: 15, // Slightly rarer than Diamond Golem
         get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 1200n;
+            return 6000n + (scaledLV * 1800n); // Roughly double Diamond Golem
         },
         get hp() { return this.mhp; },
         get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 160n;
+            return 400n + (scaledLV * 360n);
         },
         get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 20n;
+            return 25n + (scaledLV * 25n);
         },
         get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 800n;
+            return 2000n + (scaledLV * 1600n);
         },
         get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 640n;
+            return 1600n + (scaledLV * 1400n);
         },
-        burnResist: 0.5, // Numbers used for multipliers like this are safe as long as the logic handles them
         lifesteal: 0n,
-        canSpawn: () => p.lv >= 15n,
+        burnResist: 0.5, // Iron plating reduces burn damage
+        burnImmune: false,
+        canSpawn: () => p.lv >= 20n, // Slightly higher level requirement than Diamond Golem
         trait: "Mini-Boss",
         drop: () => "Diamond",
     },
+
     {
         name: "Mana Draining Wisp",
         killKey: "manaDrainingWisp",
         weight: 20,
         get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 600n;
+            return 2500n + (scaledLV * 800n);
         },
         get hp() { return this.mhp; },
         get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 80n;
+            return 150n + (scaledLV * 130n);
         },
         get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 10n;
+            return 30n + (scaledLV * 30n); // Draining your mana also messes with your mind
         },
         get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 400n;
+            return 1000n + (scaledLV * 800n);
         },
         get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 320n;
+            return 800n + (scaledLV * 700n);
         },
         get manaDrain() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 200n;
+            return 300n + (scaledLV * 250n); // More aggressive mana drain
         },
         lifesteal: 0n,
+        burnResist: 0.3, // Wisps are partially ethereal
         canSpawn: () => p.lv >= 15n,
         trait: "Mana Draining Mini-Boss",
         drop: () => "The Lovers (6)",
     },
-)
+
+);

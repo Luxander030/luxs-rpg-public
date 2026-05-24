@@ -1,6 +1,8 @@
 let p = {
     v: 9,
     name: null,
+    class: null,
+    bulletPatternImmortality: false,
     hp: 100n,
     mhp: 100n,
     mp: 50n,
@@ -45,6 +47,9 @@ let p = {
         // Sanity Drain Enemies
         voidStalker: 0n,
         gloomWeaver: 0n,
+        nightmareShade: 0n,
+        dreadPhantom: 0n,
+        abyssalWatcher: 0n,
         // Lifesteal enemies
         bloodBat: 0n,
         vampire: 0n,

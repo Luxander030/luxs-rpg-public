@@ -20,7 +20,7 @@
 </head>
 <body>
 <div class="version">
-    Version: 10.0.0
+    Version: 4.0.0
 </div>
 <div class="save-controls">
     <button class="export-btn" onclick="exportSave(); playSaveSFX();">Export .urpg</button>
@@ -89,6 +89,8 @@
         </div>
         <div id="stats-content" class="stats-scroll-container">
             <h3 style="margin-top:0; color:var(--mana); border-bottom: 2px solid var(--mana); padding-bottom: 10px;">Character Stats</h3>
+            <div class="stat-entry"><span style="color:var(--gold)" class="stat-label custom-color">Class:</span> <b id="side-class">none</b></div>
+            <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
             <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Max Life:</span> <b id="side-mhp">100</b></div>
             <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Life:</span> <b id="side-hp">100</b></div>
             <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
@@ -237,6 +239,35 @@
         p.name = savedName;
     } else {
         nameSelection();
+    }
+    const savedClass = localStorage.getItem("luxsRPGplayerClass");
+    if (savedClass) {
+        p.class = savedClass;
+        let classId = p.class
+        const startingSpells = {
+            astralMage:   ["starbit"],
+            stormmancer:  ["multispark"],
+            druid:        ["brambleChain"],
+            flamemancer:  ["flame"],
+            cryomancer:   ["chill"],
+            watermancer:  ["soak1"],
+            shadow:       ["miraShade"],
+            neutral:      ["campfire"],
+        };
+
+        const spells = startingSpells[classId] || [];
+        spells.forEach(spellId => {
+            if (skillTree[spellId]) {
+                skillTree[spellId].unlocked = true;
+                if (!p.skills.includes(spellId)) {
+                    p.skills.push(spellId);
+                }
+            }
+        });
+        updateUI();
+    } else {
+        // Slight delay so name selection finishes first
+        setTimeout(() => classSelection(), 500);
     }
     const completedGenocideRun = localStorage.getItem('completedGenocideRun');
     if (completedGenocideRun === 'true') {

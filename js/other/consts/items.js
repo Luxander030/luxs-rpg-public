@@ -390,6 +390,234 @@ const inventoryItems = [
     /*
     ###########################################################################################
     ##############################################################################################
+    Effect Giving Items                                                                        ######
+    ##############################################################################################
+    ###########################################################################################
+    */
+
+    {
+        id: "venomVial",
+        name: "Venom Vial",
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "A vial of concentrated venom. Throw it at an enemy to poison them.",
+        edible: false,
+        info: [
+            { label: "Poison Stacks", value: () => p.lv * 50n }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            if (enemy.poisonImmune) {
+                log(`${enemy.name} is immune to poison!`, "var(--poisonDMG)");
+                return updateUI();
+            }
+            let stacks = p.lv * 50n;
+            enemy.poison += stacks;
+            log(`Item used: "Venom Vial"`, "var(--uncommonItem)");
+            log(`${enemy.name} is poisoned! (+${formatNumber(stacks)} poison stacks)`, "var(--poisonDMG)");
+            return updateUI();
+        }
+    },
+    
+    {
+        id: "flashbang",
+        name: "Flashbang",
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "A blinding flash that stuns an enemy for several turns.",
+        edible: false,
+        info: [
+            { label: "Stun Turns", value: () => BigMath.max(1n, p.lv / 5n) }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            if (enemy.stunImmune) {
+                log(`${enemy.name} is immune to stun!`, "#ffd700");
+                return updateUI();
+            }
+            let turns = BigMath.max(1n, p.lv / 5n);
+            enemy.stunned += turns;
+            log(`Item used: "Flashbang"`, "var(--uncommonItem)");
+            log(`${enemy.name} is stunned for ${formatNumber(turns)} turns!`, "#ffd700");
+            return updateUI();
+        }
+    },
+    
+    {
+        id: "torchOil",
+        name: "Torch Oil",
+        rarity: "Common",
+        rarityColor: "var(--commonItem)",
+        description: "Douse an enemy in flammable oil and set them alight.",
+        edible: false,
+        info: [
+            { label: "Burn Turns", value: () => p.lv * 3n }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            if (enemy.burnImmune) {
+                log(`${enemy.name} is immune to burn!`, "var(--burnDMG)");
+                return updateUI();
+            }
+            let turns = p.lv * 3n;
+            enemy.burning += turns;
+            log(`Item used: "Torch Oil"`, "var(--commonItem)");
+            log(`${enemy.name} is set ablaze for ${formatNumber(turns)} turns!`, "var(--burnDMG)");
+            return updateUI();
+        }
+    },
+    
+    {
+        id: "iceShard",
+        name: "Ice Shard",
+        rarity: "Common",
+        rarityColor: "var(--commonItem)",
+        description: "A jagged shard of magical ice. Freezes an enemy on impact.",
+        edible: false,
+        info: [
+            { label: "Freeze Turns", value: () => p.lv * 2n }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            if (enemy.freezeImmune) {
+                log(`${enemy.name} is immune to freezing!`, "var(--freezeDMG)");
+                return updateUI();
+            }
+            let turns = p.lv * 2n;
+            enemy.frozen += turns;
+            log(`Item used: "Ice Shard"`, "var(--commonItem)");
+            log(`${enemy.name} is frozen for ${formatNumber(turns)} turns!`, "var(--freezeDMG)");
+            return updateUI();
+        }
+    },
+    
+    {
+        id: "cursedDust",
+        name: "Cursed Dust",
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "Blow this dust into an enemy's face to make them vulnerable to all incoming damage.",
+        edible: false,
+        info: [
+            { label: "Vulnerable Turns", value: () => BigMath.max(1n, p.lv / 4n) }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            let turns = BigMath.max(1n, p.lv / 4n);
+            enemy.vulnerable += turns;
+            log(`Item used: "Cursed Dust"`, "var(--rareItem)");
+            log(`${enemy.name} is vulnerable for ${formatNumber(turns)} turns! Damage doubled and crits enabled.`, "#ff4757");
+            return updateUI();
+        }
+    },
+    
+    {
+        id: "weakeningSalve",
+        name: "Weakening Salve",
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "Apply this salve to weaken an enemy, halving their outgoing damage for several turns.",
+        edible: false,
+        info: [
+            { label: "Weaken Turns", value: () => BigMath.max(1n, p.lv / 3n) }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            let turns = BigMath.max(1n, p.lv / 3n);
+            enemy.weakened += turns;
+            log(`Item used: "Weakening Salve"`, "var(--rareItem)");
+            log(`${enemy.name} is weakened for ${formatNumber(turns)} turns! Their damage is halved.`, "#a4b0be");
+            return updateUI();
+        }
+    },
+    
+    {
+        id: "theFish",
+        name: "The Fish",
+        rarity: "???",
+        rarityColor: "var(--insaneItem)",
+        description: "A fish. Just... a fish. Why does it feel like it's looking at you? Why does it feel like it knows something you don't?",
+        edible: false,
+        info: [
+            { label: "Fished Stacks", value: () => 1n }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            enemy.fished += 1n;
+            log(`Item used: "The Fish"`, "var(--insaneItem)");
+            log(`${enemy.name} has been... fished.`, "var(--fish)");
+            log(`The fish stares at ${enemy.name}. ${enemy.name} stares back. Neither blinks.`, "var(--fish)");
+            return updateUI();
+        }
+    },
+    
+    {
+        id: "combinationKit",
+        name: "Combination Kit",
+        rarity: "Epic",
+        rarityColor: "var(--epicItem)",
+        description: "A kit containing a vial of venom, a handful of cursed dust, and a strip of torch oil. Applies poison, vulnerable, and burn all at once.",
+        edible: false,
+        info: [
+            { label: "Poison Stacks", value: () => p.lv * 30n },
+            { label: "Burn Turns", value: () => p.lv * 2n },
+            { label: "Vulnerable Turns", value: () => BigMath.max(1n, p.lv / 5n) }
+        ],
+        run: () => {
+            if (!enemy) {
+                log(`No enemy to use this on!`, "#ff4757");
+                return;
+            }
+            log(`Item used: "Combination Kit"`, "var(--epicItem)");
+    
+            if (enemy.poisonImmune) {
+                log(`${enemy.name} is immune to poison!`, "var(--poisonDMG)");
+            } else {
+                let stacks = p.lv * 30n;
+                enemy.poison += stacks;
+                log(`${enemy.name} is poisoned! (+${formatNumber(stacks)} poison stacks)`, "var(--poisonDMG)");
+            }
+    
+            if (enemy.burnImmune) {
+                log(`${enemy.name} is immune to burn!`, "var(--burnDMG)");
+            } else {
+                let turns = p.lv * 2n;
+                enemy.burning += turns;
+                log(`${enemy.name} is set ablaze for ${formatNumber(turns)} turns!`, "var(--burnDMG)");
+            }
+    
+            let vulnTurns = BigMath.max(1n, p.lv / 5n);
+            enemy.vulnerable += vulnTurns;
+            log(`${enemy.name} is vulnerable for ${formatNumber(vulnTurns)} turns!`, "#ff4757");
+    
+            return updateUI();
+        }
+    },    
+
+    /*
+    ###########################################################################################
+    ##############################################################################################
     Other/Unsortable Items                                                                     ######
     ##############################################################################################
     ###########################################################################################

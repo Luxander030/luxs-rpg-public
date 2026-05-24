@@ -1,53 +1,29 @@
 enemies.push(
-    /*
-    
-    Vars to use for enemies:
-    name = the name of the enemy
-    hp = current hp
-    mhp = max hp of the enemy
-    atk = dmg dealt by enemy
-    san = amount of sanity drain enemy deals
-    manaDrain = amount of mana drained
-    exp = amount of exp recived when enemy is killed
-    gold = amount of gold recived when enemy is killed
-    lifesteal = amoutn of hp enemy heals for each round (must be equal to or higher the dmg stat)
-    burnImmune = true/false, makes enemy either immune to burn dmg or not
-    burnResist = 0-1, 0.5 = half burn dmg, 1 is basically immunity
-    burnVuln = any number higher then 1, 1.5 = 150% burn damage
-    burnReflect = amount of burn damage reflected to player
-
-    */
 
     {
         name: "Gloom Weaver",
         killKey: "gloomWeaver",
         weight: 35,
-        get mhp() { 
-            // Replacement for Math.max(1, floor(lv / 1.5))
+        get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            if (scaledLV < 1n) scaledLV = 1n; 
-            return scaledLV * 55n; 
+            return 60n + (scaledLV * 70n);
         },
         get hp() { return this.mhp; },
-        get atk() { 
+        get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            if (scaledLV < 1n) scaledLV = 1n;
-            return scaledLV * 10n; 
+            return 12n + (scaledLV * 14n);
         },
-        get san() { 
+        get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            if (scaledLV < 1n) scaledLV = 1n;
-            return scaledLV * 18n; 
+            return 20n + (scaledLV * 22n);
         },
-        get exp() { 
+        get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            if (scaledLV < 1n) scaledLV = 1n;
-            return scaledLV * 45n; 
+            return 45n + (scaledLV * 50n);
         },
-        get gold() { 
+        get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            if (scaledLV < 1n) scaledLV = 1n;
-            return scaledLV * 35n; 
+            return 35n + (scaledLV * 40n);
         },
         lifesteal: 0n,
         canSpawn: () => true,
@@ -55,36 +31,141 @@ enemies.push(
         specialMsg: "Gloom Weaver: Nightmare may stalk you...",
         drop: () => "Black Shard",
     },
+
     {
         name: "Void Stalker",
         killKey: "voidStalker",
         weight: 25,
-        get mhp() { 
+        get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 90n; 
+            return 100n + (scaledLV * 110n);
         },
         get hp() { return this.mhp; },
-        get atk() { 
+        get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 15n; 
+            return 18n + (scaledLV * 20n);
         },
-        get san() { 
+        get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 25n; 
+            return 28n + (scaledLV * 30n);
         },
-        get exp() { 
+        get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 60n; 
+            return 60n + (scaledLV * 70n);
         },
-        get gold() { 
+        get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 50n; 
+            return 50n + (scaledLV * 60n);
         },
         lifesteal: 0n,
-        // BigInt comparisons: 5n and 150n
         canSpawn: () => p.lv >= 5n || p.msn >= 150n,
         trait: "Elite Sanity Predator",
         specialMsg: "Void Stalker: ...but Lux stalks us all.",
         drop: () => "Black Shard",
-    },    
-)
+    },
+
+    {
+        name: "Nightmare Shade",
+        killKey: "nightmareShade",
+        weight: 20,
+        get mhp() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 120n + (scaledLV * 130n);
+        },
+        get hp() { return this.mhp; },
+        get atk() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 20n + (scaledLV * 22n);
+        },
+        get san() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 35n + (scaledLV * 38n); // Highest sanity drain of the three
+        },
+        get exp() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 80n + (scaledLV * 90n);
+        },
+        get gold() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 60n + (scaledLV * 70n);
+        },
+        lifesteal: 0n,
+        canSpawn: () => p.lv >= 8n || p.msn >= 200n,
+        trait: "Elite Sanity Predator",
+        specialMsg: "Nightmare Shade: Your mind is a feast.",
+        drop: () => "Black Shard",
+    },
+
+    {
+        name: "Dread Phantom",
+        killKey: "dreadPhantom",
+        weight: 18,
+        get mhp() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 150n + (scaledLV * 160n);
+        },
+        get hp() { return this.mhp; },
+        get atk() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 25n + (scaledLV * 28n);
+        },
+        get san() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 40n + (scaledLV * 45n);
+        },
+        get manaDrain() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 20n + (scaledLV * 25n); // Also drains a little mana
+        },
+        get exp() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 100n + (scaledLV * 110n);
+        },
+        get gold() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 80n + (scaledLV * 90n);
+        },
+        lifesteal: 0n,
+        canSpawn: () => p.lv >= 12n,
+        trait: "Sanity and Mana Drainer",
+        specialMsg: "Dread Phantom: I will hollow you out.",
+        drop: () => "Black Shard",
+    },
+
+    {
+        name: "Abyssal Watcher",
+        killKey: "abyssalWatcher",
+        weight: 12,
+        get mhp() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 200n + (scaledLV * 220n);
+        },
+        get hp() { return this.mhp; },
+        get atk() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 30n + (scaledLV * 35n);
+        },
+        get san() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 50n + (scaledLV * 55n); // Nastiest sanity drain of all normal enemies
+        },
+        get manaDrain() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 30n + (scaledLV * 35n);
+        },
+        get exp() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 150n + (scaledLV * 160n);
+        },
+        get gold() {
+            let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
+            return 100n + (scaledLV * 120n);
+        },
+        lifesteal: 0n,
+        canSpawn: () => p.lv >= 18n,
+        trait: "Apex Sanity Predator",
+        specialMsg: "Abyssal Watcher: I have watched you since the beginning. You cannot hide from the abyss.",
+        drop: () => "Black Shard",
+    },
+
+);

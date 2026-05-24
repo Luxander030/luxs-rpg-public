@@ -798,4 +798,64 @@ patternLibrary.push(
             }
         }
     },
+    {
+        name: "Lux's Heartbeat",
+        enemy: "Lux",
+        run: (frame, cx, cy) => {
+            if (frame % 3 !== 0) return;
+    
+            const speed = 1 + (Math.sin(frame * 0.05) + 1) / 2 * 14;
+    
+            for (let i = 0; i < 50; i++) {
+                const angle = (frame * 0.5) + (i * (Math.PI * 2 / 50));
+                const bullet = new Bullet(cx, cy,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed,
+                    "#3c23a8"
+                );
+                bullet._tick = 0;
+                bullet._baseUpdate = bullet.update.bind(bullet);
+                bullet.update = function () {
+                    this._tick++;
+                    this._baseUpdate();
+                    const t = Math.min(this._tick / 120, 1);
+                    const r = Math.round(0x3c + 0xc3 * t);
+                    const g = Math.round(0x23 * (1 - t));
+                    const b = Math.round(0xa8 - 0x58 * t);
+                    this.color = `rgb(${r}, ${g}, ${b})`;
+                };
+                bullets.push(bullet);
+            }
+    
+            // Closing ring on the "downbeat" of the heartbeat
+            if (frame % 120 === 0) {
+                const count = 24;
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const dist = 260;
+                    const bullet = new Bullet(
+                        cx + Math.cos(angle) * dist,
+                        cy + Math.sin(angle) * dist,
+                        -Math.cos(angle) * 2,
+                        -Math.sin(angle) * 2,
+                        "#ff0000"
+                    );
+                    bullets.push(bullet);
+                }
+            }
+        }
+    },
+    {
+        name: "A Hell Of Your Own Making",
+        enemy: "Lux",
+        run: (frame, cx, cy) => {
+            const isPulse = frame % 180 === 0 && frame !== 0;
+            const color = isPulse ? "#3c23a8" : "#2e0000";
+    
+            for (let i = 0; i < 26; i++) {
+                let angle = (frame * 0.5) + (i * (Math.PI * 2 / 26));
+                bullets.push(new Bullet(cx, cy, Math.cos(angle) * 8, Math.sin(angle) * 8, color));
+            }
+        }
+    },    
 )

@@ -1,160 +1,179 @@
 enemies.push(
-    /*
-    
-    Vars to use for enemies:
-    name = the name of the enemy
-    hp = current hp
-    mhp = max hp of the enemy
-    atk = dmg dealt by enemy
-    san = amount of sanity drain enemy deals
-    manaDrain = amount of mana drained
-    exp = amount of exp recived when enemy is killed
-    gold = amount of gold recived when enemy is killed
-    lifesteal = amoutn of hp enemy heals for each round (must be equal to or higher the dmg stat)
-    burnImmune = true/false, makes enemy either immune to burn dmg or not
-    burnResist = 0-1, 0.5 = half burn dmg, 1 is basically immunity
-    burnVuln = any number higher then 1, 1.5 = 150% burn damage
-    burnReflect = amount of burn damage reflected to player
-
-    */
-
     {
         name: "Blood Bat",
         killKey: "bloodBat",
         weight: 40,
-        get mhp() { 
+        get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 50n; 
+            return 50n + (scaledLV * 65n);
         },
         get hp() { return this.mhp; },
-        get atk() { 
+        get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 11n; 
+            return 12n + (scaledLV * 14n);
         },
-        get san() { 
+        get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 5n; 
+            return 5n + (scaledLV * 6n);
         },
-        get exp() { 
+        get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 30n; 
+            return 30n + (scaledLV * 35n);
         },
-        get gold() { 
+        get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 25n; 
+            return 25n + (scaledLV * 28n);
         },
-        get lifesteal() { 
+        get lifesteal() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 5n; 
+            return 5n + (scaledLV * 6n);
         },
-        burnVuln: 1.5,
-        canSpawn: () => p.skills.includes('fireball'),
-        trait: "Regenerates a small amount of HP per turn",
+        burnVuln: 2.0,
+        canSpawn: () =>
+            p.skills.includes('shootingStars') ||  // Astral Mage
+            p.skills.includes('static') ||         // Stormmancer
+            p.skills.includes('leafSpiral') ||     // Druid
+            p.skills.includes('flameTwitch') ||    // Flamemancer
+            p.skills.includes('chillSplinter') ||  // Cryomancer
+            p.skills.includes('soak3') ||          // Watermancer
+            p.skills.includes('shadow') ||         // Shadow
+            p.skills.includes('cosmicBlessing'),   // Neutral
+        trait: "Regenerates a Small Amount of HP per Turn",
         drop: () => "Blood Bat Eye",
     },
+
     {
         name: "Vampire",
         killKey: "vampire",
         weight: 30,
-        get mhp() { 
+        get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 600n; 
+            return 800n + (scaledLV * 700n);
         },
         get hp() { return this.mhp; },
-        get atk() { 
+        get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 80n; 
+            return 100n + (scaledLV * 100n);
         },
-        get san() { 
+        get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 10n; 
+            return 15n + (scaledLV * 15n);
         },
-        get exp() { 
+        get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 400n; 
+            return 400n + (scaledLV * 420n);
         },
-        get gold() { 
+        get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 320n; 
+            return 320n + (scaledLV * 340n);
         },
-        get lifesteal() { 
+        get lifesteal() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 15n;
+            return 80n + (scaledLV * 80n);
         },
         burnVuln: 1.5,
-        canSpawn: () => p.skills.includes('fireball') && p.lv >= 30n,
-        trait: "Regenerates a moderate amount of HP per turn",
+        canSpawn: () => p.lv >= 30n && (
+            p.skills.includes('stellarRift') ||    // Astral Mage
+            p.skills.includes('blowout') ||        // Stormmancer
+            p.skills.includes('naturesFury') ||    // Druid
+            p.skills.includes('fireBarrage') ||    // Flamemancer
+            p.skills.includes('frostPrison') ||    // Cryomancer
+            p.skills.includes('createRiver') ||    // Watermancer
+            p.skills.includes('fingerofdeath') ||  // Shadow
+            p.skills.includes('cosmicRoulette')    // Neutral
+        ),
+        trait: "Regenerates a Moderate Amount of HP per Turn",
         specialMsg: "Vampire: Don't worry, it won't hurt.",
-        drop: () => "Vamprie Tooth",
+        drop: () => "Vampire Tooth",
     },
+
     {
         name: "Vampire Lord",
         killKey: "vampireLord",
         weight: 12,
-        get mhp() { 
+        get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 450n; 
+            return 2000n + (scaledLV * 1400n);
         },
         get hp() { return this.mhp; },
-        get atk() { 
+        get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 99n; 
+            return 250n + (scaledLV * 220n);
         },
-        get san() { 
+        get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 45n; 
+            return 50n + (scaledLV * 55n);
         },
-        get exp() { 
+        get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 270n; 
+            return 800n + (scaledLV * 820n);
         },
-        get gold() { 
+        get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 225n; 
+            return 600n + (scaledLV * 620n);
         },
-        get lifesteal() { 
+        get lifesteal() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return 90n + (scaledLV * 45n);
+            return 200n + (scaledLV * 180n);
         },
         burnVuln: 1.5,
-        canSpawn: () => p.skills.includes('fireball') && p.lv >= 40n,
-        trait: "Regenerates a large amount of HP per turn",
+        canSpawn: () => p.lv >= 40n && (
+            p.skills.includes('comet') ||          // Astral Mage
+            p.skills.includes('ionCannon') ||      // Stormmancer
+            p.skills.includes('poisonSpray') ||    // Druid
+            p.skills.includes('conflagration') ||  // Flamemancer
+            p.skills.includes('iceshock') ||       // Cryomancer
+            p.skills.includes('createRiver') ||    // Watermancer
+            p.skills.includes('snowgraveShadow') ||// Shadow
+            p.skills.includes('theLastWord')       // Neutral
+        ),
+        trait: "Regenerates a Large Amount of HP per Turn",
         specialMsg: "Vampire Lord: Okay it might hurt a little bit...",
         drop: () => "Vampire Tooth",
     },
+
     {
         name: "Vampire King",
         killKey: "vampireKing",
         weight: 6,
-        get mhp() { 
+        get mhp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 900n; 
+            return 5000n + (scaledLV * 2800n);
         },
         get hp() { return this.mhp; },
-        get atk() { 
+        get atk() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 198n; 
+            return 600n + (scaledLV * 500n);
         },
-        get san() { 
+        get san() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 90n; 
+            return 100n + (scaledLV * 110n);
         },
-        get exp() { 
+        get exp() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 540n; 
+            return 1500n + (scaledLV * 1600n);
         },
-        get gold() { 
+        get gold() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 450n; 
+            return 1200n + (scaledLV * 1200n);
         },
-        get lifesteal() { 
+        get lifesteal() {
             let scaledLV = BigMath.max(1n, (p.lv * 2n) / 3n);
-            return scaledLV * 90n;
+            return 500n + (scaledLV * 450n);
         },
         burnVuln: 1.5,
-        canSpawn: () => p.skills.includes('fireball') && p.lv >= 50n,
-        trait: "Regenerates a very large amount of HP per turn",
+        canSpawn: () => p.lv >= 50n && (
+            p.skills.includes('eldritchblast') ||  // Astral Mage
+            p.skills.includes('thunderbolt') ||    // Stormmancer
+            p.skills.includes('ralseidualheal') || // Druid
+            p.skills.includes('conflagration') ||  // Flamemancer
+            p.skills.includes('snowgrave') ||      // Cryomancer
+            p.skills.includes('createRiver') ||    // Watermancer
+            p.skills.includes('snowgraveShadow') ||// Shadow
+            p.skills.includes('theLastWord')       // Neutral
+        ),
+        trait: "Regenerates a Very Large Amount of HP per Turn",
         specialMsg: "Vampire King: There is only one entity I fear. That entity being Lux.",
         drop: () => "Vampire Tooth",
     },
-)
+);
