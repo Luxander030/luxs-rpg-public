@@ -298,6 +298,7 @@ function startCombat() {
         burning: 0n,
         frozen: 0n,
         stunned: 0n,
+        stunCooldown: 0n,
         poison: 0n,
         weakened: 0n,
         vulnerable: 0n,
@@ -605,14 +606,17 @@ function cast(sid) {
 
     // Stun (Stormmancer)
     if (s.stun) {
-        if (enemy.freezeImmune) {
-            log(`${enemy.name} is immune to stun!`, "#ffd700");
-        } else {
+        if (enemy.stunImmune) {
+            log(`${enemy.name} is immune to stun!`, "#ffffff");
+        } else if (enemy.stunCooldown > 0n) {
+            log(`${enemy.name} is resistant to stun!`, "#ffffff");
+        } else if (Math.random() < 0.30) {
             enemy.stunned += s.stun;
-            log(`${enemy.name} is stunned for ${formatNumber(s.stun)} turns!`, "#ffd700");
+            log(`${enemy.name} is stunned for ${formatNumber(s.stun)} turns!`, "#ffffff");
+        } else {
+            log(`${enemy.name} resisted the stun!`, "#ffffff");
         }
-    }
-
+    }    
     if (s.poison) {
         if (enemy.poisonImmune) {
             log(`${enemy.name} is immune to poison!`, "var(--poisonDMG)");
