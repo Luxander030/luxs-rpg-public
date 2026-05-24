@@ -1,4 +1,4 @@
-const save_version_check = "4.0.2"
+const save_version_check = "4.0.3"
 async function checkForUpdates() {
     try {
         const response = await fetch(

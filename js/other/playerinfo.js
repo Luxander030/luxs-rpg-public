@@ -11,7 +11,7 @@ let p = {
     msn: 100n,
     gold: 150n,
     gems: 0n,
-    totalGold: 50n,
+    totalGold: 150n,
     exp: 0n,
     lv: 1n,
     sp: 0n,
