@@ -610,7 +610,7 @@ function cast(sid) {
             log(`${enemy.name} is immune to stun!`, "#ffffff");
         } else if (enemy.stunCooldown > 0n) {
             log(`${enemy.name} is resistant to stun!`, "#ffffff");
-        } else if (Math.random() < 0.30) {
+        } else if (Math.random() < 0.50) {
             enemy.stunned += s.stun;
             log(`${enemy.name} is stunned for ${formatNumber(s.stun)} turns!`, "#ffffff");
         } else {
