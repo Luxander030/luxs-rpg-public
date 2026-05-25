@@ -607,14 +607,14 @@ function cast(sid) {
     // Stun (Stormmancer)
     if (s.stun) {
         if (enemy.stunImmune) {
-            log(`${enemy.name} is immune to stun!`, "#ffffff");
+            log(`${enemy.name} is immune to stun!`, "#ffd700");
         } else if (enemy.stunCooldown > 0n) {
-            log(`${enemy.name} is resistant to stun!`, "#ffffff");
+            log(`${enemy.name} is resistant to stun!`, "#ffd700");
         } else if (Math.random() < 0.50) {
             enemy.stunned += s.stun;
-            log(`${enemy.name} is stunned for ${formatNumber(s.stun)} turns!`, "#ffffff");
+            log(`${enemy.name} is stunned for ${formatNumber(s.stun)} turns!`, "#ffd700");
         } else {
-            log(`${enemy.name} resisted the stun!`, "#ffffff");
+            log(`${enemy.name} resisted the stun!`, "#ffd700");
         }
     }    
     if (s.poison) {
@@ -867,7 +867,12 @@ function enemyTurn() {
     // --- Stun check ---
     if (enemy.stunned >= 1n) {
         log(`${enemy.name} is stunned and cannot attack!`, "#ffd700");
-        enemy.stunned -= 1n;
+        if ((enemy.stunned - 1n) === 0n) {
+            enemy.stunImmune += 3n;
+            log(`${enemy.name} becomes immune to stun for 3 turns!`, "#ffd700")
+        } else {
+            enemy.stunned -= 1n;
+        }
         updateUI();
         document.body.style.pointerEvents = "auto";
         return;
