@@ -868,14 +868,18 @@ function enemyTurn() {
     if (enemy.stunned >= 1n) {
         log(`${enemy.name} is stunned and cannot attack!`, "#ffd700");
         if ((enemy.stunned - 1n) === 0n) {
-            enemy.stunImmune += 3n;
+            enemy.stunned -= 1n;
+            enemy.stunCooldown += 3n;
             log(`${enemy.name} becomes immune to stun for 3 turns!`, "#ffd700")
+            updateUI();
+            document.body.style.pointerEvents = "auto";
+            return;
         } else {
             enemy.stunned -= 1n;
+            updateUI();
+            document.body.style.pointerEvents = "auto";
+            return;
         }
-        updateUI();
-        document.body.style.pointerEvents = "auto";
-        return;
     }
 
     // --- Lifesteal ---

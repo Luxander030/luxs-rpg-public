@@ -633,7 +633,7 @@ const inventoryItems = [
             if (p.flags.bobVisits >= 50n) {
                 LuxLog(`Lux: Please. Keep Bob away from this. I don't want him to turn one of these into bread.`)
             } else if (p.kills >= 1000000n || p.flags.genocideRouteTimesCompleted === true) {
-                LuxLog(`Lux: You want to use this? After commiting a genocide? You really are clueless.`)
+                LuxLog(`Lux: You want to use this? After commiting a genocide? You really are clueless. But I don't have the patience to nuke your stats.`)
                 p.hp = p.mhp / 2n
             } else if (p.spares >= 1000000n || p.flags.pacifistRouteTimesCompleted === true) {
                 LuxLog(`Lux: Hello again. It's good to see you.`)
@@ -645,7 +645,7 @@ const inventoryItems = [
                 p.hp = 1n
                 p.mp = 0n
                 p.sn = 1n
-            } else if (p.day >= 1000n) {
+            } else if (p.day >= 1095n) {
                 LuxLog(`Lux: Over 3 years lived... and you have not died yet... interesting...`)
             } else {
                 let roll = Math.random()
@@ -657,7 +657,7 @@ const inventoryItems = [
                     LuxLog(`Lux: Should you get a gem?`)
                     if (Math.random() < 0.1) {
                         LuxLog(`Lux: Why not.`)
-                        log(`<span style="color: var(--lux)">Lux</span> gave you a gem.`, "var(--epicItem)")
+                        log(`<span style="color: var(--lux)">Lux</span> gave you a gem. Why? I dunno. He just did.`, "var(--epicItem)")
                         p.gems += 1n
                     } else {
                         LuxLog(`Lux: Nah.`)
