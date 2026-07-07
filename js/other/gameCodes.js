@@ -19,7 +19,14 @@ window.addEventListener('keydown', (e) => {
 function processCode() {
     const val = codeInput.value.trim();
     if (!val) return;
-    if (val === 'luxanderVentingTicket' && !p.codesUsed.includes('luxanderVentingTicket')) {
+    const vendingTicketUsed = p.codesUsed.includes('luxanderVentingTicket');
+    if (val === '48,9,39,37,10,3' && !vendingTicketUsed) {
+        p.gems += 10n;
+        p.codesUsed.push('48,9,39,37,10,3');
+        log(`Used code: "lucky numbers"`, "var(--gems)");
+        updateUI();
+    } else
+    if (val === 'luxanderVentingTicket' && !vendingTicketUsed) {
         p.mhp *= 4n
         p.mmp *= 4n
         p.msn *= 4n
