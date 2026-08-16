@@ -1,9 +1,8 @@
 const masterShop = [
     { 
-        id: 'healthrefill', 
+        id: 'healthVial', 
         name: 'Health Vial', 
         weight: 100,
-        // Logic: 20 * 1.05^(lv-1) using BigInt scaling
         get cost() { 
             let c = 20n;
             for(let i = 1n; i < p.lv; i++) c = (c * 105n) / 100n;
@@ -15,7 +14,7 @@ const masterShop = [
         } 
     },
     { 
-        id: 'manarefill', 
+        id: 'manaWell', 
         name: 'Mana Well', 
         weight: 100,
         get cost() { 
@@ -29,7 +28,7 @@ const masterShop = [
         } 
     },
     { 
-        id: 'sanityrefill', 
+        id: 'clarityTonic', 
         name: 'Clarity Tonic', 
         weight: 100,
         get cost() { 
@@ -45,6 +44,9 @@ const masterShop = [
     { 
         id: 'healthincrease1', 
         name: 'Dragon Heart', 
+        rarity: "Common",
+        rarityColor: "var(--commonItem)",
+        description: "A heart of a dragon. Increases max life by a bit.",
         weight: 50,
         get cost() { 
             let c = 60n;
@@ -52,17 +54,19 @@ const masterShop = [
             return c;
         }, 
         run: () => {
-            // Logic: 30 + (50% of current max)
             let gain = 30n + (p.mhp * 50n / 100n);
             p.mhp += gain; 
             p.hp += gain; 
             if (Math.random() < 0.05) LuxLog(`Lux: More health, more health, yet... it's not enough for you, is it?`);
-            return `Max HP increased by ${formatNumber(gain)}`; 
+            return `Max Life increased by ${formatNumber(gain)}`; 
         } 
     },
     { 
         id: 'healthincrease2', 
         name: 'Ancient Dragon Heart', 
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "The heart of a recently killed dragon. Increases max life by a lot.",
         weight: 25,
         get cost() { 
             let c = 60n;
@@ -70,17 +74,19 @@ const masterShop = [
             return c;
         }, 
         run: () => {
-            // Logic: 60 + (75% of current max)
             let gain = 60n + (p.mhp * 75n / 100n);
             p.mhp += gain; 
             p.hp += gain; 
             if (Math.random() < 0.05) LuxLog(`Lux: Even more health. Yet still so mortal...`);
-            return `Max HP increased by ${formatNumber(gain)}`; 
+            return `Max Life increased by ${formatNumber(gain)}`; 
         } 
     },
     { 
         id: 'manaincrease1', 
         name: 'Eldritch Orb', 
+        rarity: "Common",
+        rarityColor: "var(--commonItem)",
+        description: "A blue orb which pulses with a calming blue light. Increases max mana by a bit.",
         weight: 50,
         get cost() { 
             let c = 60n;
@@ -98,6 +104,9 @@ const masterShop = [
     { 
         id: 'manaincrease2', 
         name: 'Ancient Eldritch Orb', 
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "A blue orb which pulses with a calming blue light. Increases max mana by a lot.",
         weight: 25,
         get cost() { 
             let c = 120n;
@@ -115,6 +124,9 @@ const masterShop = [
     { 
         id: 'sanityincrease1', 
         name: 'Pure Insight', 
+        rarity: "Common",
+        rarityColor: "var(--commonItem)",
+        description: "A purple orb which pulses with a calming purple light. Increases max sanity by a bit.",
         weight: 50,
         get cost() { 
             let c = 60n;
@@ -132,6 +144,9 @@ const masterShop = [
     { 
         id: 'sanityincrease2', 
         name: 'Ancient Pure Insight', 
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "A purple orb which pulses with a calming purple light. Increases max sanity by a lot.",
         weight: 25,
         get cost() { 
             let c = 120n;
@@ -146,12 +161,13 @@ const masterShop = [
             return `Max Sanity increased by ${formatNumber(gain)}`; 
         } 
     },
-    
     { 
         id: 'fullrefill', 
         name: 'Holy Grail', 
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "A golden cup filled with a clear liquid. Restores all Life, Mana, and Sanity. Cannot be held in an inventory.",
         weight: 25,
-        // Logic: 70 * 1.075^(lv-1)
         get cost() { 
             let c = 70n;
             for(let i = 1n; i < p.lv; i++) {
@@ -160,22 +176,22 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            // These are safe BigInt-to-BigInt assignments
             p.hp = p.mhp; 
             p.mp = p.mmp; 
             p.sn = p.msn; 
-            
             if (Math.random() < 0.05) {
                 LuxLog(`Lux: You spent gold on some sparkling water... interesting... very... interesting...`);
             }
-            return "HP, Mana, and Sanity restored"; 
+            return "Life, Mana, and Sanity restored"; 
         }
     },
-
     { 
         id: 'treasuremap', 
         name: 'Treasure Map', 
-        weight: 30,
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "A map leading to a treasure cache.",
+        weight: 15,
         get cost() { 
             let c = 40n;
             for(let i = 1n; i < p.lv; i++) c = (c * 110n) / 100n;
@@ -188,15 +204,11 @@ const masterShop = [
                 log(`Instead of gold, you found a hidden cache of gems! You found ${formatNumber(gain)} gems in the cache.`, "var(--epicItem)")
                 return;
             } else {
-                // Logic: 100 * 1.5^(lv-1)
                 let gain = 100n;
                 for(let i = 1n; i < p.lv; i++) gain = (gain * 150n) / 100n;
-                
                 p.gold += gain; 
                 p.totalGold += gain;
-                
                 if (Math.random() < 0.05) {
-                    // BigInt comparison: 10000n
                     if (p.gold < 10000n) {
                         log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"var(--lux)");
                     } else {
@@ -210,7 +222,10 @@ const masterShop = [
     { 
         id: 'treasuremap2', 
         name: 'Ancient Treasure Map', 
-        weight: 15,
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "An old treasure map leading to a cache.",
+        weight: 5,
         get cost() { 
             let c = 40n;
             for(let i = 1n; i < p.lv; i++) c = (c * 115n) / 100n;
@@ -223,13 +238,10 @@ const masterShop = [
                 log(`Instead of gold, you found a hidden cache of gems! You found ${formatNumber(gain)} gems in the cache.`, "var(--epicItem)")
                 return;
             } else {
-                // Logic: 200 * 1.75^(lv-1)
                 let gain = 200n;
                 for(let i = 1n; i < p.lv; i++) gain = (gain * 175n) / 100n;
-                
                 p.gold += gain; 
                 p.totalGold += gain;
-                
                 if (Math.random() < 0.05) {
                     if (p.gold < 10000n) {
                         log(`Lux: You know... you're different. Most humans I've seen are greedy. You are different somehow. Or maybe you're just the same as the rest.`,"var(--lux)");
@@ -242,8 +254,11 @@ const masterShop = [
         } 
     },
     { 
-        id: 'spscroll', 
+        id: 'spBook', 
         name: 'Knowledge Scroll', 
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "A scroll containing knowledge you don't know.",
         weight: 40,
         get cost() { 
             let c = 40n;
@@ -265,6 +280,9 @@ const masterShop = [
     { 
         id: 'spscroll2', 
         name: 'Ancient Knowledge Scroll', 
+        rarity: "Epic",
+        rarityColor: "var(--epicItem)",
+        description: "An old scroll containing valuable information you do not know yet.",
         weight: 20,
         get cost() { 
             let c = 40n;
@@ -283,10 +301,12 @@ const masterShop = [
             return `Learned new knowledge. (+${formatNumber(gain)} SP)`; 
         } 
     },
-
     { 
         id: 'manastabilizer', 
         name: 'Mana Stabilizer', 
+        rarity: "Epic",
+        rarityColor: "var(--epicItem)",
+        description: "Makes spells cost less mana by 5%",
         weight: 25,
         get cost() { 
             let c = 150n;
@@ -294,10 +314,8 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            // Logic: Increase by 5n, cap at 100n
             p.manaReduction += 5n;
             if (p.manaReduction > 100n) p.manaReduction = 100n;
-
             if (Math.random() < 0.05) {
                 LuxLog(`Lux: Decreasing the mental price of things... interesting...`);
             }
@@ -310,6 +328,9 @@ const masterShop = [
     { 
         id: 'manastabilizer2', 
         name: 'Mana Stabilizer +', 
+        rarity: "Legendary",
+        rarityColor: "var(--legendaryItem)",
+        description: "Makes spells cost less mana by 10%",
         weight: 20,
         get cost() { 
             let c = 150n;
@@ -317,10 +338,8 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            // Logic: Increase by 10n, cap at 100n
             p.manaReduction += 10n;
             if (p.manaReduction > 100n) p.manaReduction = 100n;
-
             if (Math.random() < 0.05) {
                 LuxLog(`Lux: Everything ends. Including your mana.`);
             }
@@ -330,7 +349,6 @@ const masterShop = [
             return `Magic Efficiency increased! Mana Costs reduced by an additional 10%.`; 
         } 
     },
-
     { 
         id: 'dmgmult', 
         name: 'Damage Multiplier', 
@@ -342,7 +360,7 @@ const masterShop = [
         }, 
         run: () => { 
             playDmgMultBuySFX();
-            p.dmgmult += 5n; // Representing +5%
+            p.dmgmult += 5n;
             if (Math.random() < 0.05) {
                 log(`Lux: Interesting... I see you've learned how to hurt better... I wonder how that feels?`, "var(--lux)");
             }
@@ -360,7 +378,7 @@ const masterShop = [
         }, 
         run: () => {
             playDmgMultBuySFX();
-            p.dmgmult += 10n; // +10%
+            p.dmgmult += 10n;
             if (Math.random() < 0.1) {
                 log(`Lux: Interesting... I see you've learned how to hurt even better... I wonder how that feels?`, "var(--lux)");
             }
@@ -378,7 +396,7 @@ const masterShop = [
         }, 
         run: () => { 
             playDmgMultBuySFX();
-            p.dmgmult += 15n; // +15%
+            p.dmgmult += 15n;
             if (Math.random() < 0.1) {
                 log(`Lux: Interesting... you still want to be able to harm more? I wonder, what would happen if someone had the same power against you?`, "var(--lux)");
             }
@@ -396,7 +414,7 @@ const masterShop = [
         }, 
         run: () => { 
             playDmgMultBuySFX();
-            p.dmgmult += 20n; // +20%
+            p.dmgmult += 20n;
             if (Math.random() < 0.2) {
                 log(`Lux: Still needing the ability to harm worse. I wonder... do you even notice what you've become?`, "var(--lux)");
             }
@@ -414,7 +432,7 @@ const masterShop = [
         }, 
         run: () => { 
             playDmgMultBuySFX();
-            p.dmgmult += 25n; // +25%
+            p.dmgmult += 25n;
             if (Math.random() < 0.25) {
                 log(`Lux: I see you're still going strong. Wanting to be able to harm even more. When will you stop? When will you have enough?`, "var(--lux)");
             }
@@ -431,9 +449,9 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            if (p.inventory.slot610Unlocked === true ) {
+            if (p.inventory.slot610Unlocked === true) {
                 p.hp = p.mhp
-                return `Health regained instead. Slots already unlocked.`;
+                return `Life regained instead. Slots already unlocked.`;
             } else {
                 p.inventory.slot610Unlocked = true
                 p.inventory.slot6 = "empty"
@@ -456,9 +474,9 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            if (p.inventory.slot1120Unlocked === true ) {
+            if (p.inventory.slot1120Unlocked === true) {
                 p.hp = p.mhp
-                return `Health regained instead. Slots already unlocked.`;
+                return `Life regained instead. Slots already unlocked.`;
             } else {
                 p.inventory.slot1120Unlocked = true;
                 p.inventory.slot11 = "empty";
@@ -549,10 +567,9 @@ const masterShop = [
             return `Storage Unit upgraded! You can now store 200 more items.`;
         }
     },
-
     { 
-        id: 'abbieapple', 
-        name: 'Abbie\'s Apple', 
+        id: 'abbieApple', 
+        name: "Abbie's Apple", 
         weight: 10,
         get cost() { 
             let c = 500n;
@@ -566,7 +583,6 @@ const masterShop = [
             } else {
                 return `Your inventory is currently full.`; 
             }
-            
         } 
     },
     { 
@@ -585,7 +601,6 @@ const masterShop = [
             } else {
                 return `Your inventory is currently full.`; 
             }
-            
         } 
     },
     { 
@@ -604,16 +619,15 @@ const masterShop = [
             } else {
                 return `Your inventory is currently full.`; 
             }
-            
         } 
     },
-    
+
     // ============================================================
     // CARD SHOP ITEMS
     // ============================================================
-    
+
     {
-        id: 'tarot_fool',
+        id: 'tarot_the_fool',
         name: 'The Fool (0)',
         weight: 20,
         get cost() {
@@ -629,7 +643,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_magician',
+        id: 'tarot_the_magician',
         name: 'The Magician (1)',
         weight: 18,
         get cost() {
@@ -645,7 +659,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_highpriestess',
+        id: 'tarot_the_high_priestess',
         name: 'The High Priestess (2)',
         weight: 15,
         get cost() {
@@ -661,7 +675,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_empress',
+        id: 'tarot_the_empress',
         name: 'The Empress (3)',
         weight: 18,
         get cost() {
@@ -677,7 +691,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_emperor',
+        id: 'tarot_the_emperor',
         name: 'The Emperor (4)',
         weight: 15,
         get cost() {
@@ -693,7 +707,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_hierophant',
+        id: 'tarot_the_hierophant',
         name: 'The Hierophant (5)',
         weight: 15,
         get cost() {
@@ -709,7 +723,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_lovers',
+        id: 'tarot_the_lovers',
         name: 'The Lovers (6)',
         weight: 18,
         get cost() {
@@ -725,7 +739,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_chariot',
+        id: 'tarot_the_chariot',
         name: 'The Chariot (7)',
         weight: 15,
         get cost() {
@@ -757,7 +771,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_hermit',
+        id: 'tarot_the_hermit',
         name: 'The Hermit (9)',
         weight: 18,
         get cost() {
@@ -773,7 +787,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_wheeloffortune',
+        id: 'tarot_the_wheel_of_fortune',
         name: 'The Wheel of Fortune (10)',
         weight: 12,
         get cost() {
@@ -805,7 +819,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_hangedman',
+        id: 'tarot_the_hanged_man',
         name: 'The Hanged Man (12)',
         weight: 18,
         get cost() {
@@ -853,7 +867,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_devil',
+        id: 'tarot_the_devil',
         name: 'The Devil (15)',
         weight: 10,
         get cost() {
@@ -869,7 +883,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_tower',
+        id: 'tarot_the_tower',
         name: 'The Tower (16)',
         weight: 12,
         get cost() {
@@ -885,7 +899,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_star',
+        id: 'tarot_the_star',
         name: 'The Star (17)',
         weight: 18,
         get cost() {
@@ -901,7 +915,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_moon',
+        id: 'tarot_the_moon',
         name: 'The Moon (18)',
         weight: 12,
         get cost() {
@@ -917,7 +931,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_sun',
+        id: 'tarot_the_sun',
         name: 'The Sun (19)',
         weight: 12,
         get cost() {
@@ -949,7 +963,7 @@ const masterShop = [
         }
     },
     {
-        id: 'tarot_world',
+        id: 'tarot_the_world',
         name: 'The World (21)',
         weight: 5,
         get cost() {
@@ -968,8 +982,9 @@ const masterShop = [
     // ============================================================
     // CONSUMABLE SHOP ITEMS
     // ============================================================
+
     {
-        id: 'bloodstone',
+        id: 'bloodStone',
         name: 'Blood Stone',
         weight: 30,
         get cost() {
@@ -985,7 +1000,7 @@ const masterShop = [
         }
     },
     {
-        id: 'bloodstonemed',
+        id: 'bloodStoneMed',
         name: 'Medium Blood Stone',
         weight: 20,
         get cost() {
@@ -1001,7 +1016,7 @@ const masterShop = [
         }
     },
     {
-        id: 'bloodstonelarge',
+        id: 'bloodStoneLarge',
         name: 'Large Blood Stone',
         weight: 10,
         get cost() {
@@ -1017,7 +1032,7 @@ const masterShop = [
         }
     },
     {
-        id: 'martyrsbook',
+        id: 'spBook',
         name: "Martyr's Book",
         weight: 20,
         get cost() {
@@ -1033,7 +1048,7 @@ const masterShop = [
         }
     },
     {
-        id: 'glasshourglass',
+        id: 'glassHourglass',
         name: 'Glass Hourglass',
         weight: 15,
         get cost() {
@@ -1052,8 +1067,9 @@ const masterShop = [
     // ============================================================
     // WEAPON SHOP ITEMS
     // ============================================================
+
     {
-        id: 'stonesword',
+        id: 'stoneSword',
         name: 'Stone Sword',
         weight: 20,
         get cost() {
@@ -1069,7 +1085,7 @@ const masterShop = [
         }
     },
     {
-        id: 'ironsword',
+        id: 'ironSword',
         name: 'Iron Sword',
         weight: 15,
         get cost() {
@@ -1085,7 +1101,7 @@ const masterShop = [
         }
     },
     {
-        id: 'diamondsword',
+        id: 'diamondSword',
         name: 'Diamond Sword',
         weight: 8,
         get cost() {
@@ -1101,9 +1117,9 @@ const masterShop = [
         }
     },
 
-    // ====================
+    // ============================================================
     // EFFECT ITEMS
-    // ====================
+    // ============================================================
 
     {
         id: 'venomVial',
@@ -1121,7 +1137,6 @@ const masterShop = [
             } else { return `Your inventory is currently full.`; }
         }
     },
-    
     {
         id: 'flashbang',
         name: 'Flashbang',
@@ -1138,7 +1153,6 @@ const masterShop = [
             } else { return `Your inventory is currently full.`; }
         }
     },
-    
     {
         id: 'torchOil',
         name: 'Torch Oil',
@@ -1155,7 +1169,6 @@ const masterShop = [
             } else { return `Your inventory is currently full.`; }
         }
     },
-    
     {
         id: 'iceShard',
         name: 'Ice Shard',
@@ -1172,7 +1185,6 @@ const masterShop = [
             } else { return `Your inventory is currently full.`; }
         }
     },
-    
     {
         id: 'cursedDust',
         name: 'Cursed Dust',
@@ -1189,7 +1201,6 @@ const masterShop = [
             } else { return `Your inventory is currently full.`; }
         }
     },
-    
     {
         id: 'weakeningSalve',
         name: 'Weakening Salve',
@@ -1206,7 +1217,6 @@ const masterShop = [
             } else { return `Your inventory is currently full.`; }
         }
     },
-    
     {
         id: 'combinationKit',
         name: 'Combination Kit',
@@ -1222,5 +1232,6 @@ const masterShop = [
                 return `Bought "Combination Kit."`;
             } else { return `Your inventory is currently full.`; }
         }
-    },    
-]
+    },
+];
+

@@ -1,4 +1,5 @@
-const save_version_check = "4.0.6"
+const save_version_check = "4.1.0"
+
 async function checkForUpdates() {
     try {
         const response = await fetch(
@@ -9,7 +10,7 @@ async function checkForUpdates() {
 
         const latestVersion = (await response.text()).trim();
 
-        if (latestVersion !== save_version_check) {
+        if (compareVersions(latestVersion, save_version_check) > 0) {
             showUpdatePopup(latestVersion);
         }
 

@@ -1831,7 +1831,7 @@ const skillTree = {
         mp: 0n,
         get dmg() {
             let base = 6000n
-            let scaledAmount = base * ((p.lv || 1n) * p.dmgmult) / 100n
+            let scaledAmount = base * ((p.lv || 1n) * p.dmgmult) / 100n || 6000n
             return scaledAmount
         },
     },

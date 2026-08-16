@@ -1,27 +1,36 @@
 # Lux's RPG
 
-This is a game where you have to survive as long as you can.\
+This is a game where you have to survive as long as you can.
 Thanks to Toby Fox (and "The Sounds Resource") for the SFX in my game. I am grateful.
+
+## 4.1.0 Change Log:
+- Credits revamped
+- Added gradients to certain rarity colors
+- Made item names inherit their rarity color
+- Changed trigger for a certain code
+- If your current version is higher than the github version, popup will not appear
+- Hovering over the 'Buy' button in the shop shows a tooltip with the item and what it does
+
 
 Basic information:
 
-- Life: Your health pool. If it reaches 0, you die. (Simple)
-  - Importance: If health = 0, run function "die"
+- Life
+  - Importance: Your health pool. If it reaches 0, you die (simple)
     - How to upgrade it:
         - Use the "Dragon Heart" item from the shop
         - Level up
-- Mana: I wonder how you cast spells?
+- Mana
     - Importance
         - Use it for spells
     - How to upgrade it:
         - Use the "Eldritch Orb" item from the shop
         - Level up
-- Sanity: Do you want to be insane or not?
+- Sanity
     - Importance: If it reaches 0, you lose mana at the start of each day (Mana Lost scales with the number of days survived)
     - How to upgrade it:
         - Use the "Pure Insight" item from the shop
         - Level up
-- Mana Reduction: Wait, what was this one again?
+- Mana Reduction
     - Importance:
         - Decreases the multiplier on spells when you increase your max mana
     - How to upgrade it:
@@ -35,7 +44,6 @@ Basic information:
 Shop Information:
 
 - Shop prices scale with player LV
-
 - Shop item's potency *also* scales with player LV
 - Items:
     - Health Vial
@@ -57,9 +65,9 @@ Shop Information:
     - Knowledge Scroll
         - Gives you EXP (scales with player LV)
     - Mana Stabilizer
-        - Decreases the mana multiplier by 1%
+        - Decreases the mana multiplier by a precentage value
     - Damage Multiplier
-        - Increases total dmg output by 5%
+        - Increases total dmg output by a precentage value
 
 Detailed information:
 
@@ -68,5 +76,3 @@ Detailed information:
     - You can export your current save as a **.urpg** file.
     - You can import your **.urpg** save file on a different computer.
         - **Word of warning: Some legacy save files will break with newer versions (and also when I change the logic for the save export/import code). I am not held responsible for any lost progress.**
-
-## But do be warned. Lux watched us all.

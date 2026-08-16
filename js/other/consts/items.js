@@ -82,7 +82,7 @@ const inventoryItems = [
         id: "abbieApple",
         name: "Abbie's Apple",
         rarity: "Epic (Crossover)",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "An apple given from our favorite goob which heals for an insane amount of HP.",
         edible: true,
         info: [
@@ -119,7 +119,7 @@ const inventoryItems = [
         id: "bloodStoneMed",
         name: "Medium Blood Stone",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A medium sized red stone which heals for a large amount of HP.",
         info: [
             {label: "HP", value: () => 150n * p.lv}
@@ -137,7 +137,7 @@ const inventoryItems = [
         id: "bloodStoneLarge",
         name: "Large Blood Stone",
         rarity: "Legendary",
-        rarityColor: "var(--legendaryItem)",
+        rarityColor: "var(--legendaryItem-gradient)",
         description: "A large red stone which heals for a very large amount of HP.",
         info: [
             {label: "HP", value: () => 200n * p.lv}
@@ -155,7 +155,7 @@ const inventoryItems = [
         id: "glassHourglass",
         name: "Glass Hourglass",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A blue, glass hourglass with red sand inside. It is said that this can transfer all of your Mana into health...",
         info: [
             {label: "HP", value: () => p.mp},
@@ -259,7 +259,7 @@ const inventoryItems = [
         id: "desperationTotem",
         name: "Desperation Totem",
         rarity: "Legendary",
-        rarityColor: "var(--legendaryItem)",
+        rarityColor: "var(--legendaryItem-gradient)",
         description: "Sets all stats (HP, MP, SN) to 7. In exchange, grants a massive gold payout.",
         info: [
             {label: "g", value: () => (p.hp + p.mp + p.sn) * 2n}
@@ -354,7 +354,7 @@ const inventoryItems = [
         id: "SNSPConvert",
         name: "Converter (SN ➡ SP)",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A strange, purple and green spherical object which converts a small amount of your sanity into SP. Use with caution; it doesn't care if you don't have enough to give.",
         info: [
             {label: "SN", value: () => -(50n * p.lv)},
@@ -553,7 +553,7 @@ const inventoryItems = [
         id: "theFish",
         name: "The Fish",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A fish. Just... a fish. Why does it feel like it's looking at you? Why does it feel like it knows something you don't?",
         edible: false,
         info: [
@@ -565,7 +565,7 @@ const inventoryItems = [
                 return;
             }
             enemy.fished += 1n;
-            log(`Item used: "The Fish"`, "var(--insaneItem)");
+            log(`Item used: "The Fish"`, "var(--insaneItem-gradient)");
             log(`${enemy.name} has been... fished.`, "var(--fish)");
             log(`The fish stares at ${enemy.name}. ${enemy.name} stares back. Neither blinks.`, "var(--fish)");
             return updateUI();
@@ -576,7 +576,7 @@ const inventoryItems = [
         id: "combinationKit",
         name: "Combination Kit",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A kit containing a vial of venom, a handful of cursed dust, and a strip of torch oil. Applies poison, vulnerable, and burn all at once.",
         edible: false,
         info: [
@@ -589,7 +589,7 @@ const inventoryItems = [
                 log(`No enemy to use this on!`, "#ff4757");
                 return;
             }
-            log(`Item used: "Combination Kit"`, "var(--epicItem)");
+            log(`Item used: "Combination Kit"`, "var(--epicItem-gradient)");
     
             if (enemy.poisonImmune) {
                 log(`${enemy.name} is immune to poison!`, "var(--poisonDMG)");
@@ -627,7 +627,7 @@ const inventoryItems = [
         id: "luxTriangle",
         name: "Lux's Runic Triangle",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A strange, purple shape which looks like ⟁. It almost feels weightless...?",
         run: () => {
             if (p.flags.bobVisits >= 50n) {
@@ -657,7 +657,7 @@ const inventoryItems = [
                     LuxLog(`Lux: Should you get a gem?`)
                     if (Math.random() < 0.1) {
                         LuxLog(`Lux: Why not.`)
-                        log(`<span style="color: var(--lux)">Lux</span> gave you a gem. Why? I dunno. He just did.`, "var(--epicItem)")
+                        log(`<span style="color: var(--lux)">Lux</span> gave you a gem. Why? I dunno. He just did.`, "var(--epicItem-gradient)")
                         p.gems += 1n
                     } else {
                         LuxLog(`Lux: Nah.`)
@@ -706,7 +706,7 @@ const inventoryItems = [
         id: "luxSandwich",
         name: "Lux's Sandwich",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A simple club sandwich. Smells like '#3c23a8' and some sort of cheese you've never smelt before. I think the cheese came from the Netflix repo? Or did it come from the Meteor Client repo? Wherever it came from, it is certainly a potent smelling cheese.",
         edible: true,
         info: [
@@ -724,7 +724,7 @@ const inventoryItems = [
         id: "luxLemon",
         name: "Lux's Lemon",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A perfect, yellow lemon. It is so incredibly sour — don't use this unless you want to lose your tongue. Because this lemon. Is that fucking sour.",
         edible: true,
         info: [
@@ -748,7 +748,7 @@ const inventoryItems = [
         id: "bobBread",
         name: "Bob's Bread",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A simple loaf of bread. Yet it pulses with... Meep's? What? This should not be possible...",
         edible: true,
         info: [
@@ -767,7 +767,7 @@ const inventoryItems = [
         id: "unobtainableItem",
         name: "unobtainableItem",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "HOW DID YOU GET THIS??? PLEASE EXPLAIN.",
         run: () => {
             addExperience(1n)
@@ -780,7 +780,7 @@ const inventoryItems = [
         id: "MissingNoCore",
         name: "MissingNo.'s Core",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A flickering mass of pixels. It seems to be trying to overwrite your save file... or maybe it's just hungry for variables. We don't know.",
         run: () => {
             // Randomly swap two major stats
@@ -803,7 +803,7 @@ const inventoryItems = [
         id: "bobsMysteriousBox",
         name: "Bob's Cardboard Box",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A box that smells like wet cardboard and... cosmic energy? Bob says there's a 'surprise' inside.",
         run: () => {
             const outcomes = [
@@ -830,7 +830,7 @@ const inventoryItems = [
         id: "circleOreoBox",
         name: "Miss Circle's Oreo Pack",
         rarity: "Legendary (Crossover)",
-        rarityColor: "var(--legendaryItem)",
+        rarityColor: "var(--legendaryItem-gradient)",
         description: "A pack of Oreos. (Un)surprisingly, the pack is already open and is missing half of the Oreos inside.",
         edible: true,
         info: [
@@ -839,7 +839,7 @@ const inventoryItems = [
         run: () => {
             let scaledAmount = p.mhp * p.kills
             p.hp += scaledAmount
-            log(`Item used: "Miss Circle's Oreo Box"`, "var(--legendaryItem)")
+            log(`Item used: "Miss Circle's Oreo Box"`, "var(--legendaryItem-gradient)")
             log(`Regained ${formatNumber(scaledAmount)} HP.`, "#8a3500")
             return updateUI();
         }
@@ -848,7 +848,7 @@ const inventoryItems = [
         id: "corrucyst",
         name: "Corrucyst",
         rarity: "Legendary (Crossover)",
-        rarityColor: "var(--legendaryItem)",
+        rarityColor: "var(--legendaryItem-gradient)",
         description: "A pink, crystalline, spherical object. It smells faintly of ozone. Perhaps there's knowledge in this?",
         info: [
             {label: "SP", value: () => (p.sp * p.lv) || 1n}
@@ -865,7 +865,7 @@ const inventoryItems = [
         id: "mindspike",
         name: "Mindspike",
         rarity: "Legendary (Crossover)",
-        rarityColor: "var(--legendaryItem)",
+        rarityColor: "var(--legendaryItem-gradient)",
         description: "A claw like object. Seems like it can connect to a nervous system? Maybe you could figure out how an enemy works?",
         info: [
             {label: "DmgMult", value: () => 10n * p.lv}
@@ -882,7 +882,7 @@ const inventoryItems = [
         id: "charaKnife",
         name: "Chara Knife",
         rarity: "Legendary (Crossover)",
-        rarityColor: "var(--legendaryItem)",
+        rarityColor: "var(--legendaryItem-gradient)",
         description: "A red, bloody knife. It has seen many genocides. Will you be used by it as well?",
         run: () => {
             if (p.skills.includes('charaKnife')) {
@@ -908,7 +908,7 @@ const inventoryItems = [
         id: "noxNocturnal",
         name: "Nox Nocturnal",
         rarity: "Mythic",
-        rarityColor: "var(--mythicItem)",
+        rarityColor: "var(--mythicItem-gradient)",
         description: "Made from an obsidian base and with an amethyst on the head, this staff feels cool to the touch. The amethyst pulses with a calming, lunar light, which seems to absorb the surrounding light in the vicinity. There's a note tied to the handle of the staff: \"Beware. This staff is not to be used by the mentally fragile.\"",
         run: () => {
             if (p.skills.includes('noxNocturnalBeam')) {
@@ -927,7 +927,7 @@ const inventoryItems = [
         id: "fryingPan",
         name: "Frying Pan",
         rarity: "Mythic",
-        rarityColor: "var(--mythicItem)",
+        rarityColor: "var(--mythicItem-gradient)",
         description: "Just... a frying pan... what the fu-",
         run: () => {
             if (p.skills.includes('fryingPan')) {
@@ -967,11 +967,11 @@ const inventoryItems = [
         id: "diamondSword",
         name: "Diamond Sword",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A diamond sword. Much, much stronger then an iron one.",
         run: () => {
             p.inventory.equippedWeapon = "Diamond Sword"
-            log(`Equipped "Diamond Sword"`, "var(--epicItem)")
+            log(`Equipped "Diamond Sword"`, "var(--epicItem-gradient)")
             return updateUI();
         }
     },
@@ -1203,7 +1203,7 @@ const inventoryItems = [
         id: "diamond",
         name: "Diamond",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A diamond harvested from a Diamond Golem. Quite expensive and worth a lot to other people. Could sell for a VERY good amount.",
         info: [
             {label: "g", value: () => 500n * p.lv}
@@ -1621,7 +1621,7 @@ const inventoryItems = [
         id: "tarot_judgement",
         name: "Judgement (20)",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "The final verdict. Grants Skill Points based on your variety of kills.",
         info: [
             {label: "SP", value: () => BigInt(Object.keys(p.uniqueEnemyKills).filter(k => p.uniqueEnemyKills[k] > 0n).length) * p.lv}
@@ -1639,7 +1639,7 @@ const inventoryItems = [
         id: "tarot_the_world",
         name: "The World (21)",
         rarity: "Legendary",
-        rarityColor: "var(--legendaryItem)",
+        rarityColor: "var(--legendaryItem-gradient)",
         description: "The cycle is complete. Increases all major stats significantly.",
         info: [
             {label: "All Stats", value: () => 5n * p.lv}
@@ -1671,7 +1671,7 @@ const inventoryItems = [
         id: "spectral_familiar",
         name: "(Spectral Card) Familiar",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A spectral companion requires a blood price. Gain Skill Points, but lose Max HP.",
         info: [
             {label: "SP", value: () => 3n * p.lv},
@@ -1694,7 +1694,7 @@ const inventoryItems = [
         id: "spectral_grim",
         name: "(Spectral Card) Grim",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A dark realization fuels your strength. Massive DMG boost, but halves current Sanity.",
         info: [
             {label: "DMG%", value: () => 20n * p.lv},
@@ -1715,7 +1715,7 @@ const inventoryItems = [
         id: "spectral_incantation",
         name: "(Spectral Card) Incantation",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "Whisper the forgotten tongue. Permanently reduces mana costs, but burns your gold.",
         info: [
             {label: "ManaRed", value: () => 2n},
@@ -1736,7 +1736,7 @@ const inventoryItems = [
         id: "spectral_talisman",
         name: "(Spectral Card) Talisman",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "An artifact of focused greed. Grants a huge bounty of gold.",
         info: [
             {label: "g", value: () => 1000n * p.lv}
@@ -1754,7 +1754,7 @@ const inventoryItems = [
         id: "spectral_aura",
         name: "(Spectral Card) Aura",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A protective glow strengthens your form and your magic.",
         info: [
             {label: "HP", value: () => 30n * p.lv},
@@ -1774,7 +1774,7 @@ const inventoryItems = [
         id: "spectral_wraith",
         name: "(Spectral Card) Wraith",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "The ghost of your future self. Gain Levels, but lose a large portion of gold.",
         info: [
             {label: "lv", value: () => 2n},
@@ -1794,7 +1794,7 @@ const inventoryItems = [
         id: "spectral_sigil",
         name: "(Spectral Card) Sigil",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "An unstable mark. Either grants a massive damage boost or significantly weakens you.",
         info: [
             {label: "DMG Chance", value: () => 30n * p.lv}
@@ -1816,7 +1816,7 @@ const inventoryItems = [
         id: "spectral_ouija",
         name: "(Spectral Card) Ouija",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "Commune with the beyond. Gain massive Skill Points, but drastically lower Max HP.",
         info: [
             {label: "SP", value: () => 10n * p.lv},
@@ -1837,7 +1837,7 @@ const inventoryItems = [
         id: "spectral_ankh",
         name: "(Spectral Card) Ankh",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "Sacrifice material wealth for spiritual growth. Doubles current SP, but halves Gold.",
         info: [
             {label: "SP", value: () => p.sp},
@@ -1857,7 +1857,7 @@ const inventoryItems = [
         id: "spectral_immolate",
         name: "(Spectral Card) Immolate",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "Burn your own vitality for pure gold. Massive Gold gain, but lowers Max HP.",
         info: [
             {label: "g", value: () => 1500n * p.lv},
@@ -1879,7 +1879,7 @@ const inventoryItems = [
         id: "spectral_deja_vu",
         name: "(Spectral Card) Déjà Vu",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A familiar feeling of success. Gain EXP and Gold based on your journey.",
         info: [
             {label: "EXP", value: () => 500n * p.day},
@@ -1900,7 +1900,7 @@ const inventoryItems = [
         id: "spectral_hex",
         name: "(Spectral Card) Hex",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "A dark enchantment that bolsters power at the cost of magic.",
         info: [
             {label: "DMG%", value: () => 35n * p.lv},
@@ -1920,7 +1920,7 @@ const inventoryItems = [
         id: "spectral_trance",
         name: "(Spectral Card) Trance",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "Fall into a deep arcane focus. Increases Max Mana and fully restores it.",
         info: [
             {label: "Max MP", value: () => 20n * p.lv}
@@ -1938,7 +1938,7 @@ const inventoryItems = [
         id: "spectral_medium",
         name: "(Spectral Card) Medium",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "Bridge the gap between worlds. Grants Skill Points based on your kill count.",
         info: [
             {label: "SP", value: () => BigMath.max(p.kills / 10n, 1n) * p.lv}
@@ -1955,7 +1955,7 @@ const inventoryItems = [
         id: "spectral_cryptid",
         name: "(Spectral Card) Cryptid",
         rarity: "Epic",
-        rarityColor: "var(--epicItem)",
+        rarityColor: "var(--epicItem-gradient)",
         description: "An elusive energy multiplies your potential. Massive Experience gain.",
         info: [
             {label: "EXP", value: () => 2500n * p.lv}
@@ -1972,7 +1972,7 @@ const inventoryItems = [
         id: "spectral_soul",
         name: "(Spectral Card) Soul",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "Your very essence is fortified. Permanently increases all Vitality stats.",
         info: [
             {label: "Max HP/MP/SN", value: () => 50n * p.lv}
@@ -1994,7 +1994,7 @@ const inventoryItems = [
         id: "spectral_black_hole",
         name: "(Spectral Card) Black Hole",
         rarity: "???",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "Everything collapses into a singular point of infinite power. Upgrades everything.",
         info: [
             {label: "DMG%", value: () => 50n * p.lv},
@@ -2125,7 +2125,7 @@ const inventoryItems = [
         id: "luxChristmasCard",
         name: "Lux's Christmas Card",
         rarity: "??? (Event)",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A Christmas card from Lux. The handwriting is surprisingly neat. It reads: 'I hope you enjoy this. Don't read too much into it.'",
         run: () => {
             p.hp = p.mhp;
@@ -2136,7 +2136,7 @@ const inventoryItems = [
             p.hp = p.mhp; p.mp = p.mmp; p.sn = p.msn;
             playHealSFX();
             LuxLog(`Lux: Merry Christmas. Don't make this weird.`);
-            log(`All stats fully restored and +${formatNumber(amt)} to all Max Stats.`, "var(--insaneItem)");
+            log(`All stats fully restored and +${formatNumber(amt)} to all Max Stats.`, "var(--insaneItem-gradient)");
             return updateUI();
         }
     },
@@ -2257,7 +2257,7 @@ const inventoryItems = [
         id: "luxHalloweenMask",
         name: "Lux's Halloween Mask",
         rarity: "??? (Event)",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A mask that looks suspiciously like Lux's face. Wearing it feels deeply unsettling. The eyes seem to follow you.",
         run: () => {
             const amt = 1000n * p.lv;
@@ -2269,7 +2269,7 @@ const inventoryItems = [
             } else {
                 LuxLog(`Lux: ...I'm not sure how I feel about this.`);
             }
-            log(`Gained ${formatNumber(amt)}% DMG, +${formatNumber(amt)} Max HP, and +${formatNumber(amt)} Max SN.`, "var(--insaneItem)");
+            log(`Gained ${formatNumber(amt)}% DMG, +${formatNumber(amt)} Max HP, and +${formatNumber(amt)} Max SN.`, "var(--insaneItem-gradient)");
             return updateUI();
         }
     },
@@ -2345,7 +2345,7 @@ const inventoryItems = [
         id: "luxNewYearMessage",
         name: "Lux's New Year Message",
         rarity: "??? (Event)",
-        rarityColor: "var(--insaneItem)",
+        rarityColor: "var(--insaneItem-gradient)",
         description: "A handwritten note from Lux. It simply reads: 'Another year. You're still here. I'm not sure how I feel about that.'",
         run: () => {
             const amt = 2000n * p.lv;
@@ -2361,7 +2361,7 @@ const inventoryItems = [
             } else {
                 LuxLog(`Lux: Another year. You're still here. I'm not sure how I feel about that.`);
             }
-            log(`All Max Stats +${formatNumber(amt)} and fully restored.`, "var(--insaneItem)");
+            log(`All Max Stats +${formatNumber(amt)} and fully restored.`, "var(--insaneItem-gradient)");
             return updateUI();
         }
     },

@@ -19,7 +19,7 @@ window.addEventListener('keydown', (e) => {
 function processCode() {
     const val = codeInput.value.trim();
     if (!val) return;
-    if (val === 'luxanderVentingTicket' && !p.codesUsed.includes('luxanderVentingTicket')) {
+    if (val === 'bob' && !p.codesUsed.includes('bob')) {
         p.mhp *= 4n
         p.mmp *= 4n
         p.msn *= 4n
@@ -29,10 +29,17 @@ function processCode() {
         p.sp += 1000n
         p.gold += 1000000000000n
         p.gems += 10000n
-        p.codesUsed.push('luxanderVentingTicket')
-        LuxLog(`Luxander: You could have gotten this code one of two ways. Looking through 'cheat_codes.js,' or doing something else. If you found it looking through 'cheat_codes.js,' thanks for listening to my ranting. It means a lot.`)
+        p.codesUsed.push('bob')
+        LuxLog(`Luxander: ...why?`)
         updateUI();
     } 
+    else if ((val === '48, 9, 39, 37, 10, 3' || val === '48,9,39,37,10,3') && (!p.codesUsed.includes('48, 9, 39, 37, 10, 3') || !p.codesUsed.includes('48,9,39,37,10,3'))) {
+        p.gems += 10n;
+        p.codesUsed.push('48,9,39,37,10,3');
+        p.codesUsed.push('48, 9, 39, 37, 10, 3');
+        log(`Used code: "lucky numbers"`, "var(--gems)");
+        updateUI();
+    }
     else if (val === 'Lucky' && !p.codesUsed.includes('Lucky')) {
         p.codesUsed.push('Lucky')
         let scaledAmount = ((p.gold * p.lv) / 100n) || 1000n
@@ -68,6 +75,7 @@ function processCode() {
         checkSpareAndAddItem("Lux's Sandwich")
         checkSpareAndAddItem("Lux's Sandwich")
         LuxLog(`Lux: Wait. Hold on. How'd you get those from Gluttony's pantry...? Gluttony I swear to god if you stole my sandwiches-`)
+        p.codesUsed.push("Gluttony's pantry")
     }
     else {
         log("Funfriend: Unknown code or already used code.", "var(--funfriend)");

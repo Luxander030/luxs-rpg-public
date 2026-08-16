@@ -26,10 +26,18 @@
     --commonItem: #a4b0be;
     --uncommonItem: #22d615;
     --rareItem: #00d2d3;
+
     --epicItem: #b700ff;
+    --epicItem-gradient: linear-gradient(90deg, #b700ff, #7b00ff, #b700ff);
+
     --legendaryItem: #ffa200;
+    --legendaryItem-gradient: linear-gradient(90deg, #ffa200, #ff6a00, #ffa200);
+
     --mythicItem: #f132ff;
+    --mythicItem-gradient: linear-gradient(90deg, #f132ff, #a000cc, #f132ff);
+
     --insaneItem: #7500a7;
+    --insaneItem-gradient: linear-gradient(90deg, #7500a7, #b700ff, #7500a7);
 
     /* Crossovers */
     --sans: #e1e1e6;
@@ -48,6 +56,21 @@
     --abbie: #ad0000;
     --arcaneacid: #f0bbd5;
 }
+
+.gradient-text {
+    display: inline-block;
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s linear infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
 
 /* The 'Physical Wall' */
 .global-freeze-overlay {

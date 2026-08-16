@@ -13,7 +13,7 @@ function log(msg, color = "#e1e1e6") {
     while (l.children.length > 1000) {
         l.removeChild(l.firstChild);
     }
-    // Auto-scroll to the bottom (just to annoy the player if they try to look higher)
+    // Auto-scroll to the bottom
     l.scrollTop = l.scrollHeight;
 }
 
@@ -70,13 +70,13 @@ function classSelection() {
         {
             id: "cryomancer",
             name: "Cryomancer",
-            image: "images/status_effects/frozen.png",
+            image: "images/classes/cryo.gif",
             benefits: [
                 "Applies frozen status.",
                 "Second strongest, second only to Astral Spells"
             ],
             cons: [
-                "No dedicated healing spells.",
+                "High MP Cost",
             ],
             color: "#baffff"
         },
@@ -105,6 +105,18 @@ function classSelection() {
             ],
             color: "#c084fc"
         },
+        // {
+        //     id: "blood",
+        //     name: "Blood Mage",
+        //     image: "images/classes/blood.gif",
+        //     benefits: [
+        //         "Lifesteal Spells",
+        //     ],
+        //     cons: [
+        //         "Lifesteal enemies have lifesteal increased",
+        //     ],
+        //     color: "#870000"
+        // },
         {
             id: "neutral",
             name: "Neutral",
@@ -663,65 +675,84 @@ function showTab(tabName) {
 function updateInventoryUI() {
     const invList = document.getElementById('inventory-list');
     if (!invList) return;
+
     invList.innerHTML = '';
+
     const slots = [];
+
     for (let i = 1; i <= 20; i++) {
         let isUnlocked = false;
+
         if (i <= 5) {
-            isUnlocked = true; // Slots 1-5 always unlocked
+            isUnlocked = true;
         } else if (i >= 6 && i <= 10) {
-            isUnlocked = p.inventory.slot610Unlocked; // New property for 6-10
-        } else if (i >= 11 && i<= 20) {
+            isUnlocked = p.inventory.slot610Unlocked;
+        } else if (i >= 11 && i <= 20) {
             isUnlocked = p.inventory.slot1120Unlocked;
         }
+
         slots.push({ id: `slot${i}`, unlocked: isUnlocked });
     }
+
+    const tip = document.getElementById('tooltip');
+
     slots.forEach(slot => {
         if (slot.unlocked) {
             const itemName = p.inventory[slot.id];
             const slotDiv = document.createElement('div');
+
             slotDiv.className = 'inventory-slot';
             slotDiv.style = "padding: 10px; margin-bottom: 8px; background: #2f3542; border-radius: 4px; border: 1px solid #57606f; display: flex; justify-content: space-between; align-items: center; cursor: pointer;";
+
             if (!itemName || itemName === "empty") {
                 slotDiv.innerHTML = `<span style="color: #747d8c;">[Empty Slot]</span>`;
             } else {
                 const itemData = inventoryItems.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+
                 slotDiv.innerHTML = `
-                    <b style="color: var(--gold);">${itemName}</b>
+                    <b style="${getRarityStyle(itemData?.rarityColor)}">
+                        ${itemName}
+                    </b>
                     <button onclick="useItem('${slot.id}')" style="cursor: pointer; padding: 2px 5px;">Use</button>
                 `;
-                const tip = document.getElementById('tooltip');
+
                 const updateTipPos = (e) => {
                     let x = e.clientX + 15;
                     let y = e.clientY + 15;
                     let tipH = tip.offsetHeight;
                     let winW = window.innerWidth;
                     let winH = window.innerHeight;
+
                     if (x + 200 > winW) x = e.clientX - 215;
                     if (y + tipH > winH) y = winH - tipH - 10;
+
                     tip.style.left = x + 'px';
                     tip.style.top = y + 'px';
-                };                
+                };
+
                 slotDiv.onmouseenter = (e) => {
                     if (itemData) {
                         const rColor = itemData.rarityColor || "#a4b0be";
                         const rarityName = itemData.rarity || "No Rarity";
+
                         let html = `<strong>${itemData.name}</strong><br>`;
-                        html += `<span style="color:${rColor}; font-size: 0.8em; font-weight: bold;">${rarityName.toUpperCase()}</span>`;
+                        html += `<span style="${getRarityStyle(rColor)} font-size: 0.8em; font-weight: bold;">${rarityName.toUpperCase()}</span>`;
                         html += `<hr style="border:0;border-top:1px solid #444;margin:5px 0">`;
                         html += `<small>${itemData.description}</small>`;
+
                         if (itemData.info && itemData.info.length > 0) {
                             html += `<div style="margin-top: 8px;">`;
                             itemData.info.forEach(stat => {
                                 const finalValue = typeof stat.value === 'function' ? stat.value() : stat.value;
                                 const prefix = finalValue > 0 ? "+" : "";
-                                const color = finalValue > 0 ? "#2ed573" : "#ff4757"; // Green for buff, red for debuff
+                                const color = finalValue > 0 ? "#2ed573" : "#ff4757";
                                 html += `<div style="color: ${color}; font-size: 0.85em;">
                                             ${prefix}${formatNumber(finalValue)} ${stat.label}
                                         </div>`;
                             });
                             html += `</div>`;
                         }
+
                         tip.innerHTML = html;
                         tip.style.display = 'block';
                         updateTipPos(e);
@@ -729,14 +760,22 @@ function updateInventoryUI() {
                 };
 
                 slotDiv.onmousemove = (e) => updateTipPos(e);
-                slotDiv.onmouseleave = () => {
-                    tip.style.display = 'none';
-                };
+                slotDiv.onmouseleave = () => { tip.style.display = 'none'; };
             }
+
             invList.appendChild(slotDiv);
         }
     });
 }
+
+function getRarityStyle(rarityColor) {
+    const color = rarityColor || 'var(--gold)';
+    if (color.includes('gradient')) {
+        return `display: inline-block; background: ${color}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;`;
+    }
+    return `color: ${color};`;
+}
+
 
 function useItem(slotId) {
     const itemName = p.inventory[slotId];
@@ -926,15 +965,67 @@ function startShop() {
     }
     // 5. Render the items
     items.forEach((item, index) => {
+        const tip = document.getElementById('tooltip');
+
         let div = document.createElement('div');
-        div.className = "shop-item"; 
-        // Use formatNumber for the item cost in the UI
+        div.className = "shop-item";
+
         div.innerHTML = `
             <strong>${item.name}</strong><br>
             ${formatNumber(item.cost)}g<br>
             <button id="shop-btn-${index}" style="margin-top:10px" 
                 onclick="buyItem('${item.id}', 'shop-btn-${index}')">Acquire</button>`;
+
         shelf.appendChild(div);
+
+        const itemData = inventoryItems.find(i => i.id === item.id) || masterShop.find(i => i.id === item.id) || item;
+
+        const btn = document.getElementById(`shop-btn-${index}`);
+
+        const updateTipPos = (e) => {
+            let x = e.clientX + 15;
+            let y = e.clientY + 15;
+            let tipH = tip.offsetHeight;
+            let winW = window.innerWidth;
+            let winH = window.innerHeight;
+
+            if (x + 200 > winW) x = e.clientX - 215;
+            if (y + tipH > winH) y = winH - tipH - 10;
+
+            tip.style.left = x + 'px';
+            tip.style.top = y + 'px';
+        };
+
+        btn.onmouseenter = (e) => {
+            const rColor = itemData.rarityColor || "#a4b0be";
+            const rarityName = itemData.rarity || "No Rarity";
+
+            let html = `<strong>${itemData.name}</strong><br>`;
+            html += `<span style="${getRarityStyle(rColor)} font-size: 0.8em; font-weight: bold;">${rarityName.toUpperCase()}</span>`;
+            html += `<hr style="border:0;border-top:1px solid #444;margin:5px 0">`;
+            html += `<small>${itemData.description}</small>`;
+
+            if (itemData.info && itemData.info.length > 0) {
+                html += `<div style="margin-top: 8px;">`;
+                itemData.info.forEach(stat => {
+                    const finalValue = typeof stat.value === 'function' ? stat.value() : stat.value;
+                    const prefix = finalValue > 0 ? "+" : "";
+                    const color = finalValue > 0 ? "#2ed573" : "#ff4757";
+                    html += `<div style="color: ${color}; font-size: 0.85em;">
+                                ${prefix}${formatNumber(finalValue)} ${stat.label}
+                            </div>`;
+                });
+                html += `</div>`;
+            }
+
+            tip.innerHTML = html;
+            tip.style.display = 'block';
+            updateTipPos(e);
+        };
+
+
+        btn.onmousemove = (e) => updateTipPos(e);
+        btn.onmouseleave = () => { tip.style.display = 'none'; };
     });
 }
 

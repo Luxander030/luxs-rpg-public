@@ -70,7 +70,7 @@ enemies.push(
             return 120n + (120n * p.lv);
         },
         get lifesteal() {
-            return 500n + (120n * p.lv); // Heals more than before
+            return 500n + (120n * p.lv);
         },
         get exp() {
             return 1800n + (1800n * p.lv);

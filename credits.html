@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credits</title>
+    <link rel="icon" type="image/png" href="images/favicon/favicon_credits.png">
+    <link 
+        rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" 
+        integrity="sha512-c42qTSw/wPZ3/5LBzD+Bw5f7bSF2oxou6wEb+I/lqeaKV5FDIfMvvRp772y4jcJLKuGUOpbJMdg/BTl50fJYAw==" 
+        crossorigin="anonymous"
+    >
+    <style>
+        :root {
+            --lux: #3c23a8;
+            --alex: #000000;
+            --funfriend: #baffff;
+            --bob: #ffb700;
+            --gerald: #909090;
+            --fish: #78b9b2;
+            --bg: #0a0a0c;
+            --panel: #16161a;
+            --text: #e1e1e6;
+            --hp: #ff4757;
+            --mana: #3742fa;
+            --sanity: #a55eea;
+            --exp: #2bff00;
+            --gold: #eccc68;
+            --unlocked: #2ed573;
+            --playerATK: #a2ff96;
+            --enemyATK: #ff9696;
+            --burnDMG: #ff8000;
+            --poisonDMG: #6600b4;
+            --freezeDMG: #baffff;
+            --commonItem: #a4b0be;
+            --uncommonItem: #22d615;
+            --rareItem: #00d2d3;
+            --epicItem: #b700ff;
+            --legendaryItem: #ffa200;
+            --mythicItem: #f132ff;
+            --insaneItem: #7500a7;
+            /* InfiniteCode Gradient */
+            --InfiniteCodeGradient1: #7500a7;
+            --InfiniteCodeGradient2: #2e0042;
+            --InfiniteCodeGradient3: #7500a7;
+            /* Arcane_Acid Gradient */
+            --arcaneAcidGradient1: #f0bbd5;
+            --arcaneAcidGradient2: #8e6579;
+            --arcaneAcidGradient3: #f0bbd5;
+            /* KIA Gradient */
+            --KIAGradient1: #00128a;
+            --KIAGradient2: #ffffff;
+            --KIAGradient3: #374284;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 60px 20px; }
+        h1 { font-size: 3rem; margin-bottom: 10px; letter-spacing: 4px; text-transform: uppercase; }
+        .subtitle { font-size: 0.95rem; color: var(--gerald); margin-bottom: 60px; letter-spacing: 2px; }
+        .credits-section { background-color: var(--panel); border-radius: 12px; padding: 30px 40px; margin-bottom: 30px; width: 100%; max-width: 700px; }
+        .credits-section h2 { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #2a2a30; }
+        .credit-entry { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.95rem; gap: 12px; }
+        .credit-entry-left { display: flex; align-items: center; gap: 10px; }
+        .credit-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+        .credit-entry .role { color: var(--gerald); font-size: 0.9rem; }
+        .credit-entry .name { font-weight: 600; }
+        footer { margin-top: 60px; color: var(--gerald); font-size: 0.8rem; letter-spacing: 1px; }
+        .gradient-name { background: linear-gradient(90deg, var(--start), var(--mid), var(--end)); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s linear infinite; }
+        @keyframes gradientShift { 
+            0% { background-position: 0% center; } 
+            25% { background-position: 50% center;}
+            50% { background-position: 100% center;}
+            75% { background-position: 150% center;}
+            100% { background-position: 200% center; }
+        }
+    </style>
+</head>
+<body>
+    <div id="credits-root"></div>
+    <script>
+        const credits = {
+            title: "Credits",
+            subtitle: "Thank you to everyone who made this game possible :3",
+            sections: [
+                {
+                    heading: "Development",
+                    gradient: ["var(--DevelopmentGradient1)", "var(--DevelopmentGradient2)", "var(--DevelopmentGradient3)", "var(--DevelopmentGradient1)"],
+                    entries: [
+                        { 
+                            image: "images/credits/pfp/luxander.png", 
+                            role: "Lead Developer", 
+                            name: "Luxander",
+                            gradient: ["var(--LuxanderGradient1)", "var(--LuxanderGradient2)", "var(--LuxanderGradient3)", "var(--LuxanderGradient1)"]
+                        },
+                        { 
+                            image: "images/credits/pfp/InfiniteCode.png",
+                            role: "Developer", 
+                            name: "InfiniteCode",
+                            gradient: ["var(--InfiniteCodeGradient1)", "var(--InfiniteCodeGradient2)", "var(--InfiniteCodeGradient3)", "var(--InfiniteCodeGradient1)"]
+                        }
+                    ]
+                },
+                {
+                    heading: "Art & Design",
+                    gradient: ["var(--ArtGradient1)", "var(--ArtGradient2)", "var(--ArtGradient3)", "var(--ArtGradient1)"],
+                    entries: [
+                        { 
+                            role: "Lead Artist", 
+                            name: "KIA",
+                            image: "https://lh3.googleusercontent.com/a-/ALV-UjW14nIpo0krNVoVTOkejgiM0fP5HBkW2wAOmx0CzGr9Wh1IGzcp=s250-p",
+                            gradient: ["var(--KIAGradient1)", "var(--KIAGradient3)", "var(--KIAGradient2)", "var(--KIAGradient3)"]
+                        },
+                    ]
+                },
+                {
+                    heading: "Gameplay Debugging",
+                    gradient: ["var(--DebugGradient1)", "var(--DebugGradient2)", "var(--DebugGradient3)", "var(--DebugGradient1)"],
+                    entries: [
+                        { 
+                            role: "Debugger", 
+                            name: "InfiniteCode",
+                            gradient: ["var(--InfiniteCodeGradient1)", "var(--InfiniteCodeGradient2)", "var(--InfiniteCodeGradient3)", "var(--InfiniteCodeGradient1)"],
+                            image: "images/credits/pfp/InfiniteCode.png"
+                        },
+                    ]
+                },
+                {
+                    heading: "QA",
+                    gradient: ["var(--QAGradient1)", "var(--QAGradient2)", "var(--QAGradient3)", "var(--QAGradient1)"],
+                    entries: [
+                        { 
+                            role: "Lead QA | Beta Tester | Alpha tester",
+                            name: "MonsterHunter6",
+                            image: "https://lh3.googleusercontent.com/a-/ALV-UjVNjtNJfdf6Rx0z-yFhsu4NdwHBdm4WlmNKqRBbKzo=s250",
+                            gradient: ["var(--MonsterHunter6Gradient1)", "var(--MonsterHunter6Gradient2)", "var(--MonsterHunter6Gradient3)", "var(--MonsterHunter6Gradient1)"]
+                        },
+                        { 
+                            role: "QA", 
+                            name: "Arcane_Acid", 
+                            gradient: ["var(--arcaneAcidGradient1)", "var(--arcaneAcidGradient2)", "var(--arcaneAcidGradient3)"],
+                            image: "https://lh3.googleusercontent.com/a-/ALV-UjVoEzTGERpUuSlPTrqfL4Z9IRcNblsVBTHp4NSFELo=s250"
+                        },
+                        {
+                            role: "QA",
+                            name: "Timur Savin",
+                            image: "https://lh3.googleusercontent.com/a-/ALV-UjVD93V1vcY1WWDAllESgUbwmxDy7o9zP2JZ11MuSIcgWtUmyUA=s250-p",
+                            gradient: ["var(--SavinGradient1)", "var(--SavinGradient2)", "var(--SavinGradient3)", "var(--SavinGradient1)"]
+                        },
+                        {
+                            role: "QA",
+                            name: "Garrett Alexander",
+                            image: "https://lh3.googleusercontent.com/a-/ALV-UjVm2ouOnp7ZkLR7UiEgmejfpo3pLh3ehf5dVx7tL7Ks3XpQSjbA=s250-p",
+                            gradient: ["var(--GarrettGradient1)", "var(--GarrettGradient2)", "var(--GarrettGradient3)", "var(--GarrettGradient1)"]
+                        },
+                        { 
+                            role: "QA", 
+                            name: "Everyone else who has played my game",
+                            image: "images/Placeholderimage.png",
+                            gradient: ["var(--eGradient1)", "var(--eGradient2)", "var(--eGradient3)", "var(--eGradient1)"]
+                        }
+                    ]
+                },
+                {
+                    heading: "Moral Support",
+                    gradient: ["var(--MoralGradient1)", "var(--MoralGradient2)", "var(--MoralGradient3)", "var(--MoralGradient1)"],
+                    entries: [
+                        { 
+                            role: "Main Moral Support", 
+                            name: "Tusya",
+                            image: "images/PlaceholderImage.png",
+                            gradient: ["var(--TusyaGradient1)", "var(--TusyaGradient2)", "var(--TusyaGradient3)", "var(--TusyaGradient1)"]
+                        }
+                    ]
+                },
+            ],
+            footer: "Thank you for playing!"
+        };
+
+        function renderImage(entry) {
+            if (entry.image) {
+                return `<img class="credit-avatar" src="${entry.image}" alt="${entry.name}" />`;
+            }
+            return "";
+        }
+
+        function renderName(entry) {
+            if (entry.gradient) {
+                const gradientStr = entry.gradient.join(", ");
+                return `<span class="name gradient-name" style="background-image: linear-gradient(90deg, ${gradientStr}); background-size: 200% auto;">${entry.name}</span>`;
+            }
+            return `<span class="name">${entry.name}</span>`;
+        }
+
+        function renderHeading(section) {
+            if (section.gradient) {
+                const gradientStr = section.gradient.join(", ");
+                return `<h2 class="gradient-name" style="background-image: linear-gradient(90deg, ${gradientStr}); background-size: 200% auto;">${section.heading}</h2>`;
+            }
+            return `<h2 style="color: ${section.color}">${section.heading}</h2>`;
+        }
+
+        function renderCredits(data) {
+            const sections = data.sections.map(section => `
+                <div class="credits-section">
+                    ${renderHeading(section)}
+                    ${section.entries.map(entry => `
+                        <div class="credit-entry">
+                            <div class="credit-entry-left">
+                                ${renderImage(entry)}
+                                ${renderName(entry)}
+                            </div>
+                            ${entry.role ? `<span class="role">${entry.role}</span>` : ""}
+                        </div>
+                    `).join("")}
+                </div>
+            `).join("");
+
+            return `
+                <h1>${data.title}</h1>
+                <p class="subtitle">${data.subtitle}</p>
+                ${sections}
+                <footer>${data.footer}</footer>
+            `;
+        }
+
+        function hashName(name) {
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = (hash << 5) - hash + name.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function hashToHex(hash, offset) {
+            const shifted = (hash + offset * 1000003) >>> 0;
+            const r = (shifted >> 16) & 0xff;
+            const g = (shifted >> 8) & 0xff;
+            const b = shifted & 0xff;
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+
+        function registerNameGradient(name) {
+            const hash = hashName(name);
+            const color1 = hashToHex(hash, 0);
+            const color2 = hashToHex(hash, 1);
+            const color3 = hashToHex(hash, 2);
+            const key = name.replace(/[^a-zA-Z0-9]/g, '');
+            document.documentElement.style.setProperty(`--${key}Gradient1`, color1);
+            document.documentElement.style.setProperty(`--${key}Gradient2`, color2);
+            document.documentElement.style.setProperty(`--${key}Gradient3`, color3);
+        }
+
+        // People Names
+        registerNameGradient("MonsterHunter6");
+        registerNameGradient("Tusya");
+        registerNameGradient("Luxander");
+        registerNameGradient("Savin");
+        registerNameGradient("Garrett");
+        registerNameGradient("e");
+
+        // Section Names
+        registerNameGradient("Development")
+        registerNameGradient("Art")
+        registerNameGradient("Debug")
+        registerNameGradient("QA")
+        registerNameGradient("Moral")
+
+        document.getElementById("credits-root").innerHTML = renderCredits(credits);
+    </script>
