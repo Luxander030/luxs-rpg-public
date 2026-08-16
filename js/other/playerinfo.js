@@ -1,7 +1,10 @@
 let p = {
-    v: 9,
+    v: "4.2.0", // release version this save was written by; keep in step with
+                  // version.txt, index.html and SAVE_VERSION in the save logic
     name: null,
     class: null,
+    difficulty: null, // 'easy' | 'normal' | 'hard' | 'nightmarish' — see onboarding.js.
+                      // Null (and any legacy save without the field) is read as 'easy'.
     bulletPatternImmortality: false,
     hp: 100n,
     mhp: 100n,
@@ -94,6 +97,7 @@ let p = {
     },
     spares: 0n,
     dmgmult: 100n,
+    warMasteryLevels: 0n, // War Mastery levels bought; each one makes the next cost 1 SP more
     inventory: { // Anything with "null" is a locked slot
         storage: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
         equippedWeapon: "empty",
@@ -123,51 +127,221 @@ let p = {
     achievements: {
         reached100Days: {
             completed: false,
-            name: "Reached 100 Days",
+            name: "A third of a year... ish.",
+            color: "var(--commonItem)",
             description: "Unk",
             hint: "Just keep pressing explore onwards."
         },
         gotten1Mgold: {
             completed: false,
-            name: "Got 1M gold.",
-            description: "CAPITALISM!!!",
+            name: "CAPITALISM!!!",
+            color: "var(--uncommonItem)",
+            description: "Get 1M gold. It's not that difficult.",
             hint: "Get 1M gold. It's not that difficult."
         },
         gottenFullManaReduction: {
             completed: false,
-            name: "Got Full Mana Reduction",
-            description: "Wow. Cheapshot.",
-            hint: "Get Mana Reduction to 100%"
+            name: "Cheapshot.",
+            color: "var(--uncommonItem)",
+            description: "Get 100% Mana Reduction",
+            hint: "What could you decrease the price of?"
         },
         usedLuxLemon: {
             completed: false,
-            description: "You just had to eat it, didn't you.",
+            name: "You really like sour stuff, don't you?",
+            color: "var(--epicItem-gradient)",
+            description: "You just had to eat it, didn't you. Eat Lux's homegrown sour lemons.",
             hint: "Enjoy the sourness :3",
         },
-        usedLuxTriangle: false, // pointy thing
-        usedLuxSandwich: false, // SANDWICH
-        reachedNegativeSanity: false, // I have no clue how you could get this but oh well
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        template: false,
-        // put more later, I have no clue what to add
+        usedLuxTriangle: {
+            completed: false,
+            name: "It's pointy, is it not?",
+            color: "var(--epicItem-gradient)",
+            description: "Use Lux's Triangle and get a message from Lux.",
+            hint: "Pointy little thing"
+        },
+        usedLuxSandwich: {
+            completed: false,
+            name: "Mmm... yummers.",
+            color: "var(--legendaryItem-gradient)",
+            description: "Use Lux's Sandwich and get healing based on how kind you are.",
+            hint: "SaNdWiCh"
+        },
+        reachedNegativeSanity: {
+            completed: false,
+            name: "...what?",
+            color: "var(--insaneItem-gradient)",
+            description: "Somehow reach negative sanity.",
+            hint: "...how are you going to get negative sanity?"
+        },
+        firstBlood: {
+            completed: false,
+            name: "That's one.",
+            color: "var(--commonItem)",
+            description: "Kill your first creature.",
+            hint: "Something out there isn't going to survive meeting you."
+        },
+        firstMercy: {
+            completed: false,
+            name: "You let it go.",
+            color: "var(--commonItem)",
+            description: "Spare your first creature.",
+            hint: "Not everything has to end the same way."
+        },
+        reachedLv50: {
+            completed: false,
+            name: "Halfway to something.",
+            color: "var(--uncommonItem)",
+            description: "Reach LV 50.",
+            hint: "Keep winning fights."
+        },
+        reached500Days: {
+            completed: false,
+            name: "Get some rest.",
+            color: "var(--rareItem)",
+            description: "Survive 500 days.",
+            hint: "A third of a year clearly wasn't enough for you."
+        },
+        killed1000: {
+            completed: false,
+            name: "Four digits.",
+            color: "var(--rareItem)",
+            description: "Kill 1,000 creatures. Someone is counting.",
+            hint: "Keep going. Somebody's watching the number."
+        },
+        spared1000: {
+            completed: false,
+            name: "Four digits, kinder.",
+            color: "var(--rareItem)",
+            description: "Spare 1,000 creatures. Someone is counting this one too.",
+            hint: "Keep going. Somebody's watching this number as well."
+        },
+        filledInventory: {
+            completed: false,
+            name: "Pack rat.",
+            color: "var(--uncommonItem)",
+            description: "Fill every unlocked inventory slot at once.",
+            hint: "Don't throw anything away."
+        },
+        richInGems: {
+            completed: false,
+            name: "Sparkly.",
+            color: "var(--epicItem-gradient)",
+            description: "Hold 1,000 gems at once.",
+            hint: "Gold isn't the only thing worth hoarding."
+        },
+        masteredTree: {
+            completed: false,
+            name: "Nothing left to learn.",
+            color: "var(--legendaryItem-gradient)",
+            description: "Unlock every spell in your class tree.",
+            hint: "Study. Then study more."
+        },
+        survivedNightmarish: {
+            completed: false,
+            name: "Why would you do this.",
+            color: "var(--mythicItem-gradient)",
+            description: "Reach Day 50 on Nightmarish difficulty.",
+            hint: "There was an easier option and you didn't take it."
+        },
+        perishedOnce: {
+            completed: false,
+            name: "Well, that happened.",
+            color: "var(--commonItem)",
+            description: "Die. It was always going to happen eventually.",
+            hint: "You'll get this one without trying."
+        },
+        armedAndReady: {
+            completed: false,
+            name: "Pointy end forward.",
+            color: "var(--commonItem)",
+            description: "Equip a weapon.",
+            hint: "You don't have to fight bare-handed, you know."
+        },
+        openedLootBox: {
+            completed: false,
+            name: "Just one more.",
+            color: "var(--commonItem)",
+            description: "Open your first loot box.",
+            hint: "Those gems aren't doing anything in your pocket."
+        },
+        refreshedShop: {
+            completed: false,
+            name: "Nothing here I like.",
+            color: "var(--commonItem)",
+            description: "Pay to re-roll the merchant's stock.",
+            hint: "Bob has more in the cart. He just needs persuading."
+        },
+        allSlotsUnlocked: {
+            completed: false,
+            name: "Everything must come with me.",
+            color: "var(--uncommonItem)",
+            description: "Unlock all twenty inventory slots.",
+            hint: "Bigger bags exist. They aren't free."
+        },
+        reachedLv100: {
+            completed: false,
+            name: "Triple digits.",
+            color: "var(--rareItem)",
+            description: "Reach LV 100.",
+            hint: "Fifty wasn't the end of it."
+        },
+        maxHp1M: {
+            completed: false,
+            name: "Walking fortress.",
+            color: "var(--rareItem)",
+            description: "Reach 1,000,000 max Life.",
+            hint: "Dragons have hearts. You have gold."
+        },
+        survivedHard: {
+            completed: false,
+            name: "It did get harder.",
+            color: "var(--rareItem)",
+            description: "Reach Day 50 on Hard difficulty.",
+            hint: "There was a gentler option and you passed on it."
+        },
+        reached1000Days: {
+            completed: false,
+            name: "Almost three years.",
+            color: "var(--epicItem-gradient)",
+            description: "Survive 1,000 days.",
+            hint: "Five hundred clearly wasn't enough for you either."
+        },
+        dmgmult1000: {
+            completed: false,
+            name: "Overkill is a strategy.",
+            color: "var(--epicItem-gradient)",
+            description: "Reach a 1,000% damage multiplier.",
+            hint: "Hitting harder is always an option, if you can pay for it."
+        },
+        gotten1Bgold: {
+            completed: false,
+            name: "Absurd.",
+            color: "var(--legendaryItem-gradient)",
+            description: "Earn a total of 1,000,000,000 gold.",
+            hint: "A million was apparently a warm-up."
+        },
+        trueMercy: {
+            completed: false,
+            name: "Not one.",
+            color: "var(--legendaryItem-gradient)",
+            description: "Spare 100 creatures without ever killing a single one.",
+            hint: "It is possible to get through this without taking anything."
+        },
+        usedFryingPan: {
+            completed: false,
+            name: "Why does this work.",
+            color: "var(--mythicItem-gradient)",
+            description: "Hit something with the Frying Pan. Nobody can explain it.",
+            hint: "Kitchenware is not a weapon. Usually."
+        }
     },
     flags: {
         storageUnlocked: false,
         hasUsedPacifistRedemption: false,
         pacifistRouteTimesCompleted: false,
         genocideRouteTimesCompleted: false,
-        timesTampered: 0,
+        timesTampered: 0n, // BigInt: importSave increments it with 1n
         bobVisits: 0n,
         bobFlags: {
             Visits3: false,
@@ -212,6 +386,26 @@ let p = {
         }
     }
 };
+
+// Deep copy for plain data. `p` is only objects, arrays and primitives, so this
+// is enough — and unlike structuredClone it has no browser-version dependency,
+// which matters because this runs during boot: throwing here kills the page.
+// (JSON round-tripping is not an option: BigInt can't be stringified.)
+function clonePlainData(value) {
+    if (Array.isArray(value)) return value.map(clonePlainData);
+    if (value !== null && typeof value === 'object') {
+        const out = {};
+        for (const key of Object.keys(value)) out[key] = clonePlainData(value[key]);
+        return out;
+    }
+    return value; // primitives, BigInt included, copy by value
+}
+
+// A pristine copy of every default, captured before anything can touch `p`.
+// The save migrator uses it as the template: it says which fields should exist
+// and what type each one is, so an old save can be filled in and type-corrected
+// instead of arriving with holes in it. See save_export_and_import_logic.js.
+const PRISTINE_PLAYER = clonePlainData(p);
 
 
 // storage function (put this somewhere else later)

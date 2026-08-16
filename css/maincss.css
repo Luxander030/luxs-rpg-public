@@ -13,6 +13,7 @@
     --sanity: #a55eea;
     --exp: #2bff00;
     --gold: #eccc68;
+    --gems: #b700ff;
     --unlocked: #2ed573;
 
     /* Damage Colors */
@@ -175,29 +176,11 @@ button:disabled {
     color: #666;
     z-index: 9999999;
 }
-.save-controls { 
-    position: absolute; 
-    top: 15px; 
-    right: 15px; 
-    display: flex; 
-    gap: 8px; 
-}
+/* .save-controls / .export-btn / .import-btn removed — save export and import
+   now live in the Settings panel (js/other/settings.js). #import-input below
+   is still used: settings.js recreates that input and relies on it staying hidden. */
 
-.export-btn { 
-    padding: 6px 12px; 
-    font-size: 12px; 
-    background: #444; 
-    border: 1px solid #666; 
-}
-
-.import-btn { 
-    padding: 6px 12px; 
-    font-size: 12px; 
-    background: #444; 
-    border: 1px solid #666; 
-}
-
-#tooltip b { 
+#tooltip b {
     color: var(--gold); 
 }
 
@@ -239,25 +222,8 @@ button:disabled {
     width: 350px; 
 }
 
-#codes-button { 
-    background: #444; 
-    color: #000; 
-    border: none; 
-    padding: 7px 11px; 
-    font-size: 0.80rem; 
-    cursor: pointer; 
-    font-family: 'Fira Code', monospace; 
-    font-weight: bold; 
-    position: absolute; 
-    top: 14px; 
-    right: 220px;
-}
-
-/* Add a hover effect so it feels interactive */
-#codes-button:hover {
-    filter: brightness(1.2);
-    transform: translateY(-2px);
-}
+/* #codes-button removed — "Enter Codes" is an entry in the Extras menu now.
+   The #codes-panel it opens is unchanged. */
 
 #lootboxes-button { 
     background: #444; 

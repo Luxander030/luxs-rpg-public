@@ -613,6 +613,7 @@ function openLootBoxUI() {
 // ============================================================
 
 function rollLootBox(tier) {
+    if (typeof awardAchievement === "function") awardAchievement("openedLootBox");
     const rewards = [];
 
     for (let i = 0; i < tier.rolls; i++) {

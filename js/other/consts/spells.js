@@ -54,6 +54,9 @@ const skillTree = {
     ###########################################################################################
     ##############################################################################################
     Physical Attacks (Available to all classes)                                                ######
+    Damage is base x level, so LV 1 values are unchanged and the tree keeps pace     ######
+    afterwards. These cost 0 MP and are open to every class, so they sit below       ######
+    the class capstones on purpose.                                                  ######
     ##############################################################################################
     ###########################################################################################
     */
@@ -66,7 +69,7 @@ const skillTree = {
         unlocked: true,
         mp: 0n,
         description: "A basic attack. Nothing fancy, but it gets the job done.",
-        get dmg() { return (12n * p.dmgmult) / 100n; }
+        get dmg() { return ((12n * p.lv) * p.dmgmult) / 100n; }
     },
     
     peck: {
@@ -77,7 +80,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A quick jabbing strike. Not much stronger than a Strike, but faster.",
-        get dmg() { return (18n * p.dmgmult) / 100n; }
+        get dmg() { return ((18n * p.lv) * p.dmgmult) / 100n; }
     },
     
     feelers: {
@@ -88,7 +91,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "Probe the enemy with extended strikes. Slightly stronger than Peck.",
-        get dmg() { return (20n * p.dmgmult) / 100n; }
+        get dmg() { return ((20n * p.lv) * p.dmgmult) / 100n; }
     },
     
     claw: {
@@ -99,7 +102,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "Rake the enemy with sharp claws. Draws a bit of blood.",
-        get dmg() { return (28n * p.dmgmult) / 100n; }
+        get dmg() { return ((28n * p.lv) * p.dmgmult) / 100n; }
     },
     
     slice: {
@@ -110,7 +113,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A clean cutting strike. More precise than Claw.",
-        get dmg() { return (30n * p.dmgmult) / 100n; }
+        get dmg() { return ((30n * p.lv) * p.dmgmult) / 100n; }
     },
     
     flurry: {
@@ -121,7 +124,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A rapid series of strikes. Each hit is weak but they add up fast.",
-        get dmg() { return (40n * p.dmgmult) / 100n; }
+        get dmg() { return ((40n * p.lv) * p.dmgmult) / 100n; }
     },
     
     bash: {
@@ -132,7 +135,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A heavy blunt strike. Slow but hits harder than Flurry.",
-        get dmg() { return (42n * p.dmgmult) / 100n; }
+        get dmg() { return ((42n * p.lv) * p.dmgmult) / 100n; }
     },
     
     bop: {
@@ -143,7 +146,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A firm bonk to the head. Somehow effective.",
-        get dmg() { return (38n * p.dmgmult) / 100n; }
+        get dmg() { return ((38n * p.lv) * p.dmgmult) / 100n; }
     },
     
     wallop: {
@@ -154,7 +157,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A devastating overhead smash. Puts your whole body into it.",
-        get dmg() { return (55n * p.dmgmult) / 100n; }
+        get dmg() { return ((55n * p.lv) * p.dmgmult) / 100n; }
     },
     
     trample: {
@@ -165,7 +168,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "Charge forward and crush the enemy underfoot.",
-        get dmg() { return (52n * p.dmgmult) / 100n; }
+        get dmg() { return ((52n * p.lv) * p.dmgmult) / 100n; }
     },
     
     barrage: {
@@ -176,7 +179,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "An unrelenting storm of blows. The enemy barely has time to breathe.",
-        get dmg() { return (70n * p.dmgmult) / 100n; }
+        get dmg() { return ((70n * p.lv) * p.dmgmult) / 100n; }
     },
     
     whirlwind: {
@@ -187,7 +190,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "Spin and strike everything around you in a wide arc.",
-        get dmg() { return (68n * p.dmgmult) / 100n; }
+        get dmg() { return ((68n * p.lv) * p.dmgmult) / 100n; }
     },
     
     tremor: {
@@ -198,7 +201,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "Slam the ground with enough force to shake the earth itself.",
-        get dmg() { return (85n * p.dmgmult) / 100n; }
+        get dmg() { return ((85n * p.lv) * p.dmgmult) / 100n; }
     },
     
     lash: {
@@ -209,7 +212,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A sharp whipping strike. Quick and precise.",
-        get dmg() { return (60n * p.dmgmult) / 100n; }
+        get dmg() { return ((60n * p.lv) * p.dmgmult) / 100n; }
     },
     
     pinch: {
@@ -220,7 +223,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "Grab and squeeze a vulnerable spot. Surprisingly painful.",
-        get dmg() { return (48n * p.dmgmult) / 100n; }
+        get dmg() { return ((48n * p.lv) * p.dmgmult) / 100n; }
     },
     
     bite: {
@@ -231,7 +234,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "Sink your teeth in. Primal, but effective.",
-        get dmg() { return (62n * p.dmgmult) / 100n; }
+        get dmg() { return ((62n * p.lv) * p.dmgmult) / 100n; }
     },
     
     thump: {
@@ -242,7 +245,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "A thunderous strike that rattles the enemy to their core.",
-        get dmg() { return (80n * p.dmgmult) / 100n; }
+        get dmg() { return ((80n * p.lv) * p.dmgmult) / 100n; }
     },
     
     clobber: {
@@ -253,7 +256,7 @@ const skillTree = {
         unlocked: false,
         mp: 0n,
         description: "The pinnacle of physical force. An absolute haymaker that leaves nothing standing.",
-        get dmg() { return (100n * p.dmgmult) / 100n; }
+        get dmg() { return ((100n * p.lv) * p.dmgmult) / 100n; }
     },    
 
     /*
@@ -1198,10 +1201,10 @@ const skillTree = {
             return (base * p.dmgmult) / 100n;
         },
         get san() { return -(p.sn / 2n); },
-        get freeze() {
-            let base = ((p.lv * 600n) + 600n) * p.kills;
-            return (base * p.dmgmult) / 100n;
-        }
+        // Freeze is a turn count, not a damage value. This used to copy the dmg
+        // expression above, which froze the enemy for millions of turns.
+        // lv * 6 continues the tree's progression (Frost Prison / Iceshock are lv * 5).
+        get freeze() { return p.lv * 6n; }
     },    
 
     /*
@@ -1489,10 +1492,10 @@ const skillTree = {
             return (base * p.dmgmult) / 100n;
         },
         get san() { return -(p.sn / 2n); },
-        get freeze() {
-            let base = ((p.lv * 600n) + 600n) * p.kills;
-            return (base * p.dmgmult) / 100n;
-        }
+        // Freeze is a turn count, not a damage value. This used to copy the dmg
+        // expression above, which froze the enemy for millions of turns.
+        // lv * 6 continues the tree's progression (Frost Prison / Iceshock are lv * 5).
+        get freeze() { return p.lv * 6n; }
     },    
 
     /*
@@ -1745,8 +1748,9 @@ const skillTree = {
     */
 
     charaKnife: {
-        name: "Chara Knife",
-        weaponRequired: "Chara Knife",
+        name: "Chara's Knife",
+        // Must match the string items.js writes to p.inventory.equippedWeapon.
+        weaponRequired: "Chara's Knife",
         cost: 0n,
         parent: null,
         unlocked: false,
@@ -1823,7 +1827,9 @@ const skillTree = {
     },
     fryingPan: {
         name: "Frying Pan",
-        weaponRequired: "fryingPan",
+        // Must match the string items.js writes to p.inventory.equippedWeapon
+        // ("Frying Pan"), or combat.js never shows the action.
+        weaponRequired: "Frying Pan",
         fryingPan: 1n,
         cost: 0n,
         parent: null,

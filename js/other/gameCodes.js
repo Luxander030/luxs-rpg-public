@@ -1,14 +1,14 @@
-const toggleBtn = document.getElementById('codes-button');
 const codesPanel = document.getElementById('codes-panel');
 const codeInput = document.getElementById('codes-input');
 const submitBtn = document.getElementById('submit-code');
 
-toggleBtn.addEventListener('click', () => {
+// Opened from the Extras menu (index.html) rather than its own corner button.
+function toggleCodesPanel() {
     const isHidden = codesPanel.classList.toggle('hidden');
     if (!isHidden) {
         codeInput.focus();
     }
-});
+}
 
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {

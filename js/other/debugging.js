@@ -2,124 +2,376 @@ let adminUnlocked = false;
 // const hashed_pass = "$argon2id$v=19$m=262144,t=10,p=4$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$SHi1xoiUjJ/m2NRy5uu70MATcv/1ik1QReaAB6M8nZELfvf3HExiean0x6+MFVWbATp9ij6age/1TmUaMYbjbA";
 const hashed_pass = "$argon2id$v=19$m=4096,t=1,p=1$ODkxNzc4ZTNmNTIzZDcwYTM4OTY3ZWIzNzM1OTEwYzc$yEnlUm0zD+Tneqa/wFzdTw"; 
 
-// Listen for the "Enter" key on the console input
-document.getElementById('console-input').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        const inputField = e.target;
-        const commandText = inputField.value.trim();
-        if (commandText) {
-            handleCommand(commandText);
-            inputField.value = ""; // Clear input
-        }
-    }
-});
-
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !document.getElementById('debugging-panel').classList.contains('hidden')) {
         toggleAdmin();
     }
 });
 
+/* ============================================================
+   ADMIN CONSOLE AUTOCOMPLETE
+
+   One declarative registry drives the whole thing: command names,
+   sub-commands, and argument values. `values` may be an array or a
+   function, so lists that only exist at runtime (item ids, enemy
+   names) are read lazily and script order doesn't matter.
+   ============================================================ */
+
+const ADMIN_EFFECTS = [
+    'frozen', 'stunned', 'poison', 'burning',
+    'fished', 'vulnerable', 'resistant', 'weakened', 'solari'
+];
+
+const SET_OR_ADD = { hint: '<set|add>', values: ['set', 'add'] };
+
+const ADMIN_COMMANDS = [
+    { name: '/clearname',   desc: 'Clear the saved player name' },
+    { name: '/clearclass',  desc: 'Clear the saved player class' },
+    { name: '/effect',      desc: 'Apply a status effect to the current enemy',
+                            params: [{ hint: '<effect>', values: () => ADMIN_EFFECTS }, { hint: '<amount>' }] },
+    { name: '/test',        desc: 'Apply every status effect to the current enemy' },
+    { name: '/give',        desc: 'Spawn an item into your inventory',
+                            params: [{ hint: '<item id>', values: () => inventoryItems.map(i => i.id) }] },
+    { name: '/achievements', desc: 'Unlock or lock achievements',
+                            params: [{ hint: '<unlock|lock>', values: ['unlock', 'lock'] },
+                                     { hint: '<name|all>', values: () => ['all', ...Object.keys(p.achievements ?? {})] }] },
+    { name: '/spawn',       desc: 'Force the next encounter',
+                            params: [{ hint: '<enemy name>', rest: true, values: () => enemies.map(e => e.name) }] },
+    { name: '/gold',        desc: 'Set or add gold',          params: [SET_OR_ADD, { hint: '<amount>' }] },
+    { name: '/gems',        desc: 'Set or add gems',          params: [SET_OR_ADD, { hint: '<amount>' }] },
+    { name: '/sp',          desc: 'Set or add skill points',  params: [SET_OR_ADD, { hint: '<amount>' }] },
+    { name: '/exp',         desc: 'Grant EXP',                params: [{ hint: '<amount>' }] },
+    { name: '/mhp',         desc: 'Set max and current HP',      params: [{ hint: '<amount>' }] },
+    { name: '/mmp',         desc: 'Set max and current mana',    params: [{ hint: '<amount>' }] },
+    { name: '/msan',        desc: 'Set max and current sanity',  params: [{ hint: '<amount>' }] },
+    { name: '/refillhp',    desc: 'Refill health' },
+    { name: '/refillmp',    desc: 'Refill mana' },
+    { name: '/refillsanity',desc: 'Refill sanity' },
+    { name: '/dmgmult',     desc: 'Set the damage multiplier %',  params: [{ hint: '<percent>' }] },
+    { name: '/manared',     desc: 'Set mana reduction %',         params: [{ hint: '<0-100>' }] },
+    { name: '/killcount',   desc: 'Set total kills',              params: [{ hint: '<amount>' }] },
+    { name: '/sparecount',  desc: 'Set total spares',             params: [{ hint: '<amount>' }] },
+    { name: '/bob',         desc: "Set Bob's visit counter",      params: [{ hint: '<amount>' }] },
+    { name: '/unlockallinventoryslots', desc: 'Unlock every backpack slot and storage' },
+    { name: '/setgenocide',   desc: 'Mark the Genocide route complete' },
+    { name: '/setpacifist',   desc: 'Mark the Pacifist route complete' },
+    { name: '/cleargenocide', desc: 'Clear the Genocide route record' },
+    { name: '/clearpacifist', desc: 'Clear the Pacifist route record' },
+    { name: '/clearboth',     desc: 'Clear both route records' }
+];
+
+const MAX_SUGGESTIONS = 8;
+
 const consoleInput = document.getElementById('console-input');
-consoleInput.addEventListener('input', () => {
-    const val = consoleInput.value.trim();
-    removeSuggestions();
+let suggestionState = null; // { start, end, items, activeIndex }
 
-    if (val.startsWith('/effect ')) {
-        const search = val.slice(8);
-        const effects = ['frozen', 'stunned', 'poison', 'burning', 'fished', 'vulnerable', 'resistant', 'weakened'];
-        const suggestions = search
-            ? effects.filter(e => e.toLowerCase().startsWith(search.toLowerCase()))
-            : effects.slice(0, 3); // Show first 3 if nothing typed yet
+function findAdminCommand(name) {
+    if (!name) return null;
+    const lower = name.toLowerCase();
+    return ADMIN_COMMANDS.find(c => c.name.toLowerCase() === lower) || null;
+}
 
-        if (suggestions.length === 0) return;
+function paramValues(param) {
+    if (!param || !param.values) return null;
+    try {
+        return typeof param.values === 'function' ? param.values() : param.values;
+    } catch (err) {
+        console.warn('Autocomplete value source failed:', err);
+        return null;
+    }
+}
 
-        const dropdown = document.createElement('div');
-        dropdown.id = 'suggestion-dropdown';
-        dropdown.style.cssText = `
-            position: absolute;
-            background: #1a1a1a;
-            border: 1px solid #444;
-            z-index: 9999;
-            max-height: 150px;
-            overflow-y: auto;
-        `;
+function usageString(cmd) {
+    if (!cmd.params || !cmd.params.length) return cmd.name;
+    return `${cmd.name} ${cmd.params.map(pm => pm.hint).join(' ')}`;
+}
 
-        suggestions.forEach(effect => {
-            const item = document.createElement('div');
-            item.textContent = effect;
-            item.style.cssText = `padding: 4px 8px; cursor: pointer; color: white;`;
-            item.addEventListener('mouseenter', () => item.style.background = '#333');
-            item.addEventListener('mouseleave', () => item.style.background = 'transparent');
-            item.addEventListener('click', () => {
-                consoleInput.value = `/effect ${effect} `;
-                removeSuggestions();
-                consoleInput.focus();
-            });
-            dropdown.appendChild(item);
-        });
+// Split the line into tokens, keeping each token's offset. A line ending in a
+// space gets a trailing empty token, which is what makes "/gems " offer set|add.
+function tokenizeConsoleInput(raw) {
+    const tokens = [];
+    const re = /\S+/g;
+    let m;
+    while ((m = re.exec(raw)) !== null) tokens.push({ text: m[0], start: m.index });
+    if (raw.length === 0 || /\s$/.test(raw)) tokens.push({ text: '', start: raw.length });
+    return tokens;
+}
 
-        const rect = consoleInput.getBoundingClientRect();
-        dropdown.style.top = `${rect.bottom + window.scrollY}px`;
-        dropdown.style.left = `${rect.left + window.scrollX}px`;
-        dropdown.style.width = `${rect.width}px`;
-        document.body.appendChild(dropdown);
+function buildSuggestions(raw) {
+    const tokens = tokenizeConsoleInput(raw);
+    const idx = tokens.length - 1;
+    const current = tokens[idx];
+
+    // First token — complete the command name itself.
+    if (idx === 0) {
+        const query = current.text.toLowerCase();
+        const items = ADMIN_COMMANDS
+            .filter(c => c.name.toLowerCase().startsWith(query))
+            .map(c => ({
+                value: c.name,
+                hint: c.desc,
+                // Trailing space only if the command actually takes arguments.
+                appendSpace: !!(c.params && c.params.length)
+            }));
+        return { start: current.start, end: current.start + current.text.length, items };
     }
 
-    if (val.startsWith('/give ')) {
-        const search = val.slice(6);
-        const allSuggestions = search
-            ? inventoryItems.filter(i => i.id.toLowerCase().startsWith(search.toLowerCase())).map(i => i.id)
-            : inventoryItems.slice(0, 3).map(i => i.id); // Show first 3 if nothing typed yet
+    const cmd = findAdminCommand(tokens[0].text);
+    if (!cmd || !cmd.params) return null;
 
-        if (allSuggestions.length === 0) return;
+    let paramIndex = idx - 1;
 
-        const dropdown = document.createElement('div');
-        dropdown.id = 'suggestion-dropdown';
-        dropdown.style.cssText = `
-            position: absolute;
-            background: #1a1a1a;
-            border: 1px solid #444;
-            z-index: 9999;
-            max-height: 150px;
-            overflow-y: auto;
-        `;
-
-        allSuggestions.forEach(id => {
-            const item = document.createElement('div');
-            item.textContent = id;
-            item.style.cssText = `padding: 4px 8px; cursor: pointer; color: white;`;
-            item.addEventListener('mouseenter', () => item.style.background = '#333');
-            item.addEventListener('mouseleave', () => item.style.background = 'transparent');
-            item.addEventListener('click', () => {
-                consoleInput.value = `/give ${id}`;
-                removeSuggestions();
-                consoleInput.focus();
-            });
-            dropdown.appendChild(item);
-        });
-
-        const rect = consoleInput.getBoundingClientRect();
-        dropdown.style.top = `${rect.bottom + window.scrollY}px`;
-        dropdown.style.left = `${rect.left + window.scrollX}px`;
-        dropdown.style.width = `${rect.width}px`;
-        document.body.appendChild(dropdown);
+    // A `rest` param swallows the remainder of the line (enemy names have spaces).
+    const restIndex = cmd.params.findIndex(pm => pm.rest);
+    let query = current.text;
+    let start = current.start;
+    if (restIndex !== -1 && paramIndex >= restIndex) {
+        paramIndex = restIndex;
+        start = tokens[restIndex + 1].start;
+        query = raw.slice(start);
     }
-});
+
+    const param = cmd.params[paramIndex];
+    if (!param) return null;
+
+    const values = paramValues(param);
+    if (!values) {
+        // Free-form argument (a number). Nothing to complete, but showing the
+        // usage line with the current argument marked is still worth a row.
+        return {
+            start, end: raw.length,
+            items: [{
+                value: null,
+                disabled: true,
+                label: usageString(cmd),
+                hint: `argument ${paramIndex + 1}: ${param.hint}`
+            }]
+        };
+    }
+
+    const lower = query.toLowerCase();
+    const items = values
+        .filter(v => v.toLowerCase().startsWith(lower))
+        .map(v => ({
+            value: v,
+            hint: param.hint,
+            appendSpace: paramIndex < cmd.params.length - 1
+        }));
+
+    return { start, end: raw.length, items };
+}
 
 function removeSuggestions() {
     const existing = document.getElementById('suggestion-dropdown');
     if (existing) existing.remove();
+    suggestionState = null;
 }
+
+function firstSelectableIndex() {
+    if (!suggestionState) return -1;
+    return suggestionState.items.findIndex(it => !it.disabled);
+}
+
+function renderSuggestions() {
+    const previousActive = suggestionState ? suggestionState.activeIndex : -1;
+    removeSuggestions();
+
+    const raw = consoleInput.value;
+    if (!raw.trim()) return;
+
+    const result = buildSuggestions(raw);
+    if (!result || !result.items.length) return;
+
+    const shown = result.items.slice(0, MAX_SUGGESTIONS);
+    const hiddenCount = result.items.length - shown.length;
+
+    suggestionState = {
+        start: result.start,
+        end: result.end,
+        items: shown,
+        // Nothing is highlighted by default, so Enter still runs the command.
+        // Only an explicit arrow-key press selects a suggestion.
+        activeIndex: previousActive >= 0 && previousActive < shown.length ? previousActive : -1
+    };
+
+    const dropdown = document.createElement('div');
+    dropdown.id = 'suggestion-dropdown';
+    dropdown.style.cssText = `
+        position: fixed;
+        background: var(--panel);
+        border: 1px solid var(--mana);
+        border-radius: 6px;
+        z-index: 10001;
+        max-height: 220px;
+        overflow-y: auto;
+        font-family: 'Fira Code', monospace;
+        font-size: 12px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    `;
+
+    shown.forEach((item, i) => {
+        const row = document.createElement('div');
+        row.dataset.index = String(i);
+        row.style.cssText = `
+            padding: 5px 9px;
+            display: flex; justify-content: space-between; gap: 12px;
+            cursor: ${item.disabled ? 'default' : 'pointer'};
+            color: ${item.disabled ? '#888' : 'var(--text)'};
+        `;
+        const label = document.createElement('span');
+        label.textContent = item.label ?? item.value;
+        const hint = document.createElement('span');
+        hint.textContent = item.hint || '';
+        hint.style.cssText = 'color:#777; text-align:right; white-space:nowrap;';
+        row.appendChild(label);
+        row.appendChild(hint);
+
+        if (!item.disabled) {
+            row.addEventListener('mouseenter', () => setActiveSuggestion(i));
+            // mousedown default would blur the input before the click lands.
+            row.addEventListener('mousedown', (e) => e.preventDefault());
+            row.addEventListener('click', () => applySuggestion(i));
+        }
+        dropdown.appendChild(row);
+    });
+
+    if (hiddenCount > 0) {
+        const more = document.createElement('div');
+        more.textContent = `…and ${hiddenCount} more`;
+        more.style.cssText = 'padding:5px 9px; color:#666; font-style:italic;';
+        dropdown.appendChild(more);
+    }
+
+    const rect = consoleInput.getBoundingClientRect();
+    dropdown.style.left = `${rect.left}px`;
+    dropdown.style.width = `${rect.width}px`;
+    // Flip above the input if there's no room below.
+    if (rect.bottom + 220 > window.innerHeight && rect.top > 220) {
+        dropdown.style.bottom = `${window.innerHeight - rect.top + 4}px`;
+    } else {
+        dropdown.style.top = `${rect.bottom + 4}px`;
+    }
+
+    document.body.appendChild(dropdown);
+    paintActiveSuggestion();
+}
+
+function paintActiveSuggestion() {
+    const dropdown = document.getElementById('suggestion-dropdown');
+    if (!dropdown || !suggestionState) return;
+    dropdown.querySelectorAll('[data-index]').forEach(row => {
+        const isActive = Number(row.dataset.index) === suggestionState.activeIndex;
+        row.style.background = isActive ? 'var(--mana)' : 'transparent';
+    });
+}
+
+function setActiveSuggestion(i) {
+    if (!suggestionState) return;
+    suggestionState.activeIndex = i;
+    paintActiveSuggestion();
+}
+
+function moveActiveSuggestion(delta) {
+    if (!suggestionState) return;
+    const selectable = suggestionState.items
+        .map((it, i) => (it.disabled ? -1 : i))
+        .filter(i => i !== -1);
+    if (!selectable.length) return;
+
+    const at = selectable.indexOf(suggestionState.activeIndex);
+    const next = at === -1
+        ? (delta > 0 ? selectable[0] : selectable[selectable.length - 1])
+        : selectable[(at + delta + selectable.length) % selectable.length];
+
+    setActiveSuggestion(next);
+    const row = document.querySelector(`#suggestion-dropdown [data-index="${next}"]`);
+    if (row && row.scrollIntoView) row.scrollIntoView({ block: 'nearest' });
+}
+
+function applySuggestion(i) {
+    if (!suggestionState) return;
+    const item = suggestionState.items[i];
+    if (!item || item.disabled) return;
+
+    const raw = consoleInput.value;
+    const before = raw.slice(0, suggestionState.start);
+    const after = raw.slice(suggestionState.end);
+    const insert = item.value + (item.appendSpace ? ' ' : '');
+
+    consoleInput.value = before + insert + after;
+    const caret = (before + insert).length;
+    consoleInput.setSelectionRange(caret, caret);
+    consoleInput.focus();
+
+    // Re-run so picking "/gems" immediately offers set|add.
+    suggestionState = null;
+    renderSuggestions();
+}
+
+consoleInput.addEventListener('input', renderSuggestions);
+
+consoleInput.addEventListener('keydown', (e) => {
+    const listOpen = !!document.getElementById('suggestion-dropdown');
+
+    if (e.key === 'Escape' && listOpen) {
+        // Close the dropdown only — don't let the window handler shut the panel.
+        e.preventDefault();
+        e.stopPropagation();
+        removeSuggestions();
+        return;
+    }
+
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && listOpen) {
+        e.preventDefault();
+        moveActiveSuggestion(e.key === 'ArrowDown' ? 1 : -1);
+        return;
+    }
+
+    if (e.key === 'Tab' && listOpen) {
+        e.preventDefault();
+        const target = suggestionState.activeIndex >= 0
+            ? suggestionState.activeIndex
+            : firstSelectableIndex();
+        if (target >= 0) applySuggestion(target);
+        return;
+    }
+
+    if (e.key === 'Enter') {
+        // Enter accepts a suggestion only if one was deliberately arrowed to.
+        if (listOpen && suggestionState && suggestionState.activeIndex >= 0) {
+            e.preventDefault();
+            applySuggestion(suggestionState.activeIndex);
+            return;
+        }
+        const commandText = consoleInput.value.trim();
+        removeSuggestions(); // the dropdown used to survive the command running
+        if (commandText) {
+            handleCommand(commandText);
+            consoleInput.value = "";
+        }
+    }
+});
+
+consoleInput.addEventListener('blur', () => {
+    // Clicks inside the dropdown preventDefault on mousedown, so focus never
+    // actually leaves for those. Anything else means we're done here.
+    setTimeout(removeSuggestions, 0);
+});
 
 function cmdClearName() {
     localStorage.removeItem("luxsRPGplayerName")
-    log(`Name cleared`, "var(--funfriend)")
+    p.name = null;
+    log(`Name cleared. Pick a new one.`, "var(--funfriend)")
+    // No callback: this opens the name picker on its own, and stops there.
+    nameSelection();
 }
 
 function cmdClearClass() {
     localStorage.removeItem("luxsRPGplayerClass")
-    log(`Class cleared`, "var(--funfriend)")
+    p.class = null;
+    log(`Class cleared. Pick a new one.`, "var(--funfriend)")
+    // No callback: class picker only — difficulty is untouched.
+    classSelection();
 }
 
 const cmdRegistry = {
@@ -159,9 +411,9 @@ function handleCommand(cmd) {
                 break;
             }
             const effect = args[1]?.toLowerCase();
-            const validEffects = ['frozen', 'stunned', 'poison', 'burning', 'fished', 'vulnerable', 'resistant', 'weakened', 'solari'];
-            if (!validEffects.includes(effect)) {
-                response = `Funfriend: Unknown effect. Valid effects: [${validEffects.join(', ')}]`;
+            // Same list the autocomplete offers, so the two can't drift apart.
+            if (!ADMIN_EFFECTS.includes(effect)) {
+                response = `Funfriend: Unknown effect. Valid effects: [${ADMIN_EFFECTS.join(', ')}]`;
                 successColor = "#ff4757";
                 break;
             }
@@ -211,6 +463,53 @@ function handleCommand(cmd) {
                 }
             }
             break;
+        case '/achievements': {
+            const mode = args[1]?.toLowerCase();
+            const target = args[2];
+
+            if (mode !== 'unlock' && mode !== 'lock') {
+                response = "Usage: /achievements <unlock|lock> <achievement_name|all>";
+                successColor = "#ff4757";
+                break;
+            }
+            if (!target) {
+                const names = Object.keys(p.achievements ?? {}).join(", ");
+                response = `Funfriend: Please name an achievement, or "all". Available: [${names}]`;
+                successColor = "var(--rareItem)";
+                break;
+            }
+
+            const unlocking = mode === 'unlock';
+
+            if (target.toLowerCase() === 'all') {
+                const changed = setAllAchievements(unlocking);
+                const { done, total } = achievementProgress();
+                response = `Funfriend: ${unlocking ? 'Unlocked' : 'Locked'} ${changed} achievement${changed === 1 ? '' : 's'}. Now at ${done}/${total}.`;
+                break;
+            }
+
+            // Ids are camelCase, so match case-insensitively rather than making
+            // whoever's typing get it exactly right.
+            const id = Object.keys(p.achievements ?? {})
+                .find(k => k.toLowerCase() === target.toLowerCase());
+
+            if (!id) {
+                const near = Object.keys(p.achievements ?? {})
+                    .filter(k => k.toLowerCase().startsWith(target.toLowerCase()));
+                response = near.length
+                    ? `Funfriend: No achievement "${target}". Did you mean: [${near.join(", ")}]?`
+                    : `Funfriend: No achievement matching "${target}".`;
+                successColor = "#ff4757";
+                break;
+            }
+
+            const changed = setAchievement(id, unlocking);
+            const a = p.achievements[id];
+            response = changed
+                ? `Funfriend: ${unlocking ? 'Unlocked' : 'Locked'} "${a.name}" (${id}).`
+                : `Funfriend: "${a.name}" (${id}) was already ${unlocking ? 'unlocked' : 'locked'}.`;
+            break;
+        }
         case '/unlockallinventoryslots':
             p.inventory.slot610Unlocked = true
             p.inventory.slot1120Unlocked = true
@@ -255,7 +554,7 @@ function handleCommand(cmd) {
             break;
         case '/bob':
             if (bVal !== null) { 
-                p.bobvisits = bVal
+                p.flags.bobVisits = bVal
                 response = `Bob: Meep :3`; 
                 if (bVal >= 15n) {
                     log(`Lux: HEY! Luxander, they're using the console to annoy me! UNFAIR!`, "var(--lux)");
@@ -462,6 +761,7 @@ function handleCommand(cmd) {
 async function toggleAdmin() {
     const panel = document.getElementById('debugging-panel');
     if (!panel.classList.contains('hidden')) {
+        removeSuggestions(); // don't leave a dropdown floating over the game
         panel.classList.add('hidden');
         return;
     }

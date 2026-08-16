@@ -1,6 +1,6 @@
 let LuxShopTalkChance = null;
 let currentBossBGM = null;
-const name_code = "$argon2id$v=19$m=65536,t=3,p=4$NDc3ZjQ1YjZiOTdkYmJkMzVhMGQwNGI2NDk5YzY5NDU$n9hkkCz/n5vG3EnMdgAjmTrNutlFYOnHaPv3I9gzkig";
+const name_code = "$argon2id$v=19$m=64,t=4,p=4$M2MyM2E4M2M$EAnadMEQIPbUo+c0wa+M3y1hmtcNzTixORueQ8mRHD8";
 
 function log(msg, color = "#e1e1e6") {
     const l = document.getElementById('log');
@@ -17,17 +17,20 @@ function log(msg, color = "#e1e1e6") {
     l.scrollTop = l.scrollHeight;
 }
 
-function classSelection() {
+function classSelection(onComplete) {
     const classes = [
         {
             id: "astralMage",
             name: "Astral Mage",
             image: "images/classes/astral.gif",
             benefits: [
-                "Very, very powerful spells.",
+                "Hits harder than any other tree. Prism Blast is roughly 8x the next class's best.",
+                "Thirteen spells, so the tree keeps giving you upgrades for a long time.",
             ],
             cons: [
-                "Very expensive SP prices.",
+                "Easily the most expensive tree: 114 SP to finish, and single spells cost up to 18.",
+                "Also the most expensive to cast, by a wide margin.",
+                "No status effects at all. Damage is the whole kit.",
             ],
             color: "#a78bfa"
         },
@@ -36,10 +39,14 @@ function classSelection() {
             name: "Stormmancer",
             image: "images/classes/storm.gif",
             benefits: [
-                "Applies stun to enemies.",
+                "Stuns enemies, and a stunned enemy skips its whole turn.",
+                "Cheap to cast, and the widest tree in the game at fourteen spells.",
+                "Thunderbolt sets things on fire as well as stunning them.",
             ],
             cons: [
-                "Spells have a chance to backfire on you.",
+                "Spells have a chance to backfire on you, rising to 20% on the strongest ones.",
+                "Middling damage. You win by denying turns, not by hitting hard.",
+                "Stun is resisted about half the time, and enemies go immune for a few turns after.",
             ],
             color: "#60a5fa"
         },
@@ -49,9 +56,13 @@ function classSelection() {
             image: "images/classes/druid.gif",
             benefits: [
                 "One of the only classes with dedicated healing spells.",
+                "Poison Spray stacks poison so heavily it outdamages anything else the tree has.",
+                "Restores Sanity as well as health.",
             ],
             cons: [
                 "Fire based enemies take less damage from these spells.",
+                "The weakest direct damage of any class. The poison does the work.",
+                "Both healing spells get weaker the more you have killed, and stop working entirely if you kill enough.",
             ],
             color: "#4ade80"
         },
@@ -60,10 +71,14 @@ function classSelection() {
             name: "Flamemancer",
             image: "images/classes/flamemancer.gif",
             benefits: [
-                "Applies a lot of burn ticks.",
+                "Applies a lot of burn ticks, and they stack up across a long fight.",
+                "The cheapest class to cast, and the second cheapest tree to finish.",
+                "Reaches its final spell sooner than most, so it comes online early.",
             ],
             cons: [
                 "Relatively weak attack, but stronger than physical attacks.",
+                "Burn is the only trick. Anything immune to it shrugs off most of your kit.",
+                "The smallest tree apart from Shadow, so it runs out of upgrades.",
             ],
             color: "#fb923c"
         },
@@ -72,11 +87,14 @@ function classSelection() {
             name: "Cryomancer",
             image: "images/classes/cryo.gif",
             benefits: [
-                "Applies frozen status.",
-                "Second strongest, second only to Astral Spells"
+                "Freezes enemies, and frozen enemies take 50% more damage from everything.",
+                "Cheap to cast for most of the tree.",
+                "Ends on Snowgrave, which scales with your kill count and can outdamage every other class combined.",
             ],
             cons: [
-                "High MP Cost",
+                "Middling damage until Snowgrave, and Snowgrave costs 20,000 MP and half your Sanity.",
+                "Snowgrave is worthless on a low kill count, so the payoff only exists if you have been killing.",
+                "Several enemies are immune to freezing, which removes most of the tree's value against them.",
             ],
             color: "#baffff"
         },
@@ -85,11 +103,14 @@ function classSelection() {
             name: "Watermancer",
             image: "images/classes/watermancer.gif",
             benefits: [
-                "Strong against fire type enemies.",
+                "Double damage against fire enemies.",
+                "By far the cheapest tree to finish, at a third the cost of Astral Mage.",
+                "Cheap to cast, so you can keep casting your best spell.",
             ],
             cons: [
-                "Generally weak (3rd weakest).",
-                "Not that much variety for spells."
+                "Weak damage. Only Flamemancer and Druid hit for less.",
+                "Not that much variety for spells: nine, in three near-identical lines.",
+                "No status effects, and the fire bonus does nothing against the other 90% of the roster.",
             ],
             color: "#38bdf8"
         },
@@ -98,10 +119,14 @@ function classSelection() {
             name: "Shadow",
             image: "images/classes/shadow.gif",
             benefits: [
-                "Deals more damage to enemies like Lux or Kitsune.",
+                "Deals 50% more damage to enemies like Lux or Kitsune.",
+                "Siphon Ray heals you for as much as it deals, and Shielding Dark restores Sanity.",
+                "Also ends on Snowgrave, which scales with your kill count.",
             ],
             cons: [
-                "Deals less damage to demon-like enemies.",
+                "Deals 30% less damage to demon-like enemies, which includes every Sin and Azmodan.",
+                "The smallest tree in the game at eight spells.",
+                "Low damage outside its two matchups.",
             ],
             color: "#c084fc"
         },
@@ -122,14 +147,16 @@ function classSelection() {
             name: "Neutral",
             image: null,
             benefits: [
-                "Random effect.",
-                "Random effect.",
-                "Random effect.",
+                "Every spell is a gamble, and the good rolls are enormous.",
+                "The second highest damage ceiling of any class.",
+                "The Last Word has a small chance to simply kill whatever it hits, whatever it is.",
+                "Most spells can heal or restore Sanity on top of dealing damage.",
             ],
             cons: [
-                "Random effect.",
-                "Random effect.",
-                "Random effect.",
+                "Every spell is a gamble, and the bad rolls do nothing at all.",
+                "Several spells can damage you, drain your Sanity or leave you on 1 HP.",
+                "You cannot plan around it. The tooltip damage is a fresh roll and never matches the cast, so good luck looking at that.",
+                "The second most expensive tree to finish, at 83 SP.",
             ],
             color: "#a4b0be"
         },
@@ -286,7 +313,7 @@ function classSelection() {
         `;
         btn.onmouseenter = () => btn.style.background = `${cls.color}44`;
         btn.onmouseleave = () => btn.style.background = `${cls.color}22`;
-        btn.onclick = () => confirmClassSelection(cls, overlay);
+        btn.onclick = () => confirmClassSelection(cls, overlay, onComplete);
 
         card.appendChild(imgContainer);
         card.appendChild(name);
@@ -300,7 +327,7 @@ function classSelection() {
     document.body.appendChild(overlay);
 }
 
-function confirmClassSelection(cls, overlay) {
+function confirmClassSelection(cls, overlay, onComplete) {
     const confirm = document.createElement('div');
     confirm.style.cssText = `
         position: fixed;
@@ -354,6 +381,8 @@ function confirmClassSelection(cls, overlay) {
         overlay.remove();
         log(`You have chosen the path of the <strong style="color: ${cls.color};">${cls.name}</strong>.`, cls.color);
         updateUI();
+        // Hands off to the difficulty picker during the new-save flow.
+        if (typeof onComplete === 'function') onComplete();
     };
 
     document.getElementById('confirm-class-no').onclick = () => {
@@ -384,7 +413,7 @@ function applyClassStartingSpells(classId) {
     });
 }
 
-function nameSelection() {
+function nameSelection(onComplete) {
     let filterBypassed = false;
 
     // Create overlay
@@ -519,6 +548,9 @@ function nameSelection() {
         overlay.remove();
         document.body.style.pointerEvents = 'auto';
         updateUI();
+        // Hands off to class selection during the new-save flow. Called bare
+        // (e.g. after /clearname) there's no callback and nothing follows.
+        if (typeof onComplete === 'function') onComplete();
     }
 
     btn.addEventListener('click', confirmName);
@@ -629,7 +661,8 @@ function updateUI() {
     document.getElementById('side-hp').innerText  = formatNumber(p.hp);
     document.getElementById('side-lv').innerText = p.lv.toString();
     document.getElementById('side-gold').innerText = formatNumber(p.gold);
-    document.getElementById('side-totalgold').innerText = formatNumber(p.totalGold)
+    document.getElementById('side-totalgold').innerText = formatNumber(p.totalGold);
+    document.getElementById('side-currentgems').innerText = formatNumber(p.gems);
     document.getElementById('side-mmp').innerText = formatNumber(p.mmp);
     document.getElementById('side-mp').innerText = formatNumber(p.mp);
     document.getElementById('side-msn').innerText = formatNumber(p.msn);
@@ -648,6 +681,12 @@ function updateUI() {
     document.getElementById('side-dmgmult').innerText = "+" + formatNumber(dmgMultPercent) + "%";
     document.getElementById('equipped-weapon').innerText = `Currently equipped weapon: ${(!p.inventory.equippedWeapon || p.inventory.equippedWeapon === "empty") ? "None" : p.inventory.equippedWeapon}`;
     document.getElementById('side-class').innerText = `Class: ${(!p.class || p.class === null) ? "None" : getClassName(p.class)}`;
+    const diffEl = document.getElementById('side-difficulty');
+    if (diffEl && typeof DIFFICULTY_PRESETS !== 'undefined') {
+        const preset = DIFFICULTY_PRESETS[p.difficulty ?? 'easy'] || DIFFICULTY_PRESETS.easy;
+        diffEl.innerText = preset.label;
+        diffEl.style.color = preset.color;
+    }
     // 4. Enemy Stats
     if (enemy) {
         document.getElementById('e-hp-txt').innerText = `HP: ${formatNumber(enemy.hp)} / ${formatNumber(enemy.mhp)}`;
@@ -657,6 +696,14 @@ function updateUI() {
         document.getElementById('e-traits').innerText = enemy.trait || "No known traits.";
     }
 
+    // 5. Keep the shop shelf honest if an EXP gain moved the player's LV, and
+    //    the refresh button honest if their gem count moved.
+    //    Both no-op instantly unless the shop is actually open.
+    refreshShopPrices();
+    renderShopRefreshButton();
+
+    // 6. Award anything the player has just qualified for.
+    if (typeof checkAchievements === "function") checkAchievements();
 }
 
 function showTab(tabName) {
@@ -895,6 +942,34 @@ function nextDay() {
     }
 }
 
+// Every shop cost is a getter that scales off p.lv, but the shelf is rendered
+// once and never looked at again. Anything that grants EXP while the shop is
+// open — a tarot card, a Knowledge Scroll, a loot box — can level you up and
+// silently change every price behind the numbers on screen. Re-read them.
+function refreshShopPrices() {
+    const shopView = document.getElementById('shop-view');
+    if (!shopView || shopView.classList.contains('hidden')) return;
+
+    document.querySelectorAll('#shop-shelf .shop-item').forEach(div => {
+        const item = masterShop.find(i => i.id === div.dataset.itemId);
+        const costEl = div.querySelector('.shop-cost');
+        if (!item || !costEl) return;
+
+        const current = formatNumber(item.cost);
+        if (costEl.textContent === current) return;
+
+        costEl.textContent = current;
+        // Flash it, so a price moving mid-visit isn't a silent surprise.
+        costEl.style.color = 'var(--hp)';
+        setTimeout(() => { costEl.style.color = ''; }, 1200);
+    });
+}
+
+// "Refresh Shop": re-roll the shelf for gems, a limited number of times per visit.
+const SHOP_REFRESH_GEM_COST = 2n;
+const SHOP_REFRESHES_PER_VISIT = 3;
+let shopRefreshesLeft = 0;
+
 function startShop() {
     LuxShopTalkChance = Math.random()
     if (LuxShopTalkChance < 0.05) {
@@ -915,7 +990,14 @@ function startShop() {
     }    
     document.getElementById('main-controls').classList.add('hidden');
     document.getElementById('shop-view').classList.remove('hidden');
-    const shelf = document.getElementById('shop-shelf'); 
+    shopRefreshesLeft = SHOP_REFRESHES_PER_VISIT; // fresh allowance each visit
+    stockShopShelf();
+}
+
+// Rolls the shelf and draws it. Split out of startShop() so "Refresh Shop"
+// can re-roll without replaying Bob's greeting or resetting the allowance.
+function stockShopShelf() {
+    const shelf = document.getElementById('shop-shelf');
     shelf.innerHTML = "";
     let currentLv = p.lv
     let spares = p.spares;
@@ -969,11 +1051,14 @@ function startShop() {
 
         let div = document.createElement('div');
         div.className = "shop-item";
+        // Tagged so refreshShopPrices() can re-read this entry's cost getter
+        // if the player's LV changes while the shelf is on screen.
+        div.dataset.itemId = item.id;
 
         div.innerHTML = `
             <strong>${item.name}</strong><br>
-            ${formatNumber(item.cost)}g<br>
-            <button id="shop-btn-${index}" style="margin-top:10px" 
+            <span class="shop-cost">${formatNumber(item.cost)}</span>g<br>
+            <button id="shop-btn-${index}" style="margin-top:10px"
                 onclick="buyItem('${item.id}', 'shop-btn-${index}')">Acquire</button>`;
 
         shelf.appendChild(div);
@@ -1027,25 +1112,78 @@ function startShop() {
         btn.onmousemove = (e) => updateTipPos(e);
         btn.onmouseleave = () => { tip.style.display = 'none'; };
     });
+
+    renderShopRefreshButton();
+}
+
+function renderShopRefreshButton() {
+    const shopView = document.getElementById('shop-view');
+    if (!shopView || shopView.classList.contains('hidden')) return;
+
+    const btn = document.getElementById('shop-refresh-btn');
+    if (!btn) return;
+
+    const gems = p.gems ?? 0n;
+    const outOfUses = shopRefreshesLeft <= 0;
+    const tooPoor = gems < SHOP_REFRESH_GEM_COST;
+
+    btn.disabled = outOfUses || tooPoor;
+    btn.style.opacity = btn.disabled ? '0.5' : '1';
+    btn.style.cursor = btn.disabled ? 'not-allowed' : 'pointer';
+
+    if (outOfUses) {
+        btn.innerText = `Refresh Shop — none left (you have ${formatNumber(gems)} gems)`;
+    } else {
+        btn.innerText = `Refresh Shop — ${formatNumber(SHOP_REFRESH_GEM_COST)} gems `
+                      + `(${shopRefreshesLeft} left, you have ${formatNumber(gems)})`;
+    }
+}
+
+function refreshShop() {
+    if (shopRefreshesLeft <= 0) {
+        log(`Bob has nothing left to dig out of his cart this visit.`, "#ff4757");
+        playCantSelectSFX();
+        return;
+    }
+
+    const gems = p.gems ?? 0n;
+    if (gems < SHOP_REFRESH_GEM_COST) {
+        log(`Refreshing the shop costs ${formatNumber(SHOP_REFRESH_GEM_COST)} gems. You have ${formatNumber(gems)}.`, "#ff4757");
+        playCantSelectSFX();
+        return;
+    }
+
+    p.gems = gems - SHOP_REFRESH_GEM_COST;
+    shopRefreshesLeft--;
+    if (typeof awardAchievement === "function") awardAchievement("refreshedShop");
+
+    playShopBuySFX();
+    log(`Bob rummages through his cart and lays out new stock. `
+      + `(-${formatNumber(SHOP_REFRESH_GEM_COST)} gems, ${shopRefreshesLeft} refresh${shopRefreshesLeft === 1 ? '' : 'es'} left)`,
+        "var(--epicItem)");
+
+    if (Math.random() < 0.05) {
+        if (p.kills >= 1000000n) {
+            log(`Lux: He's only showing you more because he's terrified of what you'll do if he doesn't.`, "#ff0000");
+        } else {
+            LuxLog(`Lux: Picky, aren't you.`);
+        }
+    }
+
+    stockShopShelf();
+    updateUI();
 }
 
 function buyItem(id, btnId) {
     let item = masterShop.find(i => i.id === id);
-    if (p.gold >= item.cost) { 
-        p.gold -= item.cost; 
-        log(item.run(), "var(--unlocked)");  
-        let btn = document.getElementById(btnId);
-        if (btn) {
-            btn.disabled = true;
-            btn.innerText = Math.random() < 0.05 ? "=)" : "Sold Out";
-        }
-        const combatView = document.getElementById('combat-view');
-        if (combatView && !combatView.classList.contains('hidden')) {
-            renderCombatButtons();
-        }
-        playShopBuySFX();
-        updateUI(); 
-    } else {
+    if (!item) return;
+
+    // Snapshot the price before anything runs: every cost is a getter that
+    // scales off p.lv, and some items (tarot cards, treasure maps) move p.lv
+    // or p.gold themselves. The player pays what the shelf said.
+    const cost = item.cost;
+
+    if (p.gold < cost) {
         if (Math.random() < 0.05) {
             if (p.kills >= 1000000n) {
                     log(`Lux: Broke, broke, broke. Do I sound like I care?`,"#ff0000")
@@ -1056,7 +1194,33 @@ function buyItem(id, btnId) {
             log("You lack the coin. This world is not for the poor...", "#ff4757");
         }
         playCantSelectSFX();
+        return;
     }
+
+    // Attempt the purchase BEFORE charging. Anything that needs an inventory
+    // slot returns false when there's no room, and then nothing is taken and
+    // the item stays on the shelf.
+    const result = item.run();
+    if (result === false) {
+        log(`Your inventory is full. Nothing was bought and no gold was taken.`, "#ff4757");
+        playCantSelectSFX();
+        return;
+    }
+
+    p.gold -= cost;
+    if (result) log(result, "var(--unlocked)");
+
+    let btn = document.getElementById(btnId);
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = Math.random() < 0.05 ? "=)" : "Sold Out";
+    }
+    const combatView = document.getElementById('combat-view');
+    if (combatView && !combatView.classList.contains('hidden')) {
+        renderCombatButtons();
+    }
+    playShopBuySFX();
+    updateUI();
 }
 
 function tryAddItem(itemName) {
@@ -1105,9 +1269,16 @@ function positionTooltip(e, tip) {
     tip.style.top = y + 'px';
 }
 
+// Which tab the spell tree is currently showing. This lives outside renderTree()
+// on purpose: renderTree() gets called again after every purchase, and if the
+// selection lived inside it, buying a Physical or General skill would snap the
+// view back to your class tree mid-shopping.
+let activeSkillTree = null;
+
 function openTree() {
     document.getElementById('main-controls').classList.add('hidden');
     document.getElementById('tree-view').classList.remove('hidden');
+    activeSkillTree = p.class; // a fresh open always starts on your own class
     renderTree();
 }
 
@@ -1134,11 +1305,10 @@ function renderTree() {
 
     if (allUnlocked) {
         let controlDiv = document.createElement('div');
-        controlDiv.style = "grid-column: span 3; margin-bottom: 15px; text-align: center;";
+        controlDiv.style = "grid-column: span 3; margin-bottom: 15px; text-align: center; color:#aaa; font-size:0.8em;";
         controlDiv.innerHTML = `
-            <label style="color:#aaa; font-size:0.8em;">SP to spend:</label>
-            <input type="number" id="mastery-amount" value="1" min="1" 
-                style="width:80px; background:#000; border:1px solid var(--mana); color:white; border-radius:4px; padding:5px; margin-left:10px;">
+            You have <b style="color:var(--exp)">${formatNumber(p.sp)}</b> SP.
+            Each button spends up to that much SP on a mastery.
         `;
         container.appendChild(controlDiv);
 
@@ -1164,15 +1334,60 @@ function renderTree() {
                 return;
             }
 
+            const nextCost = masteryLevelCost(opt.stat);
+
             let div = document.createElement('div');
             div.className = "node available";
             div.style.borderColor = opt.color;
+            div.style.cursor = "default";
+
+            const escalatingNote = opt.stat === 'dmgmult'
+                ? `<br><small style="color:#aaa">${formatNumber(p.warMasteryLevels ?? 0n)} bought &middot; each one costs 1 SP more</small>`
+                : '';
+
             div.innerHTML = `
                 <strong>${opt.name}</strong><br>
-                Cost: (Amount) SP<br>
-                <small style="color:#aaa">+1% ${opt.desc} per SP</small>
+                Next level: <b style="color:var(--exp)">${formatNumber(nextCost)}</b> SP<br>
+                <small style="color:#aaa">+1% ${opt.desc} per level</small>
+                ${escalatingNote}
             `;
-            div.onclick = () => buyMastery(opt.stat);
+
+            const btnRow = document.createElement('div');
+            btnRow.style.cssText = `
+                display: flex; flex-wrap: wrap; gap: 4px;
+                justify-content: center; margin-top: 10px;
+            `;
+
+            MASTERY_BUY_OPTIONS.forEach(buyOpt => {
+                const budget = buyOpt.budget === 'max' ? p.sp : buyOpt.budget;
+                let levels = masteryLevelsAffordable(opt.stat, budget > p.sp ? p.sp : budget);
+                if (opt.stat === 'manaReduction') {
+                    const roomLeft = 100n - p.manaReduction;
+                    if (levels > roomLeft) levels = roomLeft;
+                }
+                if (levels > MASTERY_MAX_LEVELS_PER_PURCHASE) levels = MASTERY_MAX_LEVELS_PER_PURCHASE;
+                const affordable = levels >= 1n;
+
+                const btn = document.createElement('button');
+                btn.textContent = buyOpt.label;
+                btn.disabled = !affordable;
+                btn.title = affordable
+                    ? `Spends ${formatNumber(masterySpendFor(opt.stat, levels))} SP for ${formatNumber(levels)} level${levels === 1n ? '' : 's'}`
+                    : `Not enough SP — the next level costs ${formatNumber(nextCost)}`;
+                btn.style.cssText = `
+                    min-width: 38px; padding: 4px 8px;
+                    background: ${affordable ? '#1a1a2e' : '#15151c'};
+                    border: 1px solid ${affordable ? opt.color : '#2f3542'};
+                    color: ${affordable ? 'var(--text)' : '#555'};
+                    border-radius: 4px;
+                    cursor: ${affordable ? 'pointer' : 'not-allowed'};
+                    font-family: 'Fira Code', monospace; font-size: 11px;
+                `;
+                btn.onclick = () => buyMastery(opt.stat, buyOpt.budget);
+                btnRow.appendChild(btn);
+            });
+
+            div.appendChild(btnRow);
             container.appendChild(div);
         });
 
@@ -1186,14 +1401,18 @@ function renderTree() {
         const tabBar = document.createElement('div');
         tabBar.style.cssText = "grid-column: span 3; display: flex; gap: 8px; margin-bottom: 15px;";
 
-        let activeTab = p.class;
+        // Fall back to the class tree only if nothing is selected yet, or if the
+        // stored tab is stale (class change, imported save).
+        if (!activeSkillTree || !tabs.some(t => t.id === activeSkillTree)) {
+            activeSkillTree = p.class;
+        }
 
         tabs.forEach(tab => {
             const btn = document.createElement('button');
             btn.textContent = tab.label;
             btn.style.cssText = `
                 flex: 1;
-                background: ${activeTab === tab.id ? 'var(--mana)' : '#2f3542'};
+                background: ${activeSkillTree === tab.id ? 'var(--mana)' : '#2f3542'};
                 color: white;
                 border: none;
                 border-radius: 8px;
@@ -1202,11 +1421,11 @@ function renderTree() {
                 font-weight: bold;
             `;
             btn.onclick = () => {
-                activeTab = tab.id;
+                activeSkillTree = tab.id;
                 renderTabContent(tab.id);
                 playMenuButtonClickSFX();
                 tabBar.querySelectorAll('button').forEach((b, i) => {
-                    b.style.background = tabs[i].id === activeTab ? 'var(--mana)' : '#2f3542';
+                    b.style.background = tabs[i].id === activeSkillTree ? 'var(--mana)' : '#2f3542';
                 });
             };
             tabBar.appendChild(btn);
@@ -1279,7 +1498,7 @@ function renderTree() {
             });
         }
 
-        renderTabContent(activeTab);
+        renderTabContent(activeSkillTree);
     }
 }
 
@@ -1298,51 +1517,142 @@ function getClassName(classId) {
     return names[classId] || classId;
 }
 
-function buyMastery(stat) {
-    const amountInput = document.getElementById('mastery-amount');
-    let amount = amountInput ? BigInt(amountInput.value) : 1n;
-    if (amount < 1n) amount = 1n;
+// The buy buttons on every mastery node. Each value is the SP budget to spend,
+// not a level count — with War Mastery escalating, 10 SP is only 4 levels.
+const MASTERY_BUY_OPTIONS = [
+    { label: '1x',  budget: 1n  },
+    { label: '2x',  budget: 2n  },
+    { label: '5x',  budget: 5n  },
+    { label: '10x', budget: 10n },
+    { label: 'Max', budget: 'max' }
+];
 
-    if (p.sp >= amount) {
-        p.sp -= amount;
-        let totalGain = 0n;
+// War Mastery gets one SP more expensive with every level bought: the 1st costs
+// 1 SP, the 2nd costs 2, and so on. Every other mastery stays flat at 1 SP.
+function masteryLevelCost(stat) {
+    if (stat === 'dmgmult') return (p.warMasteryLevels ?? 0n) + 1n;
+    // Efficiency Mastery used to be a flat 1 SP a level, so the whole 100-point
+    // track cost 100 SP — one Martyr's Book — and permanently switched the mana
+    // system off. The cost now steps up every 10 points, making the full track
+    // 550 SP. manaReduction is capped at 100 and moves 1 per level, so its
+    // current value *is* the number of levels bought; no extra counter needed.
+    if (stat === 'manaReduction') return 1n + (p.manaReduction / 10n);
+    return 1n;
+}
 
-        for (let i = 0; i < Number(amount); i++) {
-            let gain = (p[stat] * 1n) / 100n;
-            if (gain < 1n) gain = 1n;
-            p[stat] += gain;
-            totalGain += gain;
-
-            if (stat.startsWith('m') && stat !== 'manaReduction') {
-                let currentKey = stat.substring(1);
-                p[currentKey] += gain;
-            }
-        }
-
-        if (stat === 'manaReduction' && p.manaReduction > 100n) p.manaReduction = 100n;
-
-        log(`Mastery Transformed! Spent ${formatNumber(amount)} SP to increase ${stat.toUpperCase()} by ${formatNumber(totalGain)}.`, "var(--unlocked)");
-        playSpellMasteryBuySFX();
-
-        if (Math.random() < 0.05) {
-            if (p.kills >= 1000000n) {
-                document.body.style.pointerEvents = "none";
-                log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`, "#ff0000");
-                setTimeout(() => {
-                    log(`Lux: And yet I still hold the needle which will cause you to pop.`, "#ff0000");
-                    document.body.style.pointerEvents = "auto";
-                }, 1000);
-            } else {
-                LuxLog(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`);
-            }
-        }
-
-        renderTree();
-        updateUI();
-    } else {
-        playCantSelectSFX();
-        log(`You lack the ${formatNumber(amount)} Skill Points required for this ascension.`, "#ff4757");
+// Total SP for the next `levels` levels of a mastery.
+function masterySpendFor(stat, levels) {
+    if (levels < 1n) return 0n;
+    if (stat === 'dmgmult') {
+        // 1 + 2 + ... over an escalating counter: n*bought + n(n+1)/2
+        const bought = p.warMasteryLevels ?? 0n;
+        return levels * bought + (levels * (levels + 1n)) / 2n;
     }
+    if (stat === 'manaReduction') {
+        // Stepped cost, and the track is only 100 levels long, so walk it.
+        let total = 0n, at = p.manaReduction;
+        for (let i = 0n; i < levels; i++) { total += 1n + (at / 10n); at += 1n; }
+        return total;
+    }
+    return levels;
+}
+
+// Most levels `budget` SP can buy. Binary search rather than a loop so that
+// "Max" with a huge SP pile stays instant.
+function masteryLevelsAffordable(stat, budget) {
+    if (budget < 1n) return 0n;
+    if (stat === 'manaReduction') {
+        // Bounded by the 100% cap, so a plain walk is both exact and cheap.
+        let levels = 0n, spent = 0n, at = p.manaReduction;
+        const room = 100n - p.manaReduction;
+        while (levels < room) {
+            const next = 1n + (at / 10n);
+            if (spent + next > budget) break;
+            spent += next; at += 1n; levels += 1n;
+        }
+        return levels;
+    }
+    if (stat !== 'dmgmult') return budget;
+
+    let lo = 0n, hi = budget;
+    while (lo < hi) {
+        const mid = (lo + hi + 1n) / 2n;
+        if (masterySpendFor(stat, mid) <= budget) lo = mid; else hi = mid - 1n;
+    }
+    return lo;
+}
+
+// Applying a level is a loop (1% of the *current* value, floored, minimum 1),
+// so a Max click on a huge SP pile could otherwise hang the page.
+const MASTERY_MAX_LEVELS_PER_PURCHASE = 100000n;
+
+function buyMastery(stat, budgetInput) {
+    let budget = budgetInput === 'max' ? p.sp : BigInt(budgetInput ?? 1n);
+    if (budget > p.sp) budget = p.sp;
+
+    let levels = masteryLevelsAffordable(stat, budget);
+
+    // Mana Reduction stops mattering at 100%, so don't let anyone overspend on it.
+    if (stat === 'manaReduction') {
+        const roomLeft = 100n - p.manaReduction;
+        if (levels > roomLeft) levels = roomLeft;
+    }
+
+    let capped = false;
+    if (levels > MASTERY_MAX_LEVELS_PER_PURCHASE) {
+        levels = MASTERY_MAX_LEVELS_PER_PURCHASE;
+        capped = true;
+    }
+
+    if (levels < 1n) {
+        playCantSelectSFX();
+        log(`You need ${formatNumber(masteryLevelCost(stat))} SP for the next level of this mastery.`, "#ff4757");
+        return;
+    }
+
+    const spent = masterySpendFor(stat, levels);
+    p.sp -= spent;
+    let totalGain = 0n;
+
+    for (let i = 0n; i < levels; i++) {
+        let gain = (p[stat] * 1n) / 100n;
+        if (gain < 1n) gain = 1n;
+        p[stat] += gain;
+        totalGain += gain;
+
+        if (stat.startsWith('m') && stat !== 'manaReduction') {
+            let currentKey = stat.substring(1);
+            p[currentKey] += gain;
+        }
+    }
+
+    if (stat === 'dmgmult') {
+        p.warMasteryLevels = (p.warMasteryLevels ?? 0n) + levels;
+    }
+
+    if (stat === 'manaReduction' && p.manaReduction > 100n) p.manaReduction = 100n;
+
+    log(`Mastery Transformed! Spent ${formatNumber(spent)} SP on ${formatNumber(levels)} level${levels === 1n ? '' : 's'} to increase ${stat.toUpperCase()} by ${formatNumber(totalGain)}.`, "var(--unlocked)");
+    if (capped) {
+        log(`(Capped at ${formatNumber(MASTERY_MAX_LEVELS_PER_PURCHASE)} levels per purchase — click again to keep going.)`, "var(--commonItem)");
+    }
+    playSpellMasteryBuySFX();
+
+    if (Math.random() < 0.05) {
+        if (p.kills >= 1000000n) {
+            document.body.style.pointerEvents = "none";
+            log(`Lux: More power, more power, and even more power. Honestly I'm kind of surprised you're still going. After all this time...`, "#ff0000");
+            setTimeout(() => {
+                log(`Lux: And yet I still hold the needle which will cause you to pop.`, "#ff0000");
+                document.body.style.pointerEvents = "auto";
+            }, 1000);
+        } else {
+            LuxLog(`Lux: Watching you swell with power is like watching a balloon inflate. I wonder when you'll pop?`);
+        }
+    }
+
+    renderTree();
+    updateUI();
 }
 
 function buySkill(id) {
@@ -1387,11 +1697,15 @@ function getScaledMana(baseCost) {
     // Convert baseCost to BigInt safely
     const base = BigInt(baseCost || 0);
     if (base === 0n) return 0n;    
-    // Logic: multiplier = floor((MaxMP / 2) / 100)
-    // In BigInt: (p.mmp / 2n) / 100n
-    let multiplier = (BigInt(p.mmp) / 2n) / 100n;
-    // If multiplier is 0 (early game), ensure it is at least 1 
-    // so the spell doesn't cost 0 MP unless base is 0 (how would it multiply by 0 then????).
+    // Cost grows with the SQUARE ROOT of your max mana rather than linearly with
+    // it. The old multiplier was floor(mmp / 200), which made casts-per-bar
+    // (mmp / cost) a flat 200/base — so every point of max mana you bought was
+    // cancelled out by the price rise, and Eldritch Orbs did nothing at all.
+    // With sqrt, casts-per-bar is sqrt(mmp * 200)/base: a bigger pool is a real
+    // upgrade, just a diminishing one.
+    let multiplier = BigMath.sqrt(BigInt(p.mmp) / 200n);
+    // Early game (under 200 max mana) the multiplier rounds to 0; spells should
+    // still cost their base rather than becoming free.
     if (multiplier < 1n) multiplier = 1n;
     let scaledCost = base * multiplier;
     // Handle reduction percentage

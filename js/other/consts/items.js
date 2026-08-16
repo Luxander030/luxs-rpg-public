@@ -630,6 +630,7 @@ const inventoryItems = [
         rarityColor: "var(--insaneItem-gradient)",
         description: "A strange, purple shape which looks like ⟁. It almost feels weightless...?",
         run: () => {
+            if (typeof awardAchievement === "function") awardAchievement("usedLuxTriangle");
             if (p.flags.bobVisits >= 50n) {
                 LuxLog(`Lux: Please. Keep Bob away from this. I don't want him to turn one of these into bread.`)
             } else if (p.kills >= 1000000n || p.flags.genocideRouteTimesCompleted === true) {
@@ -713,6 +714,7 @@ const inventoryItems = [
             {label: "HP", value: () => p.mhp * p.spares}
         ],
         run: () => {
+            if (typeof awardAchievement === "function") awardAchievement("usedLuxSandwich");
             let scaledAmount = p.mhp * p.spares
             p.hp += scaledAmount
             LuxLog(`Item used: "Lux's Sandwich"`)
@@ -732,6 +734,7 @@ const inventoryItems = [
             {label: "SN", value: () => -(p.sn - 1n)}
         ],
         run: () => {
+            if (typeof awardAchievement === "function") awardAchievement("usedLuxLemon");
             let scaledAmount = BigMath.pow(p.mhp, 2n)
             p.hp += scaledAmount
             p.sn = 1n
@@ -880,7 +883,7 @@ const inventoryItems = [
     },
     {
         id: "charaKnife",
-        name: "Chara Knife",
+        name: "Chara's Knife",
         rarity: "Legendary (Crossover)",
         rarityColor: "var(--legendaryItem-gradient)",
         description: "A red, bloody knife. It has seen many genocides. Will you be used by it as well?",
@@ -890,8 +893,8 @@ const inventoryItems = [
             } else {
                 p.skills.push('charaKnife')
             }
-            p.inventory.equippedWeapon = "Chara Knife"
-            log(`Equipped "Chara Knife"`, "#ff0000")
+            p.inventory.equippedWeapon = "Chara's Knife"
+            log(`Equipped "Chara's Knife"`, "#ff0000")
             return updateUI();
         }
     },

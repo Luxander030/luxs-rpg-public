@@ -20,12 +20,7 @@
 </head>
 <body>
 <div class="version">
-    Version: 4.1.0
-</div>
-<div class="save-controls">
-    <button class="export-btn" onclick="exportSave(); playSaveSFX();">Export .urpg</button>
-    <label for="import-input" class="import-btn" style="cursor:pointer; display:inline-block;">Import .urpg</label>
-    <input type="file" id="import-input" accept=".urpg" onchange="handleImportFile(event)">
+    Version: 4.2.0
 </div>
 <div id="tooltip" style="position: fixed; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border: 1px solid var(--mana); border-radius: 8px; font-size: 13px; z-index: 10000; pointer-events: none; line-height: 1.4;"></div>
 <div id="game-wrapper">
@@ -46,10 +41,11 @@
                 <div class="progress-bg"><div id="exp-bar" class="progress-fill" style="background:var(--exp); width:0%"></div></div>
             </div>
         </div>
-        <div id="log">Welcome to your standard RPG. <strong style="color:red">Check the top right corner for save exporting and importing, and check the bottom right for extra buttons.</strong></div>
+        <div id="log">Welcome to your standard RPG. <strong style="color:red">Everything else lives in the Extras menu in the bottom right &mdash; loot boxes, storage, codes, and Settings, where you'll find save exporting and importing.</strong></div>
         <div id="shop-view" class="hidden">
             <h3>Wandering Merchant</h3>
             <div id="shop-shelf" class="shop-grid"></div>
+            <button id="shop-refresh-btn" style="width:100%; margin-bottom:8px" onclick="refreshShop();">Refresh Shop</button>
             <button style="width:100%" onclick="exitEvent(); playMenuButtonClickSFX();">Continue</button>
         </div>
         <div id="tree-view" class="hidden">
@@ -90,6 +86,7 @@
         <div id="stats-content" class="stats-scroll-container">
             <h3 style="margin-top:0; color:var(--mana); border-bottom: 2px solid var(--mana); padding-bottom: 10px;">Character Stats</h3>
             <div class="stat-entry"><span style="color:var(--gold)" class="stat-label custom-color">Class:</span> <b id="side-class">none</b></div>
+            <div class="stat-entry"><span style="color:var(--gold)" class="stat-label custom-color">Difficulty:</span> <b id="side-difficulty">Easy</b></div>
             <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
             <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Max Life:</span> <b id="side-mhp">100</b></div>
             <div class="stat-entry"><span style="color:var(--hp)" class="stat-label custom-color">Current Life:</span> <b id="side-hp">100</b></div>
@@ -108,6 +105,7 @@
             <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
             <div class="stat-entry"><span style="color:var(--gold)"class="stat-label custom-color">Current Gold:</span> <b id="side-gold">50</b></div>
             <div class="stat-entry"><span style="color:var(--gold)"class="stat-label custom-color">Total Gold:</span> <b id="side-totalgold">50</b></div>
+            <div class="stat-entry"><span style="color:var(--gems)"class="stat-label custom-color">Current Gems:</span> <b id="side-currentgems">0</b></div>
             <div style="margin: 15px 0; border-top: 1px solid #2f3542;"></div>
             <div class="stat-entry"><span style="color:#0dc700" class="stat-label custom-color">Total Spares:</span> <b id="side-spares">0</b></div>
             <div class="stat-entry"><span style="color:#ff0000" class="stat-label custom-color">Total Kills:</span> <b id="side-kills">0</b></div>
@@ -140,10 +138,6 @@
     Extras ⟁
 </button>
 
-<button id="codes-button" onclick="playMenuButtonClickSFX()">
-    Enter Codes
-</button>
-
 <!-- The menu that opens -->
 <div id="extras-menu" class="hidden">
     <button onclick="playMenuButtonClickSFX(); openLootBoxUI(); closeExtrasMenu();">
@@ -151,6 +145,18 @@
     </button>
     <button onclick="playMenuButtonClickSFX(); openStorage(); closeExtrasMenu();">
         Storage
+    </button>
+    <button onclick="playMenuButtonClickSFX(); openAchievements(); closeExtrasMenu();">
+        Achievements
+    </button>
+    <button onclick="playMenuButtonClickSFX(); toggleCodesPanel(); closeExtrasMenu();">
+        Enter Codes
+    </button>
+    <button onclick="playMenuButtonClickSFX(); openCredits(); closeExtrasMenu();">
+        Credits
+    </button>
+    <button onclick="playMenuButtonClickSFX(); openSettings(); closeExtrasMenu();">
+        Settings
     </button>
 </div>
 
@@ -181,7 +187,11 @@
 <script src="js/other/BigIntMath.js"></script>
 
 <!-- Important Things to be src'd first -->
+<script src="js/other/settings.js"></script>
+<script src="js/other/credits.js"></script>
+<script src="js/other/onboarding.js"></script>
 <script src="js/other/playerinfo.js"></script>
+<script src="js/other/achievements.js"></script>
 <script src="js/other/consts/filter.js"></script>
 <script src="js/other/consts/items.js"></script>
 <script src="js/other/consts/status_effects.js"></script>
@@ -234,44 +244,21 @@
 <script src="js/githubVersionCheck.js"></script>
 <script>
     window.addEventListener('load', () => {
+    syncAchievements();
     updateUI();
+    // A character exists only if it has BOTH a name and a class. Anything less
+    // is a fresh start, which begins at the start screen (new save | import)
+    // and then runs name -> class -> difficulty. See js/other/onboarding.js.
     const savedName = localStorage.getItem("luxsRPGplayerName");
-    if (savedName) {
-        p.name = savedName;
-    } else {
-        nameSelection();
-    }
     const savedClass = localStorage.getItem("luxsRPGplayerClass");
-    if (savedClass) {
-        p.class = savedClass;
-        let classId = p.class
-        const startingSpells = {
-            astralMage:   ["starbit"],
-            stormmancer:  ["multispark"],
-            druid:        ["brambleChain"],
-            flamemancer:  ["flame"],
-            cryomancer:   ["chill"],
-            watermancer:  ["soak1"],
-            shadow:       ["miraShade"],
-            neutral:      ["campfire"],
-        };
 
-        const spells = startingSpells[classId] || [];
-        spells.forEach(spellId => {
-            if (skillTree[spellId]) {
-                skillTree[spellId].unlocked = true;
-                if (!p.skills.includes(spellId)) {
-                    p.skills.push(spellId);
-                }
-            }
-        });
-        updateUI();
-    } else {
-        // Slight delay so name selection finishes first
-        setTimeout(() => classSelection(), 500);
-    }
-    const completedGenocideRun = localStorage.getItem('completedGenocideRun');
-    if (completedGenocideRun === 'true') {
+    // The Genocide record survives resets on purpose, so it has to be applied
+    // to whatever character ends up existing — but never while the start screen
+    // is up, because it disables pointer events on <body> for 3.3s and the
+    // overlay lives inside <body>. Returning players get it immediately; new
+    // ones get it the moment onboarding finishes.
+    const applyGenocideLegacy = () => {
+        if (localStorage.getItem('completedGenocideRun') !== 'true') return;
         p.kills = 1000000n;
         p.flags.genocideRouteTimesCompleted = true;
         document.body.style.pointerEvents = "none";
@@ -279,9 +266,28 @@
         setTimeout(() => {
             document.body.style.pointerEvents = "auto";
         }, 3325)
+    };
+
+    if (!savedName && !savedClass) {
+        // Nothing at all — a genuinely fresh start.
+        showStartScreen(applyGenocideLegacy);
     } else {
-        // for code testing
-        
+        // At least one piece exists. Restore it, then ask only for what's
+        // missing (a half-built character is what /clearname and /clearclass
+        // leave behind). A returning player with both needs nothing.
+        if (savedName) p.name = savedName;
+        if (savedClass) {
+            p.class = savedClass;
+            applyClassStartingSpells(savedClass);
+        }
+        p.difficulty = localStorage.getItem("luxsRPGdifficulty") || 'easy';
+        updateUI();
+
+        if (savedName && savedClass) {
+            applyGenocideLegacy();
+        } else {
+            resumeOnboarding(applyGenocideLegacy);
+        }
     }
     const githubVersionCheckIntervalID = setInterval(() => {
         if (document.getElementById('update-popup')) return;

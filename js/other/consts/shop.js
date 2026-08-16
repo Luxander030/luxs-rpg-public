@@ -9,7 +9,7 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            checkSpaceAndAddItem("Health Vial")
+            if (!tryAddItem("Health Vial")) return false;
             return "Bought \"Health Vial\""; 
         } 
     },
@@ -23,7 +23,7 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            checkSpaceAndAddItem("Mana Well")
+            if (!tryAddItem("Mana Well")) return false;
             return "Bought \"Mana Well\""; 
         } 
     },
@@ -37,7 +37,7 @@ const masterShop = [
             return c;
         }, 
         run: () => { 
-            checkSpaceAndAddItem("Clarity Tonic")
+            if (!tryAddItem("Clarity Tonic")) return false;
             return "Bought \"Clarity Tonic\""; 
         } 
     },
@@ -254,8 +254,11 @@ const masterShop = [
         } 
     },
     { 
-        id: 'spBook', 
-        name: 'Knowledge Scroll', 
+        // Renamed off 'spBook': the Martyr's Book entry further down already
+        // uses that id (and matches items.js), and masterShop.find() returns
+        // the first match — so buying a Martyr's Book ran this instead.
+        id: 'knowledgeScroll',
+        name: 'Knowledge Scroll',
         rarity: "Rare",
         rarityColor: "var(--rareItem)",
         description: "A scroll containing knowledge you don't know.",
@@ -352,6 +355,10 @@ const masterShop = [
     { 
         id: 'dmgmult', 
         name: 'Damage Multiplier', 
+        rarity: "Common",
+        rarityColor: "var(--commonItem)",
+        description: "A crude sharpening stone. Every hit you land from now on bites a little deeper.",
+        info: [{label: "% Damage Multiplier", value: () => 5n}],
         weight: 30,
         get cost() { 
             let c = 300n;
@@ -370,6 +377,10 @@ const masterShop = [
     { 
         id: 'dmgmult2', 
         name: 'Better Damage Multiplier', 
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "A better stone, properly ground. The edge it leaves lasts.",
+        info: [{label: "% Damage Multiplier", value: () => 10n}],
         weight: 15,
         get cost() { 
             let c = 350n;
@@ -388,6 +399,10 @@ const masterShop = [
     { 
         id: 'dmgmult3', 
         name: 'Purified Damage Multiplier', 
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "Purified and honed to a mirror finish. You can see your own face in it, right up until you swing.",
+        info: [{label: "% Damage Multiplier", value: () => 15n}],
         weight: 10,
         get cost() { 
             let c = 400n;
@@ -406,6 +421,10 @@ const masterShop = [
     { 
         id: 'dmgmult4', 
         name: 'Perfected Damage Multiplier', 
+        rarity: "Epic",
+        rarityColor: "var(--epicItem-gradient)",
+        description: "Perfected. There is nothing left to grind away, only things left to cut.",
+        info: [{label: "% Damage Multiplier", value: () => 20n}],
         weight: 5,
         get cost() { 
             let c = 450n;
@@ -424,6 +443,10 @@ const masterShop = [
     { 
         id: 'dmgmult5', 
         name: 'Ancient Damage Multiplier', 
+        rarity: "Legendary",
+        rarityColor: "var(--legendaryItem-gradient)",
+        description: "Old, and far sharper than anything this old has any right to be. Bob will not say where he got it.",
+        info: [{label: "% Damage Multiplier", value: () => 25n}],
         weight: 2.5,
         get cost() { 
             let c = 500n;
@@ -442,6 +465,10 @@ const masterShop = [
     { 
         id: 'slot610unlocker', 
         name: 'Backpack Slot 6-10', 
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "A wider pack with a second row of straps. Unlocks inventory slots 6 through 10. If you already have them, Bob patches you up instead.",
+        info: [{label: "Inventory Slots", value: () => 5n}],
         weight: 15,
         get cost() { 
             let c = 500n;
@@ -467,6 +494,10 @@ const masterShop = [
     { 
         id: 'slot1120unlocker', 
         name: 'Backpack Slots 11-20', 
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "A frame pack built for long roads. Unlocks inventory slots 11 through 20. If you already have them, Bob patches you up instead.",
+        info: [{label: "Inventory Slots", value: () => 10n}],
         weight: 15,
         get cost() { 
             let c = 1000n;
@@ -497,6 +528,10 @@ const masterShop = [
     {
         id: 'storageUnit',
         name: 'Storage Unit',
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "A lockbox Bob keeps somewhere you are not allowed to know about. Holds 200 items you don't want to carry. Open it from the Extras menu.",
+        info: [{label: "Storage Slots", value: () => 200n}],
         weight: 5,
         get cost() {
             let c = 2000n;
@@ -519,6 +554,10 @@ const masterShop = [
     {
         id: 'storageUnitUpgrade1',
         name: 'Storage Unit Upgrade',
+        rarity: "Uncommon",
+        rarityColor: "var(--uncommonItem)",
+        description: "More shelving for your storage unit. Requires a storage unit first, obviously.",
+        info: [{label: "Storage Slots", value: () => 50n}],
         weight: 5,
         get cost() {
             let c = 500n;
@@ -536,6 +575,10 @@ const masterShop = [
     {
         id: 'storageUnitUpgrade2',
         name: 'Storage Unit Upgrade +',
+        rarity: "Rare",
+        rarityColor: "var(--rareItem)",
+        description: "A second room for your storage unit. Bob insists it was always there.",
+        info: [{label: "Storage Slots", value: () => 100n}],
         weight: 5,
         get cost() {
             let c = 1000n;
@@ -553,6 +596,10 @@ const masterShop = [
     {
         id: 'storageUnitUpgrade3',
         name: 'Storage Unit Upgrade ++',
+        rarity: "Epic",
+        rarityColor: "var(--epicItem-gradient)",
+        description: "Bob gestures vaguely at a doorway that was not there a moment ago. Do not think about it too hard.",
+        info: [{label: "Storage Slots", value: () => 200n}],
         weight: 5,
         get cost() {
             let c = 2000n;
@@ -581,7 +628,7 @@ const masterShop = [
                 updateInventoryUI();
                 return `Bought item "Abbie's Apple." It is now in your inventory.`;
             } else {
-                return `Your inventory is currently full.`; 
+                return false;
             }
         } 
     },
@@ -599,7 +646,7 @@ const masterShop = [
                 updateInventoryUI();
                 return `Bought item "Apple." It is now in your inventory.`;
             } else {
-                return `Your inventory is currently full.`; 
+                return false;
             }
         } 
     },
@@ -617,7 +664,7 @@ const masterShop = [
                 updateInventoryUI();
                 return `Bought item "Frying Pan." It is now in your inventory.`;
             } else {
-                return `Your inventory is currently full.`; 
+                return false;
             }
         } 
     },
@@ -639,7 +686,7 @@ const masterShop = [
             if (tryAddItem("The Fool (0)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Fool (0)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -655,7 +702,7 @@ const masterShop = [
             if (tryAddItem("The Magician (1)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Magician (1)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -671,7 +718,7 @@ const masterShop = [
             if (tryAddItem("The High Priestess (2)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The High Priestess (2)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -687,7 +734,7 @@ const masterShop = [
             if (tryAddItem("The Empress (3)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Empress (3)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -703,7 +750,7 @@ const masterShop = [
             if (tryAddItem("The Emperor (4)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Emperor (4)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -719,7 +766,7 @@ const masterShop = [
             if (tryAddItem("The Hierophant (5)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Hierophant (5)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -735,7 +782,7 @@ const masterShop = [
             if (tryAddItem("The Lovers (6)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Lovers (6)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -751,7 +798,7 @@ const masterShop = [
             if (tryAddItem("The Chariot (7)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Chariot (7)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -767,7 +814,7 @@ const masterShop = [
             if (tryAddItem("Justice (8)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "Justice (8)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -783,7 +830,7 @@ const masterShop = [
             if (tryAddItem("The Hermit (9)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Hermit (9)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -799,7 +846,7 @@ const masterShop = [
             if (tryAddItem("The Wheel of Fortune (10)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Wheel of Fortune (10)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -815,7 +862,7 @@ const masterShop = [
             if (tryAddItem("Strength (11)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "Strength (11)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -831,7 +878,7 @@ const masterShop = [
             if (tryAddItem("The Hanged Man (12)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Hanged Man (12)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -847,7 +894,7 @@ const masterShop = [
             if (tryAddItem("Death (13)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "Death (13)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -863,7 +910,7 @@ const masterShop = [
             if (tryAddItem("Temperance (14)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "Temperance (14)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -879,7 +926,7 @@ const masterShop = [
             if (tryAddItem("The Devil (15)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Devil (15)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -895,7 +942,7 @@ const masterShop = [
             if (tryAddItem("The Tower (16)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Tower (16)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -911,7 +958,7 @@ const masterShop = [
             if (tryAddItem("The Star (17)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Star (17)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -927,7 +974,7 @@ const masterShop = [
             if (tryAddItem("The Moon (18)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Moon (18)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -943,7 +990,7 @@ const masterShop = [
             if (tryAddItem("The Sun (19)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The Sun (19)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -959,7 +1006,7 @@ const masterShop = [
             if (tryAddItem("Judgement (20)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "Judgement (20)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -975,7 +1022,7 @@ const masterShop = [
             if (tryAddItem("The World (21)")) {
                 updateInventoryUI();
                 return `Bought Tarot Card "The World (21)."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
 
@@ -996,7 +1043,7 @@ const masterShop = [
             if (tryAddItem("Blood Stone")) {
                 updateInventoryUI();
                 return `Bought item "Blood Stone."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1012,7 +1059,7 @@ const masterShop = [
             if (tryAddItem("Medium Blood Stone")) {
                 updateInventoryUI();
                 return `Bought item "Medium Blood Stone."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1028,7 +1075,7 @@ const masterShop = [
             if (tryAddItem("Large Blood Stone")) {
                 updateInventoryUI();
                 return `Bought item "Large Blood Stone."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1044,7 +1091,7 @@ const masterShop = [
             if (tryAddItem("Martyr's Book")) {
                 updateInventoryUI();
                 return `Bought item "Martyr's Book."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1060,7 +1107,7 @@ const masterShop = [
             if (tryAddItem("Glass Hourglass")) {
                 updateInventoryUI();
                 return `Bought item "Glass Hourglass."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
 
@@ -1081,7 +1128,7 @@ const masterShop = [
             if (tryAddItem("Stone Sword")) {
                 updateInventoryUI();
                 return `Bought weapon "Stone Sword."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1097,7 +1144,7 @@ const masterShop = [
             if (tryAddItem("Iron Sword")) {
                 updateInventoryUI();
                 return `Bought weapon "Iron Sword."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1113,7 +1160,7 @@ const masterShop = [
             if (tryAddItem("Diamond Sword")) {
                 updateInventoryUI();
                 return `Bought weapon "Diamond Sword."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
 
@@ -1134,7 +1181,7 @@ const masterShop = [
             if (tryAddItem("Venom Vial")) {
                 updateInventoryUI();
                 return `Bought "Venom Vial."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1150,7 +1197,7 @@ const masterShop = [
             if (tryAddItem("Flashbang")) {
                 updateInventoryUI();
                 return `Bought "Flashbang."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1166,7 +1213,7 @@ const masterShop = [
             if (tryAddItem("Torch Oil")) {
                 updateInventoryUI();
                 return `Bought "Torch Oil."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1182,7 +1229,7 @@ const masterShop = [
             if (tryAddItem("Ice Shard")) {
                 updateInventoryUI();
                 return `Bought "Ice Shard."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1198,7 +1245,7 @@ const masterShop = [
             if (tryAddItem("Cursed Dust")) {
                 updateInventoryUI();
                 return `Bought "Cursed Dust."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1214,7 +1261,7 @@ const masterShop = [
             if (tryAddItem("Weakening Salve")) {
                 updateInventoryUI();
                 return `Bought "Weakening Salve."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
     {
@@ -1230,7 +1277,7 @@ const masterShop = [
             if (tryAddItem("Combination Kit")) {
                 updateInventoryUI();
                 return `Bought "Combination Kit."`;
-            } else { return `Your inventory is currently full.`; }
+            } else { return false;}
         }
     },
 ];

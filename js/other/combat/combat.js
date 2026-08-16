@@ -266,7 +266,11 @@ function startCombat() {
     }
     // 3. initialize the encounter
     // clone the template so we don't modify the master 'enemies' array (don't want that to break again)
-    enemy = { 
+    enemy = {
+        // Spread the template first so everything that isn't listed below still makes it
+        // into the fight (drop, poisonImmune, stunImmune, fireType, demonType...).
+        // Every explicit entry after this point still overrides the spread.
+        ...selectedEnemy,
         name: selectedEnemy.name,
         immortal: selectedEnemy.immortal || false,
         trait: selectedEnemy.trait || "No known traits.",
@@ -277,14 +281,17 @@ function startCombat() {
         burnVuln: selectedEnemy.burnVuln || 1,
         burnReflect: selectedEnemy.burnReflect || 0,
         // Explicitly call the getters to get the BigInt values (broke a couple versions ago for absolutely no reason)
-        mhp: selectedEnemy.immortal ? 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n : BigInt(selectedEnemy.mhp),
-        hp: selectedEnemy.immortal ? 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n : BigInt(selectedEnemy.mhp),
-        atk: BigInt(selectedEnemy.atk),
-        san: BigInt(selectedEnemy.san || 0),
-        manaDrain: BigInt(selectedEnemy.manaDrain || 0),
-        exp: BigInt(selectedEnemy.exp),
-        gold: BigInt(selectedEnemy.gold),
-        lifesteal: BigInt(selectedEnemy.lifesteal || 0),
+        mhp: selectedEnemy.immortal ? 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n : scaleToWorld(selectedEnemy.mhp),
+        hp: selectedEnemy.immortal ? 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000n : scaleToWorld(selectedEnemy.mhp),
+        // scaleToWorld applies the difficulty's per-level world growth
+        // (onboarding.js). On Easy the factor is 1 and these are untouched.
+        // Rewards scale with threat so progression pace survives Hard/Nightmarish.
+        atk: scaleToWorld(selectedEnemy.atk),
+        san: scaleToWorld(selectedEnemy.san || 0),
+        manaDrain: scaleToWorld(selectedEnemy.manaDrain || 0),
+        exp: scaleToWorld(selectedEnemy.exp),
+        gold: scaleToWorld(selectedEnemy.gold),
+        lifesteal: scaleToWorld(selectedEnemy.lifesteal || 0),
         slothSin: selectedEnemy.slothSin || 0n,
         prideSin: selectedEnemy.prideSin || 0n,
         wrathSin: selectedEnemy.wrathSin || 0n,
@@ -326,7 +333,7 @@ function startCombat() {
             }, 150);
             setTimeout(() => {
                 LuxLog(`Lux: Fuck it. I'm out.`)
-                p.flags.bobvisits += 1n
+                p.flags.bobVisits += 1n
             }, 300);
         } else {
             setTimeout(() => {
@@ -535,7 +542,10 @@ function cast(sid) {
         damage = enemy.resistant > 0n ? (damage / 2n) : damage;
         pretendDamage = enemy.resistant > 0n ? (pretendDamage / 2n) : pretendDamage;
 
-        if (s.fryingPan) { damage *= 1000n; pretendDamage *= 1000n; }
+        if (s.fryingPan) {
+            damage *= 1000n; pretendDamage *= 1000n;
+            if (typeof awardAchievement === "function") awardAchievement("usedFryingPan");
+        }
 
         if (enemy.slothSin) damage = 1n;
         if (enemy.prideSin) { if (damage > (enemy.mhp / 20n)) { damage = enemy.mhp / 20n; } }
@@ -590,7 +600,7 @@ function cast(sid) {
     }
 
     // 5. Frying Pan food drop
-    if (p.inventory.equippedWeapon === "fryingPan" && skillTree.fryingPan.unlocked) {
+    if (p.inventory.equippedWeapon === "Frying Pan" && skillTree.fryingPan.unlocked) {
         if (Math.random() < 0.1) {
             const fryingPanDropPool = ["Health Vial", "Mana Well", "Clarity Tonic", "Apple", "Abbie's Apple", "Lux's Lemon", "Bottle O' Water", "Lux's Sandwich", "Bob's Bread"];
             const item = fryingPanDropPool[Math.floor(Math.random() * fryingPanDropPool.length)];
@@ -710,14 +720,10 @@ function cast(sid) {
         updateUI();
     }
 
-    // snowgraveShadow — same as snowgrave
-    if (sid === 'snowgraveShadow') {
-        if (!enemy.freezeImmune) {
-            enemy.frozen += s.freeze;
-            log(`${enemy.name} is entombed in shadow ice for ${formatNumber(s.freeze)} turns!`, "#c084fc");
-        } else {
-            log(`${enemy.name} is immune to freezing!`, "var(--freezeDMG)");
-        }
+    // snowgraveShadow — the generic s.freeze handler above already applied and logged
+    // the freeze. This used to apply it a second time; now it only adds the flavour.
+    if (sid === 'snowgraveShadow' && !enemy.freezeImmune) {
+        log(`The ice is threaded with shadow. ${enemy.name} is entombed.`, "#c084fc");
     }
 
     // 8. Healing / Sanity
@@ -752,7 +758,13 @@ function cast(sid) {
     setTimeout(() => {
         // 9. Passive Mana Regen
         if (p.sn > 0n) {
-            let scaledAmount = 5n * p.mp;
+            // A share of your MAXIMUM mana, not your current. The old line was
+            // `5n * p.mp`, which multiplied the bar by six every turn — so spell
+            // costs never mattered past turn one — and regenerated nothing at all
+            // from exactly 0, so a mana-drain enemy could lock you out of casting
+            // for the rest of the run. 20n = 5% per turn; tune here.
+            let scaledAmount = p.mmp / 20n;
+            if (scaledAmount < 1n) scaledAmount = 1n;
             p.mp = BigMath.min(p.mp + scaledAmount, p.mmp);
             updateUI();
         }
@@ -979,12 +991,13 @@ function enemyTurn() {
         window.addEventListener("resize",  resizeHandler);
 
         function updatePlayer() {
-            const focus = player.keys["shift"];
+            // Bindings live in settings.js and are player-configurable.
+            const focus = isActionHeld(player.keys, "focus");
             const moveSpeed = focus ? player.speed * 0.25 : player.speed;
-            if ((player.keys["w"] || player.keys["arrowup"])    && player.y > 0)                         player.y -= moveSpeed;
-            if ((player.keys["s"] || player.keys["arrowdown"])  && player.y < canvas.height - player.size) player.y += moveSpeed;
-            if ((player.keys["a"] || player.keys["arrowleft"])  && player.x > 0)                         player.x -= moveSpeed;
-            if ((player.keys["d"] || player.keys["arrowright"]) && player.x < canvas.width  - player.size) player.x += moveSpeed;
+            if (isActionHeld(player.keys, "up")    && player.y > 0)                              player.y -= moveSpeed;
+            if (isActionHeld(player.keys, "down")  && player.y < canvas.height - player.size)    player.y += moveSpeed;
+            if (isActionHeld(player.keys, "left")  && player.x > 0)                              player.x -= moveSpeed;
+            if (isActionHeld(player.keys, "right") && player.x < canvas.width  - player.size)    player.x += moveSpeed;
 
             const invincible = Date.now() - lastHitTime < iFrameDuration;
             if (!invincible || Math.floor(Date.now() / 50) % 2 === 0) {
@@ -1040,6 +1053,7 @@ function enemyTurn() {
                 log(`${enemy.name}'s attack drained <span class="mana-warn">${formatNumber(mDrain)} Mana</span>!`, "var(--enemyATK)");
             }
 
+            enemy.frozen     = BigMath.max(enemy.frozen     - 1n, 0n);
             enemy.vulnerable = BigMath.max(enemy.vulnerable - 1n, 0n);
             enemy.resistant  = BigMath.max(enemy.resistant  - 1n, 0n);
             enemy.weakened   = BigMath.max(enemy.weakened   - 1n, 0n);
@@ -1049,35 +1063,7 @@ function enemyTurn() {
             updateUI();
 
             if (p.hp <= 0n) {
-                if (currentBossBGM) { currentBossBGM.pause(); currentBossBGM = null; }
-                document.body.style.pointerEvents = "none";
-
-                if (Math.random() < 0.05) {
-                    if (p.kills >= 1000000n) {
-                        log(`Lux: Enjoy the bitter, freezing embrace of death.`, "#ff0000");
-                    } else {
-                        log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`, "var(--lux)");
-                    }
-                } else {
-                    log(`${p.name}. You have perished.`, "#ff4757");
-                }
-
-                const deathSFX1 = new Audio("sfx/player_sfx/player_death/heart_crack.wav");
-                triggerShake();
-                deathSFX1.currentTime = 0;
-                deathSFX1.play().catch(() => {});
-
-                setTimeout(() => {
-                    const deathSFX2 = new Audio("sfx/player_sfx/player_death/heart_shatter.wav");
-                    deathSFX2.currentTime = 0;
-                    deathSFX2.play().catch(() => {});
-                }, 1000);
-
-                if (p.kills >= 1000000n) {
-                    setTimeout(() => {
-                        document.body.innerHTML = `<div style="color:red; font-family:'Fira Code',monospace; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">Don't bother coming back.</div>`;
-                    }, 3000);
-                }
+                handlePlayerDeath();
             } else {
                 document.body.style.pointerEvents = "auto";
             }
@@ -1197,6 +1183,7 @@ function enemyTurn() {
         log(`${enemy.name} strikes for <span class="hp-warn">${formatNumber(enemyDamage)} HP</span>.`, "var(--enemyATK)");
     }
 
+    enemy.frozen     = BigMath.max(enemy.frozen     - 1n, 0n);
     enemy.vulnerable = BigMath.max(enemy.vulnerable - 1n, 0n);
     enemy.resistant  = BigMath.max(enemy.resistant  - 1n, 0n);
     enemy.weakened   = BigMath.max(enemy.weakened   - 1n, 0n);
@@ -1206,35 +1193,7 @@ function enemyTurn() {
     playHurtSFX();
 
     if (p.hp <= 0n) {
-        if (currentBossBGM) { currentBossBGM.pause(); currentBossBGM = null; }
-        document.body.style.pointerEvents = "none";
-
-        if (Math.random() < 0.05) {
-            if (p.kills >= 1000000n) {
-                log(`Lux: Enjoy the bitter, freezing embrace of death.`, "#ff0000");
-            } else {
-                log(`Lux: Enjoy the bitter-sweet, cold embrace of death =)`, "var(--lux)");
-            }
-        } else {
-            log(`${p.name}. You have perished.`, "#ff4757");
-        }
-
-        const deathSFX1 = new Audio("sfx/player_sfx/player_death/heart_crack.wav");
-        triggerShake();
-        deathSFX1.currentTime = 0;
-        deathSFX1.play().catch(() => {});
-
-        setTimeout(() => {
-            const deathSFX2 = new Audio("sfx/player_sfx/player_death/heart_shatter.wav");
-            deathSFX2.currentTime = 0;
-            deathSFX2.play().catch(() => {});
-        }, 1000);
-
-        if (p.kills >= 1000000n) {
-            setTimeout(() => {
-                document.body.innerHTML = `<div style="color:red; font-family:'Fira Code',monospace; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">Don't bother coming back.</div>`;
-            }, 3000);
-        }
+        handlePlayerDeath();
     }
 
     updateUI();

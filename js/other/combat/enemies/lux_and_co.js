@@ -45,7 +45,7 @@ enemies.push(
                 return LuxLog(`Lux: Plus salutis, plus manae, plus sanitatis. Attamen adhuc plus vis. Miserrimum.`);
             } else if (p.kills >= 100000n) {
                 return LuxLog(`Lux: Über 100.000 Leben wurden beendet. Ich muss sagen: Du könntest ein würdiger Gegner sein. Könntest.`);
-            } else if (p.sparedenemies >= 100000n) {
+            } else if (p.spares >= 100000n) {
                 return LuxLog(`Lux: Over 100,000 lives spared. I must say, you are... quite kind. And that will be your downfall.`);
             } else if (p.dmgmult >= 5000n) {
                 return LuxLog(`Lux: Finally. Someone truly worthy of seeing my strength in battle.`);
@@ -54,7 +54,7 @@ enemies.push(
             } else if (p.hp < p.mhp) {
                 return LuxLog(`Lux: I see you are harmed. Don't think that will make me hurt you less.`);
             } else {
-                return LuxLog(`Lux: Hello there. I've been watching you. ${formatNumber(p.kills)} creatures killed. ${formatNumber(p.sparedenemies)} creatures spared. I wonder... how are you going to do in this fight?`);
+                return LuxLog(`Lux: Hello there. I've been watching you. ${formatNumber(p.kills)} creatures killed. ${formatNumber(p.spares)} creatures spared. I wonder... how are you going to do in this fight?`);
             }
         },
         drop: () => "(Spectral Card) Black Hole",

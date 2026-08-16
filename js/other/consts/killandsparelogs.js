@@ -181,7 +181,7 @@ function checkLuxSpareLogs() {
         }, 13000)
     } else if (kills === 1n && spares >= 100000n && p.flags.hasUsedPacifistRedemption === false) {
         p.kills = 0n; // Lux erases the mistake
-        p.flags.hasUsedRedemption = true; // One-time only!
+        p.flags.hasUsedPacifistRedemption = true; // One-time only!
         
         document.body.classList.add("frozen");
         log(`Lux: ...`, "var(--lux)");
@@ -503,7 +503,7 @@ function checkLuxKillLogs() {
         setTimeout(() => {
             LuxTypeToLogPissed(`As I won't forget it.`, "#ff0000", 25)
             localStorage.setItem('completedGenocideRun', true)
-            p.flags.genocideRoutetimescompleted = true
+            p.flags.genocideRouteTimesCompleted = true
         }, 75950);
         setTimeout(() => {
             LuxTypeToLogPissed(`No matter how many times you reset.`, "#ff0000", 25)

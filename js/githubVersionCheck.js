@@ -1,4 +1,4 @@
-const save_version_check = "4.1.0"
+const save_version_check = "4.2.0"
 
 async function checkForUpdates() {
     try {
